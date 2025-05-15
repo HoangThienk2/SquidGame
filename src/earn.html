@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earn - Squid Game</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles/game2.css">
+    <style>
+        .earn-container {
+            padding: 20px;
+            text-align: center;
+        }
+        .earn-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .earn-content {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="earn-container">
+        <h1 class="earn-title">Earn Points</h1>
+        <div class="earn-content">
+            <p>Welcome to the earn page!</p>
+            <p>Here you can earn points through various activities.</p>
+        </div>
+    </div>
+
+    <div class="bottom-navigation">
+        <div class="nav-item active">
+            <span class="material-icons">videogame_asset</span>
+            <span>earn</span>
+        </div>
+        <div class="nav-item">
+            <span class="material-icons">videogame_asset</span>
+            <span>game 2</span>
+        </div>
+    </div>
+
+    <script>
+        // Navigation handling
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                const tabName = item.querySelector('span:last-child').textContent;
+                if (tabName === 'earn') {
+                    window.location.href = 'earn.html';
+                } else if (tabName === 'game 2') {
+                    window.location.href = 'game2.html';
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
