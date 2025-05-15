@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Squid Mini Game</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <style>
+      /* Loading animation */
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #121212;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        transition: opacity 0.5s ease-out;
+      }
+
+      .loading-spinner {
+        width: 80px;
+        height: 80px;
+        border: 8px solid rgba(255, 255, 255, 0.1);
+        border-top: 8px solid #f72585;
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite;
+        margin-bottom: 20px;
+      }
+
+      .loading-text {
+        color: white;
+        font-size: 18px;
+        letter-spacing: 2px;
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Page transition animations */
+      .page-transition {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #f72585;
+        z-index: 900;
+        transform: translateY(100%);
+        transition: transform 0.5s ease-in-out;
+      }
+
+      .page-transition.active {
+        transform: translateY(0);
+      }
+
+      /* Game elements animation */
+      .game-container {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+      }
+
+      .loaded .game-container {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* YoungHee Character Animation */
+      .younghee-container {
+        position: relative;
+        width: 200px;
+        height: 280px;
+        overflow: hidden;
+        perspective: 1000px;
+      }
+
+      .younghee-doll {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transition: transform 0.8s ease-in-out;
+        transform-style: preserve-3d;
+      }
+
+      .younghee-front,
+      .younghee-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .younghee-back {
+        transform: rotateY(180deg);
+      }
+
+      .younghee-doll img {
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .younghee-doll.turn-around {
+        transform: rotateY(180deg);
+      }
+
+      /* Rain particles */
+      .rain-particle {
+        position: absolute;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.3),
+          rgba(255, 255, 255, 0.1)
+        );
+        width: 1px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .scene-light {
+        position: absolute;
+        top: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f72585;
+        box-shadow: 0 0 30px #f72585;
+        opacity: 0.8;
+        transition: background-color 0.5s ease;
+      }
+
+      .scene-light.green {
+        background-color: #4cc9f0;
+        box-shadow: 0 0 30px #4cc9f0;
+      }
+
+      .scene-light.red {
+        background-color: #ff3333;
+        box-shadow: 0 0 30px #ff3333;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">LOADING GAME...</div>
+    </div>
+
+    <!-- Page transition -->
+    <div class="page-transition" id="page-transition"></div>
+
+    <div class="game-container">
+      <div class="game-header">
+        <div class="back-button">
+          <span class="material-icons">arrow_back</span>
+          <span>Back</span>
+        </div>
+
+        <div class="user-info">
+          <div class="user-avatar">
+            <img src="images/avatar.png" alt="User Avatar" />
+          </div>
+          <div class="user-stats">
+            <div class="user-name">paejh0314</div>
+            <div class="hp-bar">
+              <div class="hp-label">HP</div>
+              <div class="hp-progress-container">
+                <div class="hp-progress" id="hp-progress"></div>
+              </div>
+              <div class="hp-value" id="hp-value">3999 / 3999</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="game-area">
+        <!-- YoungHee section with dolls -->
+        <div class="top-section">
+          <div class="scene-light" id="scene-light"></div>
+          <div class="doll-container">
+            <div class="younghee-container">
+              <div class="younghee-doll" id="younghee-doll">
+                <div class="younghee-front">
+                  <img src="images/younghee-front.png" alt="YoungHee Front" />
+                </div>
+                <div class="younghee-back">
+                  <img src="images/younghee-back.png" alt="YoungHee Back" />
+                </div>
+              </div>
+            </div>
+            <div class="side-dolls">
+              <img
+                src="images/side-doll.png"
+                alt="Side Doll"
+                class="side-doll"
+              />
+              <img
+                src="images/side-doll.png"
+                alt="Side Doll"
+                class="side-doll"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Players section -->
+        <div class="bottom-section">
+          <div class="players-container">
+            <div class="player"></div>
+            <div class="player"></div>
+            <div class="player"></div>
+            <div class="player"></div>
+            <div class="player"></div>
+            <div class="player"></div>
+          </div>
+        </div>
+
+        <!-- Touch button with direct inline handler -->
+        <div class="touch-button-container">
+          <button id="touch-button">TOUCH</button>
+          <div class="auto-toggle">
+            <span>AUTO</span>
+            <div class="toggle-button">
+              <div class="toggle-indicator"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Falling container for effects -->
+        <div id="falling-container" class="falling-container"></div>
+      </div>
+
+      <div class="bottom-navigation">
+        <div class="nav-item active">
+          <span class="material-icons">videogame_asset</span>
+          <span>earn</span>
+        </div>
+        <div class="nav-item">
+          <span class="material-icons">swap_horiz</span>
+          <span>exchange</span>
+        </div>
+        <div class="nav-item">
+          <span class="material-icons">rocket_launch</span>
+          <span>boost</span>
+        </div>
+        <div class="nav-item">
+          <span class="material-icons">stars</span>
+          <span>point</span>
+        </div>
+        <div class="nav-item">
+          <span class="material-icons">help_outline</span>
+          <span>help</span>
+        </div>
+      </div>
+
+      <div class="notification" id="notification-area"></div>
+    </div>
+
+    <!-- Load scripts - load only once at the end -->
+    <script src="js/debug.js"></script>
+
+    <!-- Game script manager to avoid duplicate loading -->
+    <script>
+      // Loading animation
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM loaded, starting animation system");
+
+        // Create rain effect
+        createRainEffect();
+      });
+
+      // Function to create rain particles
+      function createRainEffect() {
+        const gameArea = document.querySelector(".game-area");
+        if (!gameArea) return;
+
+        // Create 50 rain particles
+        for (let i = 0; i < 50; i++) {
+          setTimeout(() => {
+            const particle = document.createElement("div");
+            particle.className = "rain-particle";
+
+            // Random properties
+            const width = Math.random() * 2 + 1;
+            const height = Math.random() * 30 + 10;
+            const left = Math.random() * 100; // percentage
+            const duration = Math.random() * 5 + 2;
+            const delay = Math.random() * 5;
+            const opacity = Math.random() * 0.4 + 0.1;
+
+            // Set styles
+            particle.style.width = width + "px";
+            particle.style.height = height + "px";
+            particle.style.left = left + "%";
+            particle.style.top = "-" + height + "px";
+            particle.style.opacity = opacity;
+
+            // Add to game area
+            gameArea.appendChild(particle);
+
+            // Animate
+            particle.animate(
+              [
+                { transform: "translateY(0)", opacity: opacity },
+                {
+                  transform:
+                    "translateY(" + (gameArea.offsetHeight + height) + "px)",
+                  opacity: opacity * 0.7,
+                },
+              ],
+              {
+                duration: duration * 1000,
+                delay: delay * 1000,
+                iterations: Infinity,
+                easing: "linear",
+              }
+            );
+          }, Math.random() * 1000);
+        }
+      }
+
+      // Create temporary placeholder images
+      function createPlaceholderImages() {
+        // Check if images exist already
+        const checkImage = (url) => {
+          return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = () => resolve(true);
+            img.onerror = () => resolve(false);
+            img.src = url;
+          });
+        };
+
+        const createCanvas = (width, height, color, text) => {
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+
+          // Fill background
+          ctx.fillStyle = color;
+          ctx.fillRect(0, 0, width, height);
+
+          // Add text
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "bold 20px Arial";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(text, width / 2, height / 2);
+
+          return canvas.toDataURL("image/png");
+        };
+
+        // Create placeholder images if they don't exist
+        Promise.all([
+          checkImage("images/younghee-front.png"),
+          checkImage("images/younghee-back.png"),
+          checkImage("images/side-doll.png"),
+          checkImage("images/avatar.png"),
+        ]).then((results) => {
+          if (!results[0]) {
+            const dataUrl = createCanvas(200, 280, "#f72585", "YoungHee Front");
+            fetch(dataUrl)
+              .then((res) => res.blob())
+              .then((blob) => {
+                const file = new File([blob], "younghee-front.png", {
+                  type: "image/png",
+                });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(file);
+                link.download = "younghee-front.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              });
+          }
+
+          if (!results[1]) {
+            const dataUrl = createCanvas(200, 280, "#4cc9f0", "YoungHee Back");
+            fetch(dataUrl)
+              .then((res) => res.blob())
+              .then((blob) => {
+                const file = new File([blob], "younghee-back.png", {
+                  type: "image/png",
+                });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(file);
+                link.download = "younghee-back.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              });
+          }
+
+          if (!results[2]) {
+            const dataUrl = createCanvas(80, 120, "#2a9d8f", "Side Doll");
+            fetch(dataUrl)
+              .then((res) => res.blob())
+              .then((blob) => {
+                const file = new File([blob], "side-doll.png", {
+                  type: "image/png",
+                });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(file);
+                link.download = "side-doll.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              });
+          }
+
+          if (!results[3]) {
+            const dataUrl = createCanvas(40, 40, "#333", "Avatar");
+            fetch(dataUrl)
+              .then((res) => res.blob())
+              .then((blob) => {
+                const file = new File([blob], "avatar.png", {
+                  type: "image/png",
+                });
+                const link = document.createElement("a");
+                link.href = URL.createObjectURL(file);
+                link.download = "avatar.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              });
+          }
+        });
+      }
+
+      // Safely load scripts to avoid duplication
+      function loadScript(src, callback) {
+        // Check if script is already loaded
+        const existingScript = document.querySelector(`script[src="${src}"]`);
+        if (existingScript) {
+          console.log(`Script already loaded: ${src}`);
+          if (callback) callback();
+          return;
+        }
+
+        // Create new script element
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = false; // Load in order
+
+        // Add callback if provided
+        if (callback) {
+          script.onload = callback;
+        }
+
+        // Add to document
+        document.body.appendChild(script);
+        console.log(`Loading script: ${src}`);
+      }
+
+      // Handle loading screen
+      window.addEventListener("load", function () {
+        console.log("Window fully loaded, loading game scripts");
+
+        // Create placeholder images if needed
+        createPlaceholderImages();
+
+        // Load game scripts in correct order
+        loadScript("js/main.js", function () {
+          loadScript("js/younghee.js", function () {
+            loadScript("js/cheolsoo.js", function () {
+              // All scripts loaded
+              initializeGame();
+            });
+          });
+        });
+
+        function initializeGame() {
+          console.log("All scripts loaded, initializing game");
+
+          // Animate page transition
+          const pageTransition = document.getElementById("page-transition");
+          pageTransition.classList.add("active");
+
+          setTimeout(() => {
+            // Hide loading overlay with fade
+            const loadingOverlay = document.getElementById("loading-overlay");
+            loadingOverlay.style.opacity = "0";
+
+            setTimeout(() => {
+              loadingOverlay.style.display = "none";
+
+              // Remove page transition
+              pageTransition.classList.remove("active");
+
+              // Show game container
+              document.body.classList.add("loaded");
+
+              // Connect touch button
+              const touchButton = document.getElementById("touch-button");
+              if (touchButton) {
+                if (window.handleTouch) {
+                  console.log("Connecting touch button to global handler");
+                  touchButton.addEventListener("click", window.handleTouch);
+                  touchButton.addEventListener("touchstart", function (e) {
+                    e.preventDefault();
+                    window.handleTouch();
+                  });
+                } else {
+                  console.error("handleTouch function not found");
+                }
+              }
+
+              // Initialize game
+              if (typeof window.initYoungHeeGame === "function") {
+                window.initYoungHeeGame();
+                console.log("Game initialized successfully");
+              } else {
+                console.error("initYoungHeeGame function not found");
+              }
+            }, 500);
+          }, 1000);
+        }
+      });
+    </script>
+  </body>
+</html>
