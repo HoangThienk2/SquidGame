@@ -3,10 +3,11 @@ class DropCatchGame {
         this.score = 0;
         this.timeLeft = 60;
         this.isPlaying = false;
+        this.isPaused = false;
         this.combo = 0;
         this.comboMultiplier = 1;
         this.speed = 2;
-        this.soundEnabled = false;
+        this.soundEnabled = true;
         this.gameArea = document.getElementById('gameArea');
         this.scoreDisplay = document.getElementById('score');
         this.timerDisplay = document.getElementById('timer');
@@ -14,6 +15,18 @@ class DropCatchGame {
         this.comboMultiplierDisplay = document.getElementById('comboMultiplier');
         this.startButton = document.getElementById('startGame');
         this.soundToggle = document.getElementById('soundToggle');
+        
+        // Initialize sounds
+        this.redCatchSound = new Audio('sounds/pop-red.mp3');
+        this.blueCatchSound = new Audio('sounds/pop-blue.mp3');
+        this.gameOverSound = new Audio('sounds/game-over.mp3');
+        this.gameStartSound = new Audio('sounds/game-start.mp3');
+        
+        // Set default volume for all sounds
+        this.redCatchSound.volume = 0.5;
+        this.blueCatchSound.volume = 0.5;
+        this.gameOverSound.volume = 0.5;
+        this.gameStartSound.volume = 0.5;
         
         this.init();
     }
@@ -32,25 +45,80 @@ class DropCatchGame {
     }
 
     startGame() {
-        if (this.isPlaying) return;
+        if (!this.isPlaying) {
+            // Start new game
+            this.isPlaying = true;
+            this.isPaused = false;
+            this.score = 0;
+            this.timeLeft = 60;
+            this.combo = 0;
+            this.comboMultiplier = 1;
+            this.speed = 2;
+            
+            // Play game start sound
+            if (this.soundEnabled) {
+                this.gameStartSound.currentTime = 0;
+                this.gameStartSound.play().catch(error => {
+                    console.log('Error playing game start sound:', error);
+                });
+            }
+            
+            this.updateDisplay();
+            this.startButton.innerHTML = '<span class="material-icons">pause</span>';
+            
+            this.gameLoop();
+            this.spawnLoop();
+            this.timerLoop();
+        } else {
+            // Toggle pause state
+            this.togglePause();
+        }
+    }
+
+    togglePause() {
+        this.isPaused = !this.isPaused;
+        this.startButton.innerHTML = `<span class="material-icons">${this.isPaused ? 'play_arrow' : 'pause'}</span>`;
         
-        this.isPlaying = true;
-        this.score = 0;
-        this.timeLeft = 60;
-        this.combo = 0;
-        this.comboMultiplier = 1;
-        this.speed = 2;
-        
-        this.updateDisplay();
-        this.startButton.innerHTML = '<span class="material-icons">pause</span>';
-        
-        this.gameLoop();
-        this.spawnLoop();
-        this.timerLoop();
+        if (this.isPaused) {
+            this.showPauseOverlay();
+        } else {
+            this.hidePauseOverlay();
+            // Resume game loops
+            this.gameLoop();
+            this.spawnLoop();
+            this.timerLoop();
+        }
+    }
+
+    showPauseOverlay() {
+        // Create pause overlay if it doesn't exist
+        if (!this.pauseOverlay) {
+            this.pauseOverlay = document.createElement('div');
+            this.pauseOverlay.className = 'pause-overlay';
+            this.pauseOverlay.innerHTML = `
+                <div class="pause-content">
+                    <h2>PAUSED</h2>
+                    <p>Click anywhere to continue</p>
+                </div>
+            `;
+            this.gameArea.appendChild(this.pauseOverlay);
+            
+            // Add click event to resume game
+            this.pauseOverlay.addEventListener('click', () => {
+                this.togglePause();
+            });
+        }
+        this.pauseOverlay.style.display = 'flex';
+    }
+
+    hidePauseOverlay() {
+        if (this.pauseOverlay) {
+            this.pauseOverlay.style.display = 'none';
+        }
     }
 
     gameLoop() {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying || this.isPaused) return;
         
         const characters = document.querySelectorAll('.character');
         characters.forEach(char => {
@@ -67,7 +135,7 @@ class DropCatchGame {
     }
 
     spawnLoop() {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying || this.isPaused) return;
         
         this.spawnCharacter();
         const spawnDelay = Math.max(500, 2000 - (this.score * 10));
@@ -75,7 +143,7 @@ class DropCatchGame {
     }
 
     timerLoop() {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying || this.isPaused) return;
         
         this.timeLeft--;
         this.updateDisplay();
@@ -103,7 +171,7 @@ class DropCatchGame {
     }
 
     catchCharacter(character) {
-        if (!this.isPlaying) return;
+        if (!this.isPlaying || this.isPaused) return;
         
         const isSpecial = character.classList.contains('blue');
         const points = isSpecial ? 5 : 1;
@@ -111,6 +179,15 @@ class DropCatchGame {
         
         this.score += totalPoints;
         this.combo++;
+        
+        // Play appropriate catch sound
+        if (this.soundEnabled) {
+            const soundToPlay = isSpecial ? this.blueCatchSound : this.redCatchSound;
+            soundToPlay.currentTime = 0;
+            soundToPlay.play().catch(error => {
+                console.log('Error playing sound:', error);
+            });
+        }
         
         // Create particle effect
         this.createParticleEffect(character);
@@ -213,7 +290,17 @@ class DropCatchGame {
 
     endGame() {
         this.isPlaying = false;
+        this.isPaused = false;
         this.startButton.innerHTML = '<span class="material-icons">play_arrow</span>';
+        this.hidePauseOverlay();
+        
+        // Play game over sound
+        if (this.soundEnabled) {
+            this.gameOverSound.currentTime = 0;
+            this.gameOverSound.play().catch(error => {
+                console.log('Error playing game over sound:', error);
+            });
+        }
         
         // Clear all characters
         document.querySelectorAll('.character').forEach(char => char.remove());
@@ -225,6 +312,13 @@ class DropCatchGame {
     toggleSound() {
         this.soundEnabled = !this.soundEnabled;
         this.soundToggle.innerHTML = `<span class="material-icons">${this.soundEnabled ? 'volume_up' : 'volume_off'}</span>`;
+        
+        // Update sound volume based on toggle state
+        const volume = this.soundEnabled ? 0.5 : 0;
+        this.redCatchSound.volume = volume;
+        this.blueCatchSound.volume = volume;
+        this.gameOverSound.volume = volume;
+        this.gameStartSound.volume = volume;
     }
 }
 
