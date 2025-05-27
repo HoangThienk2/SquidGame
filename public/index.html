@@ -128,7 +128,7 @@
               class="w-5 h-5"
             />
           </div>
-          <span class="text-white font-bold text-lg">30</span>
+          <span id="coin-count" class="text-white font-bold text-lg">0</span>
         </div>
       </div>
 
@@ -143,10 +143,10 @@
             <div class="flex items-center justify-between w-full mb-2">
               <image 
                 src="./images/screen1/hp-label.svg"
-                alt="HP Icon"
+                alt="HP Label"
                 class="w-5 h-5"
                 />
-              <span class="text-white">1250/2000</span>
+              <span id="hp-per-level" class="text-white">100/100</span>
             </div>
             <div
               class="w-full h-3 relative"
@@ -168,10 +168,10 @@
           >
             <img
               src="./images/screen1/icons/point.svg"
-              alt="HP Icon"
+              alt="Point Icon"
               class="w-5 h-5"
             />
-            <span class="text-white font-bold">500000</span>
+            <span id="coin-earn" class="text-white font-bold">0</span>
           </div>
         </div>
         <div
@@ -192,10 +192,10 @@
             <div class="flex justify-between items-center mb-2">
               <image 
                 src="./images/screen1/hp-level-label.svg"
-                alt="HP Icon"
+                alt="HP Label"
                 class="w-[32px] h-[20px]"
                 />
-              <span class="text-white font-bold">12</span>
+              <span id="hp-level" class="text-white font-bold">1</span>
             </div>
             <div class="relative level-bars w-full">
               <div class="bg-[#4ADE806B] h-full w-4/5"></div>
@@ -207,10 +207,10 @@
             <div class="flex justify-between items-center mb-2">
               <image 
                 src="./images/screen1/lp-level-label.svg"
-                alt="LP Icon"
+                alt="LP Label"
                 class="w-[32px] h-[20px]"
                 />
-              <span class="text-white font-bold">12</span>
+              <span id="lp-level" class="text-white font-bold">1</span>
             </div>
             <div class="relative level-bars w-full">
               <div class="bg-[#4ADE806B] h-full w-4/5"></div>
@@ -313,5 +313,6 @@
           // Add event logic here
         });
     </script>
+    <script src="./js/taptoearn.js"></script>
   </body>
 </html>
