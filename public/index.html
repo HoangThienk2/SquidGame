@@ -2,7 +2,10 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Telegram Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -85,7 +88,7 @@
         border: 1px solid rgba(215, 12, 163, 0.42);
       }
       .background-bottom-nav {
-        background-color: #27012A;
+        background-color: #27012a;
         border: 1px solid;
         border: 1px solid rgba(215, 12, 163, 0.42);
       }
@@ -141,11 +144,11 @@
         <div class="mb-4 flex items-center justify-between gap-6">
           <div class="flex flex-col justify-between items-center mb-2 w-full">
             <div class="flex items-center justify-between w-full mb-2">
-              <image 
+              <image
                 src="./images/screen1/hp-label.svg"
                 alt="HP Icon"
                 class="w-5 h-5"
-                />
+              />
               <span class="text-white">1250/2000</span>
             </div>
             <div
@@ -190,11 +193,11 @@
         <div class="flex space-x-4">
           <div class="flex-1">
             <div class="flex justify-between items-center mb-2">
-              <image 
+              <image
                 src="./images/screen1/hp-level-label.svg"
                 alt="HP Icon"
                 class="w-[32px] h-[20px]"
-                />
+              />
               <span class="text-white font-bold">12</span>
             </div>
             <div class="relative level-bars w-full">
@@ -205,11 +208,11 @@
 
           <div class="flex-1">
             <div class="flex justify-between items-center mb-2">
-              <image 
+              <image
                 src="./images/screen1/lp-level-label.svg"
                 alt="LP Icon"
                 class="w-[32px] h-[20px]"
-                />
+              />
               <span class="text-white font-bold">12</span>
             </div>
             <div class="relative level-bars w-full">
@@ -244,74 +247,575 @@
 
     <!-- Bottom Navigation -->
     <div
-        id="bottom-nav"
-        class="fixed bottom-5 left-0 right-0 background-bottom-nav mx-auto rounded-full"
-        style="width: 90%; left: 0; right: 0;"
+      id="bottom-nav"
+      class="fixed bottom-5 left-0 right-0 background-bottom-nav mx-auto rounded-full"
+      style="width: 90%; left: 0; right: 0"
     >
       <div class="flex justify-around items-center py-4 px-4">
-        <button class="">
-          <image 
+        <button class="relative group">
+          <image
             src="./images/screen1/icons/shopping-cart-icon.svg"
-            alt="Shopping Cart Icon"
+            alt="Shopping Cart"
             class="w-6 h-6 text-game-pink"
           />
+          <span
+            class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity"
+            >Shop</span
+          >
         </button>
 
-        <button class="">
-          <image 
+        <button class="relative group">
+          <image
             src="./images/screen1/icons/refresh-icon.svg"
-            alt="Refresh Icon"
+            alt="Save Game"
             class="w-6 h-6 text-game-pink"
           />
+          <span
+            class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity"
+            >Save Game</span
+          >
         </button>
 
-        <button class="">
-          <image 
+        <button class="relative group">
+          <image
             src="./images/screen1/icons/wallet-icon.svg"
-            alt="Wallet Icon"
+            alt="Wallet"
             class="w-6 h-6 text-game-pink"
           />
+          <span
+            class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity"
+            >Wallet</span
+          >
         </button>
 
-        <button class="">
-          <image 
+        <button class="relative group">
+          <image
             src="./images/screen1/icons/star-icon.svg"
-            alt="Star Icon"
+            alt="Points"
             class="w-6 h-6 text-game-pink"
           />
+          <span
+            class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity"
+            >Points</span
+          >
         </button>
 
-        <button class="">
-          <image 
+        <button id="help-button" class="relative group">
+          <image
             src="./images/screen1/icons/building-icon.svg"
-            alt="Building Icon"
+            alt="Help"
             class="w-6 h-6 text-game-pink"
           />
+          <span
+            class="absolute bottom-full left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity"
+            >Help</span
+          >
         </button>
       </div>
     </div>
 
+    <!-- Help Modal -->
+    <div
+      id="help-modal"
+      class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center hidden"
+    >
+      <div
+        class="background-color-gradient p-6 rounded-xl max-w-sm w-full mx-4"
+      >
+        <h2 class="text-xl font-bold text-white mb-4">Game Guide</h2>
+
+        <div class="text-white text-sm space-y-3">
+          <p><strong>Point:</strong> Total points earned from the beginning</p>
+          <p><strong>Ruby:</strong> Used to unlock level 50</p>
+          <p>
+            <strong>HP:</strong> Decreases when tapping (each tap costs 4 HP).
+            Higher levels allow more taps.
+          </p>
+          <p>
+            <strong>HP Level:</strong> Increases with tapping. Each level up
+            adds 150 HP max.
+          </p>
+          <p>
+            <strong>MT Level:</strong> Similar to HP level, increases with
+            activity.
+          </p>
+          <p>
+            <strong>Shopping Points:</strong> Points earned in current session.
+          </p>
+          <p>
+            <strong>Event:</strong> Gives temporary bonuses (double points).
+          </p>
+        </div>
+
+        <button
+          id="close-help"
+          class="mt-6 w-full py-2 bg-game-pink rounded-lg text-white"
+        >
+          Close
+        </button>
+      </div>
+    </div>
+
+    <!-- Load game data script -->
+    <script src="js/gameData.js"></script>
+
     <script>
-      // Game logic will go here
-      console.log("Telegram Game Loaded");
+      // Game state
+      const gameState = {
+        point: 500000, // Total points earned from the beginning
+        ruby: 30, // Used to unlock level 50
+        coin: 30, // Shopping currency
+        hp: {
+          current: 1250,
+          max: 2000,
+          lossPerTap: 4, // HP lost per tap, decreases as level increases
+        },
+        level: {
+          hp: 12, // HP Level
+          mt: 12, // MT Level (Magic Level)
+          hpProgress: 80, // Progress percentage for HP level
+          mtProgress: 80, // Progress percentage for MT level
+        },
+        currentTapPoints: 0, // Points earned in current session
 
-      // Example: Handle navigation clicks
-      document
-        .querySelectorAll("#bottom-nav button")
-        .forEach((button, index) => {
-          button.addEventListener("click", () => {
-            console.log(`Navigation button ${index + 1} clicked`);
-            // Add navigation logic here
+        // Calculate HP percentage for progress bar
+        getHpPercentage() {
+          return (this.hp.current / this.hp.max) * 100;
+        },
+      };
+
+      // Update UI elements with current state
+      function updateUI() {
+        try {
+          // Update Ruby counter - more specific selector
+          const rubyCounter = document.querySelector(
+            ".resource-header:nth-child(1) span"
+          );
+          if (rubyCounter) rubyCounter.textContent = gameState.ruby;
+
+          // Update Coin counter - more specific selector
+          const coinCounter = document.querySelector(
+            ".resource-header:nth-child(2) span"
+          );
+          if (coinCounter) coinCounter.textContent = gameState.coin;
+
+          // Update HP bar and text - more specific and robust selectors
+          const hpText = document.querySelector(
+            "#stats-panel .mb-4 .flex-col .flex span:last-child"
+          );
+          if (hpText)
+            hpText.textContent = `${gameState.hp.current}/${gameState.hp.max}`;
+
+          const hpBar = document.querySelector("#stats-panel .progress-bar");
+          if (hpBar) {
+            const hpPercentage = gameState.getHpPercentage();
+            hpBar.style.width = `${hpPercentage}%`;
+          }
+
+          // Update Point display - more specific selector
+          const pointDisplay = document.querySelector(
+            "#stats-panel .mb-4 .flex-col + div span.font-bold"
+          );
+          if (pointDisplay) pointDisplay.textContent = gameState.point;
+
+          // Update HP level and progress - more specific selectors
+          const levelBars = document.querySelectorAll(".level-bars");
+          if (levelBars && levelBars.length > 0) {
+            // HP level
+            const hpLevelText =
+              levelBars[0].parentElement.querySelector("span.font-bold");
+            if (hpLevelText) hpLevelText.textContent = gameState.level.hp;
+
+            const hpLevelBar = levelBars[0].querySelector("div");
+            if (hpLevelBar)
+              hpLevelBar.style.width = `${gameState.level.hpProgress}%`;
+
+            // MT level
+            if (levelBars.length > 1) {
+              const mtLevelText =
+                levelBars[1].parentElement.querySelector("span.font-bold");
+              if (mtLevelText) mtLevelText.textContent = gameState.level.mt;
+
+              const mtLevelBar = levelBars[1].querySelector("div");
+              if (mtLevelBar)
+                mtLevelBar.style.width = `${gameState.level.mtProgress}%`;
+            }
+          }
+
+          // Update current session points display
+          const sessionPoints = document.querySelector(
+            "#current-session-points span:last-child"
+          );
+          if (sessionPoints) {
+            sessionPoints.textContent = gameState.currentTapPoints;
+          } else {
+            console.warn("Current session points element not found");
+          }
+        } catch (error) {
+          console.error("Error updating UI:", error);
+        }
+      }
+
+      // Handle tapping logic
+      function handleTap() {
+        // Check if HP is depleted
+        if (gameState.hp.current <= 0) {
+          showNotification("Not enough HP! Wait for recovery or level up.");
+          return;
+        }
+
+        // Decrease HP based on level
+        gameState.hp.current = Math.max(
+          0,
+          gameState.hp.current - gameState.hp.lossPerTap
+        );
+
+        // Increase points
+        const pointsEarned = 10 + Math.floor(gameState.level.hp / 2);
+        gameState.point += pointsEarned;
+        gameState.currentTapPoints += pointsEarned;
+
+        // Update experience for levels
+        const xpGained = 1 + Math.floor(Math.random() * 3);
+        gameState.level.hpProgress += xpGained;
+
+        // Level up if progress reaches 100%
+        if (gameState.level.hpProgress >= 100) {
+          gameState.level.hp += 1;
+          gameState.level.hpProgress = 0;
+          gameState.hp.max += 150; // Add 150 magic power on level up
+          gameState.hp.current = gameState.hp.max; // Refill HP on level up
+
+          // Reduce HP loss per tap as level increases
+          if (gameState.level.hp % 5 === 0) {
+            gameState.hp.lossPerTap = Math.max(1, gameState.hp.lossPerTap - 1);
+          }
+
+          showNotification(
+            "Level Up! HP Level increased to " + gameState.level.hp
+          );
+        }
+
+        // Update MT level progress randomly
+        if (Math.random() > 0.7) {
+          gameState.level.mtProgress += xpGained;
+          if (gameState.level.mtProgress >= 100) {
+            gameState.level.mt += 1;
+            gameState.level.mtProgress = 0;
+            showNotification(
+              "Level Up! MT Level increased to " + gameState.level.mt
+            );
+          }
+        }
+
+        // Update UI
+        updateUI();
+
+        // Show tap animation
+        showTapAnimation();
+      }
+
+      // Show tap animation
+      function showTapAnimation() {
+        const tapEffect = document.createElement("div");
+        tapEffect.className =
+          "absolute w-10 h-10 bg-game-pink rounded-full opacity-50";
+
+        // Random position within main-stage
+        const mainStage = document.getElementById("main-stage");
+        const xPos = Math.random() * (mainStage.offsetWidth - 40);
+        const yPos = Math.random() * (mainStage.offsetHeight - 40);
+
+        tapEffect.style.left = `${xPos}px`;
+        tapEffect.style.top = `${yPos}px`;
+
+        mainStage.appendChild(tapEffect);
+
+        // Animation
+        tapEffect.animate(
+          [
+            { transform: "scale(0)", opacity: 0.8 },
+            { transform: "scale(1.5)", opacity: 0 },
+          ],
+          {
+            duration: 500,
+            easing: "ease-out",
+          }
+        );
+
+        // Remove after animation
+        setTimeout(() => {
+          mainStage.removeChild(tapEffect);
+        }, 500);
+      }
+
+      // Show notification
+      function showNotification(message) {
+        const notification = document.createElement("div");
+        notification.className =
+          "fixed top-20 left-1/2 transform -translate-x-1/2 bg-game-pink text-white py-2 px-4 rounded-lg z-50";
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 3000);
+      }
+
+      // Load game
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("Telegram Game Loaded");
+
+        // Check if critical DOM elements exist
+        const statsPanel = document.getElementById("stats-panel");
+        const mainStage = document.getElementById("main-stage");
+
+        if (!statsPanel || !mainStage) {
+          console.error("Critical game elements are missing from the DOM");
+          alert("Game cannot initialize properly. Please refresh the page.");
+          return;
+        }
+
+        // Help modal functionality
+        const helpButton = document.getElementById("help-button");
+        const helpModal = document.getElementById("help-modal");
+        const closeHelp = document.getElementById("close-help");
+
+        if (helpButton && helpModal && closeHelp) {
+          helpButton.addEventListener("click", function () {
+            helpModal.classList.remove("hidden");
           });
-        });
 
-      // Example: Handle event button click
-      document
-        .querySelector("#stats-panel button")
-        .addEventListener("click", () => {
-          console.log("Event button clicked");
-          // Add event logic here
-        });
+          closeHelp.addEventListener("click", function () {
+            helpModal.classList.add("hidden");
+          });
+        } else {
+          console.warn("Help modal elements not found");
+        }
+
+        // Try to load saved game data
+        let savedGame;
+        try {
+          savedGame = gameData.loadGame();
+          if (savedGame) {
+            // Update gameState with saved data
+            gameState.point = savedGame.point || gameState.point;
+            gameState.ruby = savedGame.ruby || gameState.ruby;
+            gameState.coin = savedGame.coin || gameState.coin;
+
+            // Handle nested properties carefully
+            if (savedGame.hp) {
+              gameState.hp.current =
+                savedGame.hp.current || gameState.hp.current;
+              gameState.hp.max = savedGame.hp.max || gameState.hp.max;
+              gameState.hp.lossPerTap =
+                savedGame.hp.lossPerTap || gameState.hp.lossPerTap;
+            }
+
+            if (savedGame.level) {
+              gameState.level.hp = savedGame.level.hp || gameState.level.hp;
+              gameState.level.mt = savedGame.level.mt || gameState.level.mt;
+              gameState.level.hpProgress =
+                savedGame.level.hpProgress || gameState.level.hpProgress;
+              gameState.level.mtProgress =
+                savedGame.level.mtProgress || gameState.level.mtProgress;
+            }
+
+            gameState.currentTapPoints = savedGame.currentTapPoints || 0;
+
+            showNotification("Game loaded successfully!");
+          }
+        } catch (error) {
+          console.error("Error loading saved game:", error);
+        }
+
+        // Add current session points display
+        try {
+          const sessionPointsDiv = document.createElement("div");
+          sessionPointsDiv.id = "current-session-points";
+          sessionPointsDiv.className =
+            "flex justify-between items-center mt-4 px-2 py-2 rounded-lg bg-opacity-30 background-color-gradient";
+          sessionPointsDiv.innerHTML = `
+            <span class="text-white text-sm">Điểm mua sắm hiện tại:</span>
+            <span class="text-white font-bold">${gameState.currentTapPoints}</span>
+          `;
+          statsPanel.appendChild(sessionPointsDiv);
+        } catch (error) {
+          console.error("Error adding session points display:", error);
+        }
+
+        // Add tap area to main stage
+        try {
+          mainStage.style.cursor = "pointer";
+          mainStage.addEventListener("click", handleTap);
+          mainStage.addEventListener("touchstart", function (e) {
+            e.preventDefault();
+            handleTap();
+          });
+
+          // Add tap instructions
+          const tapInstructions = document.createElement("div");
+          tapInstructions.className =
+            "absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white text-center text-sm bg-black bg-opacity-50 px-3 py-1 rounded-full";
+          tapInstructions.textContent = "Tap to earn points!";
+          mainStage.appendChild(tapInstructions);
+        } catch (error) {
+          console.error("Error setting up tap area:", error);
+        }
+
+        // HP recovery system - 1 HP every 5 seconds up to max
+        setInterval(function () {
+          try {
+            if (
+              gameState &&
+              gameState.hp &&
+              gameState.hp.current < gameState.hp.max
+            ) {
+              gameState.hp.current = Math.min(
+                gameState.hp.max,
+                gameState.hp.current + 1
+              );
+              updateUI();
+            }
+          } catch (error) {
+            console.error("Error in HP recovery:", error);
+          }
+        }, 5000);
+
+        // Set up auto-save every 30 seconds
+        setInterval(function () {
+          try {
+            if (gameState && gameData) {
+              gameData.autoSave(gameState);
+            }
+          } catch (error) {
+            console.error("Error in auto-save:", error);
+          }
+        }, 30000);
+
+        // Initial update only after all DOM elements are created
+        setTimeout(function () {
+          try {
+            console.log("Initializing game UI...");
+            updateUI();
+            console.log("Game UI initialized successfully");
+          } catch (error) {
+            console.error("Error during initial UI update:", error);
+          }
+        }, 500);
+
+        // Handle navigation clicks
+        document
+          .querySelectorAll("#bottom-nav button")
+          .forEach((button, index) => {
+            button.addEventListener("click", () => {
+              console.log(`Navigation button ${index + 1} clicked`);
+              // Navigation logic
+              switch (index) {
+                case 0: // Shopping cart
+                  showNotification("Shopping cart opened");
+                  break;
+                case 1: // Refresh
+                  // Manual save and refresh
+                  if (gameData.saveGame(gameState)) {
+                    showNotification("Game saved successfully!");
+                  } else {
+                    showNotification("Failed to save game!");
+                  }
+                  break;
+                case 2: // Wallet
+                  showNotification("Wallet opened");
+                  break;
+                case 3: // Star
+                  showNotification(`Total points: ${gameState.point}`);
+                  break;
+                case 4: // Building
+                  showNotification("Building section opened");
+                  break;
+              }
+            });
+          });
+
+        // Handle event button click
+        document
+          .querySelector("#stats-panel + div button")
+          .addEventListener("click", () => {
+            console.log("Event button clicked");
+            showNotification("Event activated!");
+
+            // Example event: Double points for 10 seconds
+            const originalPointsEarned =
+              10 + Math.floor(gameState.level.hp / 2);
+            const doubledPoints = originalPointsEarned * 2;
+
+            showNotification(`Double points activated for 10 seconds!`);
+
+            // Temporary boost
+            const originalHandleTap = handleTap;
+            handleTap = function () {
+              // Check if HP is depleted
+              if (gameState.hp.current <= 0) {
+                showNotification(
+                  "Not enough HP! Wait for recovery or level up."
+                );
+                return;
+              }
+
+              // Decrease HP based on level
+              gameState.hp.current = Math.max(
+                0,
+                gameState.hp.current - gameState.hp.lossPerTap
+              );
+
+              // Increase points (doubled)
+              gameState.point += doubledPoints;
+              gameState.currentTapPoints += doubledPoints;
+
+              // Rest of the function remains the same...
+              const xpGained = 1 + Math.floor(Math.random() * 3);
+              gameState.level.hpProgress += xpGained;
+
+              if (gameState.level.hpProgress >= 100) {
+                gameState.level.hp += 1;
+                gameState.level.hpProgress = 0;
+                gameState.hp.max += 150;
+                gameState.hp.current = gameState.hp.max;
+
+                if (gameState.level.hp % 5 === 0) {
+                  gameState.hp.lossPerTap = Math.max(
+                    1,
+                    gameState.hp.lossPerTap - 1
+                  );
+                }
+
+                showNotification(
+                  "Level Up! HP Level increased to " + gameState.level.hp
+                );
+              }
+
+              if (Math.random() > 0.7) {
+                gameState.level.mtProgress += xpGained;
+                if (gameState.level.mtProgress >= 100) {
+                  gameState.level.mt += 1;
+                  gameState.level.mtProgress = 0;
+                  showNotification(
+                    "Level Up! MT Level increased to " + gameState.level.mt
+                  );
+                }
+              }
+
+              updateUI();
+              showTapAnimation();
+            };
+
+            // Reset after 10 seconds
+            setTimeout(() => {
+              handleTap = originalHandleTap;
+              showNotification("Double points event ended");
+            }, 10000);
+          });
+      });
     </script>
   </body>
 </html>
