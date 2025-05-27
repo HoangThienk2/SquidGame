@@ -2,7 +2,10 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Telegram Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -23,6 +26,7 @@
       };
     </script>
     <style>
+      @import url("https://fonts.googleapis.com/css2?family=Gugi&display=swap");
       body {
         font-family: "Arial", sans-serif;
         background: linear-gradient(180deg, #2d1b3d 0%, #1a0f2e 100%);
@@ -85,7 +89,7 @@
         border: 1px solid rgba(215, 12, 163, 0.42);
       }
       .background-bottom-nav {
-        background-color: #27012A;
+        background-color: #27012a;
         border: 1px solid;
         border: 1px solid rgba(215, 12, 163, 0.42);
       }
@@ -96,11 +100,16 @@
         background-color: #4ade806b;
         height: 12px;
       }
+      .gugi-regular {
+        font-family: "Gugi", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+      }
     </style>
   </head>
   <body class="container text-white font-game pt-6">
     <!-- Game Container -->
-    <div class="px-4 pb-20">
+    <div class="px-4">
       <!-- Resource Header -->
       <div class="flex space-x-3 mb-4">
         <!-- Ruby Counter -->
@@ -114,7 +123,7 @@
               class="w-5 h-5"
             />
           </div>
-          <span class="text-white font-bold text-lg">30</span>
+          <span class="gugi-regular text-white font-bold text-lg">30</span>
         </div>
 
         <!-- Coin Counter -->
@@ -128,7 +137,11 @@
               class="w-5 h-5"
             />
           </div>
-          <span id="coin-count" class="text-white font-bold text-lg">0</span>
+          <span
+            id="coin-count"
+            class="gugi-regular text-white font-bold text-lg"
+            >0</span
+          >
         </div>
       </div>
 
@@ -141,12 +154,10 @@
         <div class="mb-4 flex items-center justify-between gap-6">
           <div class="flex flex-col justify-between items-center mb-2 w-full">
             <div class="flex items-center justify-between w-full mb-2">
-              <image 
-                src="./images/screen1/hp-label.svg"
-                alt="HP Label"
-                class="w-5 h-5"
-                />
-              <span id="hp-per-level" class="text-white">100/100</span>
+              <span class="gugi-regular text-[#FF6B8B]">HP</span>
+              <span id="hp-per-level" class="gugi-regular text-white"
+                >100/100</span
+              >
             </div>
             <div
               class="w-full h-3 relative"
@@ -163,7 +174,7 @@
             </div>
           </div>
           <div
-            class="flex flex-col items-center px-2 py-3 rounded-[12px]"
+            class="flex flex-col items-center px-2 py-3 rounded-[12px] w-[100px]"
             style="background-color: #fc376621"
           >
             <img
@@ -171,7 +182,9 @@
               alt="Point Icon"
               class="w-5 h-5"
             />
-            <span id="coin-earn" class="text-white font-bold">0</span>
+            <span id="coin-earn" class="gugi-regular text-white font-bold"
+              >0</span
+            >
           </div>
         </div>
         <div
@@ -190,12 +203,10 @@
         <div class="flex space-x-4">
           <div class="flex-1">
             <div class="flex justify-between items-center mb-2">
-              <image 
-                src="./images/screen1/hp-level-label.svg"
-                alt="HP Label"
-                class="w-[32px] h-[20px]"
-                />
-              <span id="hp-level" class="text-white font-bold">1</span>
+              <span class="gugi-regular text-[#FF6B8B]">HP lv</span>
+              <span id="hp-level" class="gugi-regular text-white font-bold"
+                >1</span
+              >
             </div>
             <div class="relative level-bars w-full">
               <div class="bg-[#4ADE806B] h-full w-4/5"></div>
@@ -205,12 +216,10 @@
 
           <div class="flex-1">
             <div class="flex justify-between items-center mb-2">
-              <image 
-                src="./images/screen1/lp-level-label.svg"
-                alt="LP Label"
-                class="w-[32px] h-[20px]"
-                />
-              <span id="lp-level" class="text-white font-bold">1</span>
+              <span class="gugi-regular text-[#FF6B8B]">LP lv</span>
+              <span id="lp-level" class="gugi-regular text-white font-bold"
+                >1</span
+              >
             </div>
             <div class="relative level-bars w-full">
               <div class="bg-[#4ADE806B] h-full w-4/5"></div>
@@ -226,7 +235,9 @@
           class="background-color-gradient rounded-xl flex justify-center w-[104px]"
         >
           <button class="pt-3 flex flex-col items-center justify-center">
-            <span class="text-white text-xs font-bold">이벤트</span>
+            <span class="gugi-regular text-white text-xs font-bold"
+              >Events</span
+            >
             <img
               src="./images/screen1/icons/event-icon.svg"
               alt="Event Icon"
@@ -242,15 +253,31 @@
       </div>
     </div>
 
+    <div class="flex justify-end mr-4 mb-4">
+      <div class="flex flex-col items-center space-y-2">
+        <button
+          id="auto-earn-button"
+          class="py-3 flex flex-col items-center justify-center background-color-gradient rounded-xl w-[48px]"
+        >
+          <img
+            src="./images/screen1/icons/auto-earn.svg"
+            alt="Event Icon"
+            class="w-[22px] h-[22px]"
+          />
+        </button>
+        <span class="gugi-regular text-[#FF6B8B] text-xs font-bold"
+          >Auto earn</span
+        >
+      </div>
+    </div>
+
     <!-- Bottom Navigation -->
-    <div
-        id="bottom-nav"
-        class="fixed bottom-5 left-0 right-0 background-bottom-nav mx-auto rounded-full"
-        style="width: 90%; left: 0; right: 0;"
-    >
-      <div class="flex justify-around items-center py-4 px-4">
+    <div id="bottom-nav" class="fixed bottom-5 left-0 right-0 px-4">
+      <div
+        class="flex justify-around items-center py-4 px-4 background-bottom-nav rounded-full"
+      >
         <button class="">
-          <image 
+          <image
             src="./images/screen1/icons/shopping-cart-icon.svg"
             alt="Shopping Cart Icon"
             class="w-6 h-6 text-game-pink"
@@ -258,7 +285,7 @@
         </button>
 
         <button class="">
-          <image 
+          <image
             src="./images/screen1/icons/refresh-icon.svg"
             alt="Refresh Icon"
             class="w-6 h-6 text-game-pink"
@@ -266,7 +293,7 @@
         </button>
 
         <button class="">
-          <image 
+          <image
             src="./images/screen1/icons/wallet-icon.svg"
             alt="Wallet Icon"
             class="w-6 h-6 text-game-pink"
@@ -274,7 +301,7 @@
         </button>
 
         <button class="">
-          <image 
+          <image
             src="./images/screen1/icons/star-icon.svg"
             alt="Star Icon"
             class="w-6 h-6 text-game-pink"
@@ -282,7 +309,7 @@
         </button>
 
         <button class="">
-          <image 
+          <image
             src="./images/screen1/icons/building-icon.svg"
             alt="Building Icon"
             class="w-6 h-6 text-game-pink"
@@ -294,6 +321,23 @@
     <script>
       // Game logic will go here
       console.log("Telegram Game Loaded");
+
+      // Auto-earn button toggle functionality
+      const autoEarnButton = document.getElementById('auto-earn-button');
+      let isAutoEarnOn = false;
+
+      autoEarnButton.addEventListener('click', () => {
+        isAutoEarnOn = !isAutoEarnOn;
+        const buttonImg = autoEarnButton.querySelector('img');
+        
+        if (isAutoEarnOn) {
+          buttonImg.src = "./images/screen1/icons/auto-earn.svg";
+          autoEarnButton.classList.remove('bg-opacity-50');
+        } else {
+          buttonImg.src = "./images/screen1/icons/auto-earn-off.svg";
+          autoEarnButton.style.background = 'radial-gradient(50% 50% at 50% 50%, rgba(69, 8, 50, 0.5) 0%, rgba(46, 3, 44, 0.5) 100%)';
+        }
+      });
 
       // Example: Handle navigation clicks
       document
