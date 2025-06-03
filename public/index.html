@@ -7,7 +7,9 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
     <title>Telegram Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/animations.css" />
     <script>
       tailwind.config = {
         theme: {
@@ -50,6 +52,8 @@
         background: linear-gradient(0deg, #bac1d6 0.01%, #ffffff 99.98%);
         width: 5.5px;
         height: 14px;
+        top: -1px;
+        transition: left 0.3s ease;
       }
 
       .stage-platform {
@@ -74,7 +78,7 @@
       }
       #main-stage {
         background: url("./images/screen1/character.svg") no-repeat center
-          center;
+          bottom -5px;
         background-size: contain;
         position: relative;
       }
@@ -105,11 +109,268 @@
         font-weight: 400;
         font-style: normal;
       }
+
+      /* Auto earn button styles */
+      #auto-earn-button.active {
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          #450832 0%,
+          #2e032c 100%
+        );
+      }
+      #auto-earn-button:not(.active) {
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          rgba(69, 8, 50, 0.5) 0%,
+          rgba(46, 3, 44, 0.5) 100%
+        );
+      }
+
+      /* Telegram WebApp Styles */
+      .in-telegram-app {
+        max-width: 100%;
+        margin: 0 auto;
+        overflow-x: hidden;
+        height: 100vh;
+      }
+
+      /* Game container */
+      .game-container {
+        width: 100%;
+        max-width: 428px; /* Max width for largest iPhone */
+        margin: 0 auto;
+        padding: 0 16px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Base styles for smallest phones (iPhone SE, small Android) */
+      @media screen and (max-width: 375px) {
+        .resource-header {
+          height: 24px;
+        }
+
+        #main-stage {
+          height: 240px;
+          background-position: center bottom -2px;
+        }
+
+        .text-lg {
+          font-size: 0.875rem;
+        }
+
+        .px-4 {
+          padding-left: 8px;
+          padding-right: 8px;
+        }
+      }
+
+      /* Styles for medium phones (iPhone X, 11, 12, 13, most Android) */
+      @media screen and (min-width: 376px) and (max-width: 390px) {
+        .resource-header {
+          height: 26px;
+        }
+
+        #main-stage {
+          height: 260px;
+          background-size: auto 85%;
+        }
+
+        .text-lg {
+          font-size: 0.925rem;
+        }
+      }
+
+      /* Styles for larger phones (Pro Max, larger Android) */
+      @media screen and (min-width: 391px) {
+        .resource-header {
+          height: 28px;
+        }
+
+        #main-stage {
+          height: 280px;
+          background-size: auto 85%;
+        }
+      }
+
+      /* Portrait mode optimization for shorter screens */
+      @media screen and (max-height: 700px) {
+        .pt-6 {
+          padding-top: 0.75rem;
+        }
+
+        #main-stage {
+          height: 160px !important;
+          background-size: auto 105% !important;
+        }
+
+        .mb-4 {
+          margin-bottom: 0.5rem;
+        }
+      }
+
+      /* Common mobile adjustments */
+      @media screen and (max-width: 428px) {
+        .game-container {
+          padding: 0 12px;
+        }
+
+        .level-bars {
+          height: 8px;
+        }
+
+        #stats-panel {
+          padding: 12px;
+        }
+
+        button {
+          min-width: 44px; /* Minimum touch target size */
+          min-height: 44px;
+        }
+
+        /* Adjust icon sizes */
+        .w-5 {
+          width: 1.25rem;
+        }
+        .h-5 {
+          height: 1.25rem;
+        }
+      }
+
+      /* Styles cho web thường */
+      .standalone-web {
+        max-width: 960px;
+        margin: 0 auto;
+      }
+
+      /* Telegram WebApp Responsive Styles */
+
+      /* Base styles for smallest phones (iPhone SE) */
+      @media screen and (max-width: 375px) {
+        .resource-header {
+          height: 24px;
+        }
+
+        #main-stage {
+          height: 240px;
+          background-size: auto 85%;
+          transform: translateY(15px);
+        }
+
+        .text-lg {
+          font-size: 0.875rem;
+        }
+
+        .px-4 {
+          padding-left: 8px;
+          padding-right: 8px;
+        }
+
+        .space-x-3 > * + * {
+          margin-left: 0.5rem;
+        }
+
+        .mb-4 {
+          margin-bottom: 0.75rem;
+        }
+      }
+
+      /* Styles for medium phones (iPhone X, 11, 12, 13, most Android) */
+      @media screen and (min-width: 376px) and (max-width: 390px) {
+        .resource-header {
+          height: 26px;
+        }
+
+        #main-stage {
+          height: 260px;
+          background-size: auto 85%;
+        }
+
+        .text-lg {
+          font-size: 0.925rem;
+        }
+
+        .px-4 {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
+      }
+
+      /* Styles for larger phones (iPhone Pro Max, larger Android) */
+      @media screen and (min-width: 391px) {
+        .resource-header {
+          height: 30px;
+        }
+
+        #main-stage {
+          height: 315px;
+          background-size: auto 85%;
+        }
+
+        .text-lg {
+          font-size: 1rem;
+        }
+      }
+
+      /* Common styles for all mobile devices */
+      @media screen and (max-width: 428px) {
+        .game-container {
+          max-width: 100%;
+          padding: 0 12px;
+        }
+
+        .level-bars {
+          height: 8px;
+        }
+
+        .progress-icon {
+          height: 12px;
+        }
+
+        #stats-panel {
+          padding: 12px;
+        }
+
+        /* Điều chỉnh kích thước nút */
+        .background-color-gradient.w-[104px] {
+          width: 80px;
+        }
+
+        /* Điều chỉnh icon size */
+        .w-[65px] {
+          width: 50px;
+        }
+        .h-[65px] {
+          height: 50px;
+        }
+
+        /* Điều chỉnh khoảng cách */
+        .space-x-4 > * + * {
+          margin-left: 0.75rem;
+        }
+      }
+
+      /* Portrait mode optimization */
+      @media screen and (max-height: 700px) {
+        .pt-6 {
+          padding-top: 0.75rem;
+        }
+
+        #main-stage {
+          height: 220px;
+          background-size: auto 85%;
+        }
+
+        .mb-4 {
+          margin-bottom: 0.5rem;
+        }
+      }
     </style>
   </head>
   <body class="container text-white font-game pt-6">
     <!-- Game Container -->
-    <div class="px-4">
+    <div class="game-container">
       <!-- Resource Header -->
       <div class="flex space-x-3 mb-4">
         <!-- Ruby Counter -->
@@ -135,6 +396,7 @@
               src="./images/screen1/icons/coin-icon.svg"
               alt="Coin Icon"
               class="w-5 h-5"
+              id="coin-target"
             />
           </div>
           <span
@@ -159,18 +421,11 @@
                 >100/100</span
               >
             </div>
-            <div
-              class="w-full h-3 relative"
-              style="
-                background: linear-gradient(
-                  0deg,
-                  rgba(215, 12, 163, 0.42),
-                  rgba(215, 12, 163, 0.42)
-                );
-              "
-            >
-              <div class="progress-bar w-3/5 h-full"></div>
-              <div class="progress-icon" style="left: 136px; top: -1px"></div>
+            <div class="w-full h-3 relative">
+              <div class="hp-progress-container">
+                <div class="progress-bar"></div>
+                <div class="progress-icon"></div>
+              </div>
             </div>
           </div>
           <div
@@ -178,7 +433,7 @@
             style="background-color: #fc376621"
           >
             <img
-              src="./images/screen1/icons/point.svg"
+              src="./images/screen1/icons/coin-icon.svg"
               alt="Point Icon"
               class="w-5 h-5"
             />
@@ -209,8 +464,10 @@
               >
             </div>
             <div class="relative level-bars w-full">
-              <div class="bg-[#4ADE806B] h-full w-4/5"></div>
-              <div class="progress-icon" style="left: 122px; top: -1px"></div>
+              <div class="hp-level-progress-container">
+                <div class="level-progress-bar"></div>
+                <div class="level-progress-icon"></div>
+              </div>
             </div>
           </div>
 
@@ -222,21 +479,24 @@
               >
             </div>
             <div class="relative level-bars w-full">
-              <div class="bg-[#4ADE806B] h-full w-4/5"></div>
-              <div class="progress-icon" style="left: 122px; top: -1px"></div>
+              <div class="lp-level-progress-container">
+                <div class="level-progress-bar"></div>
+                <div class="level-progress-icon"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Event Button -->
-      <div class="flex justify-end">
+      <!-- Event Button and Game 2 Button -->
+      <div class="flex justify-end space-x-4">
+        <!-- Event Button -->
         <div
           class="background-color-gradient rounded-xl flex justify-center w-[104px]"
         >
           <button class="pt-3 flex flex-col items-center justify-center">
             <span class="gugi-regular text-white text-xs font-bold"
-              >Events</span
+              >이벤트</span
             >
             <img
               src="./images/screen1/icons/event-icon.svg"
@@ -245,11 +505,13 @@
             />
           </button>
         </div>
+
+        <!-- Game 2 Button -->
       </div>
 
       <!-- Main Stage Area -->
       <div id="main-stage" class="relative h-[290px]">
-        <!-- Curtain Background -->
+        <!-- Remove glow effect -->
       </div>
     </div>
 
@@ -318,26 +580,12 @@
       </div>
     </div>
 
+    <!-- Add coin container for flying coins -->
+    <div id="coin-container" class="coin-container"></div>
+
     <script>
       // Game logic will go here
       console.log("Telegram Game Loaded");
-
-      // Auto-earn button toggle functionality
-      const autoEarnButton = document.getElementById('auto-earn-button');
-      let isAutoEarnOn = false;
-
-      autoEarnButton.addEventListener('click', () => {
-        isAutoEarnOn = !isAutoEarnOn;
-        const buttonImg = autoEarnButton.querySelector('img');
-        
-        if (isAutoEarnOn) {
-          buttonImg.src = "./images/screen1/icons/auto-earn.svg";
-          autoEarnButton.classList.remove('bg-opacity-50');
-        } else {
-          buttonImg.src = "./images/screen1/icons/auto-earn-off.svg";
-          autoEarnButton.style.background = 'radial-gradient(50% 50% at 50% 50%, rgba(69, 8, 50, 0.5) 0%, rgba(46, 3, 44, 0.5) 100%)';
-        }
-      });
 
       // Example: Handle navigation clicks
       document
@@ -349,14 +597,17 @@
           });
         });
 
-      // Example: Handle event button click
-      document
-        .querySelector("#stats-panel button")
-        .addEventListener("click", () => {
-          console.log("Event button clicked");
-          // Add event logic here
-        });
+      // Add click event listener to create flying coins
+      document.addEventListener("click", (event) => {
+        // Create 3 coins with slightly different trajectories
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => {
+            createFlyingCoin(event.clientX, event.clientY);
+          }, i * 100);
+        }
+      });
     </script>
     <script src="./js/taptoearn.js"></script>
+    <script src="./js/telegram-integration.js"></script>
   </body>
 </html>
