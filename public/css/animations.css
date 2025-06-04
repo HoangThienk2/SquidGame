@@ -1,0 +1,212 @@
+/* Icon Movement Animation */
+/* @keyframes moveIcon {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+} */
+
+#main-stage {
+  /* animation: moveIcon 0.5s ease-in-out infinite; */
+}
+
+/* Glow Effect Styles */
+.glow-effect {
+  width: 100px;
+  height: 20px;
+  pointer-events: none;
+  margin-bottom: -20px;
+}
+
+.glow-circle {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 15px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 107, 139, 0.8) 0%,
+    rgba(255, 107, 139, 0) 70%
+  );
+  border-radius: 50%;
+  animation: glowPulse 0.5s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+.glow-particles {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 20px;
+}
+
+.glow-particles::before,
+.glow-particles::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 4px;
+  background: #ff6b8b;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ff6b8b;
+  animation: particleFloat 0.5s ease-in-out infinite;
+}
+
+.glow-particles::before {
+  left: 30%;
+  animation-delay: 0.1s;
+}
+
+.glow-particles::after {
+  left: 70%;
+  animation-delay: 0.2s;
+}
+
+@keyframes particleFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-10px) scale(1.2);
+    opacity: 0.8;
+  }
+}
+
+/* Progress Bar Styles */
+.progress-bar {
+  background: linear-gradient(90deg, #e45f90 0%, #f06292 100%);
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.progress-icon {
+  position: absolute;
+  border-radius: 0.5px;
+  background: linear-gradient(0deg, #bac1d6 0.01%, #ffffff 99.98%);
+  width: 5.5px;
+  height: 14px;
+  top: -3px;
+  left: 0;
+  transition: left 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Progress Container */
+.hp-progress-container {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(215, 12, 163, 0.42);
+  border-radius: 4px;
+  overflow: visible;
+}
+
+/* Level Progress Container */
+.hp-level-progress-container,
+.lp-level-progress-container {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  background: rgba(74, 222, 128, 0.1);
+  border-radius: 4px;
+  overflow: visible;
+}
+
+/* Level Progress Bar Styles */
+.level-progress-bar {
+  background: #4ade80;
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0.42;
+}
+
+.level-progress-icon {
+  position: absolute;
+  border-radius: 0.5px;
+  background: linear-gradient(0deg, #bac1d6 0.01%, #ffffff 99.98%);
+  width: 5.5px;
+  height: 14px;
+  top: -3px;
+  left: 0;
+  transition: left 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Coin Flying Animation */
+@keyframes coinFly {
+  0% {
+    transform: translate(0, 0) scale(0.5) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    transform: translate(0, -20px) scale(1.2) rotate(45deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(calc(var(--tx) * 0.5), calc(var(--ty) * 0.5 - 50px))
+      scale(1) rotate(180deg);
+    opacity: 0.8;
+  }
+  80% {
+    transform: translate(calc(var(--tx) * 0.8), calc(var(--ty) * 0.8))
+      scale(0.9) rotate(270deg);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0.7) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Coin Container */
+.coin-container {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+/* Flying Coin */
+.flying-coin {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background-image: url("../images/screen1/icons/coin-icon.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  animation: coinFly 0.8s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+}

@@ -1,0 +1,130 @@
+/* Game Stage Styles */
+.game-stage {
+  background: radial-gradient(50% 50% at 50% 50%, #450832 0%, #2e032c 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(215, 12, 163, 0.42);
+}
+
+/* Character Grid Styles */
+.character-slot {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.character-slot:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.character-slot.active {
+  border-color: #ff6b8b;
+  box-shadow: 0 0 15px rgba(255, 107, 139, 0.3);
+}
+
+.character-slot.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 107, 139, 0.1),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Combo Bar Styles */
+.combo-bar {
+  background: rgba(255, 107, 139, 0.2);
+}
+
+#combo-progress {
+  background: linear-gradient(90deg, #ff6b8b 0%, #ff85a7 100%);
+  transition: width 0.3s ease;
+}
+
+.container {
+  max-width: 375px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #1a0309;
+}
+
+.background-color-gradient {
+  background: radial-gradient(50% 50% at 50% 50%, #801c22 0%, #46090d 100%);
+}
+
+.resource-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+}
+
+.game-stage {
+  margin-top: 20px;
+  background-size: cover;
+  background-position: center;
+}
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 16px;
+}
+
+.character-slot {
+  aspect-ratio: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.character-slot:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.combo-bar {
+  background: rgba(255, 107, 139, 0.3);
+}
+
+/* Animation for flying coins */
+.coin {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  z-index: 1000;
+  transition: all 0.5s ease;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.coin-spin {
+  animation: spin 1s linear infinite;
+}
