@@ -19,9 +19,7 @@ body {
 .game-container {
   max-width: 430px;
   margin: 0 auto;
-  background-color: #121212;
-  min-height: 100vh;
-  position: relative;
+
   display: flex;
   flex-direction: column;
 }
@@ -542,5 +540,290 @@ body {
   }
   100% {
     transform: translateY(700px) rotate(360deg);
+  }
+}
+
+/* Level Up Popup - Redesigned */
+.level-up-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+  pointer-events: none;
+}
+
+.level-up-popup.show {
+  display: flex;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.level-up-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 20px;
+  gap: 20px;
+
+  position: relative;
+  width: 343px;
+  min-height: 286px;
+
+  background: linear-gradient(145deg, #1a0309 0%, #2a0512 50%, #1a0309 100%);
+  border: 1px solid rgba(255, 107, 139, 0.2);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(255, 107, 139, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  transform: scale(0.8) translateY(30px);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+
+.level-up-popup.show .level-up-content {
+  transform: scale(1) translateY(0);
+}
+
+/* Hiệu ứng ánh sáng chạy */
+.level-up-content::before {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 107, 139, 0.4),
+    transparent,
+    rgba(255, 107, 139, 0.4),
+    transparent
+  );
+  border-radius: 24px;
+  z-index: -1;
+}
+
+/* Emoji */
+.level-up-emoji {
+  width: 64px;
+  height: 64px;
+  font-family: "Gugi", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 64px;
+  line-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 215, 0, 0.4);
+  animation: emojiFloat 2s ease-in-out infinite;
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+@keyframes emojiFloat {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+  }
+  50% {
+    transform: translateY(-5px) scale(1.05);
+    filter: drop-shadow(0 0 25px rgba(255, 215, 0, 0.9));
+  }
+}
+
+/* Text Container */
+.level-up-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0px;
+  width: 311px;
+  text-align: center;
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+/* Title */
+.level-up-title {
+  width: 100%;
+  font-family: "Gugi", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin-bottom: 8px;
+
+  background: linear-gradient(
+    45deg,
+    #ff6b8b 0%,
+    #ffd93d 25%,
+    #6bcf7f 50%,
+    #4ecdc4 75%,
+    #ff6b8b 100%
+  );
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: rainbowText 3s ease-in-out infinite;
+
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+@keyframes rainbowText {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Description */
+.level-up-description {
+  width: 100%;
+  font-family: "Gugi", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  flex: none;
+  order: 1;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+/* Button */
+.level-up-button {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  padding: 14px 24px;
+  gap: 10px;
+
+  width: 311px;
+  height: 52px;
+
+  background: linear-gradient(
+    135deg,
+    #6d1150 0%,
+    #8b1a5c 25%,
+    #a91e68 50%,
+    #6d1150 75%,
+    #2e032c 100%
+  );
+  background-size: 200% 200%;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+
+  box-shadow: 0 8px 20px rgba(109, 17, 80, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  transition: all 0.3s ease;
+  animation: buttonPulse 2s ease-in-out infinite;
+
+  flex: none;
+  order: 2;
+  align-self: stretch;
+  flex-grow: 0;
+}
+
+@keyframes buttonPulse {
+  0%,
+  100% {
+    background-position: 0% 50%;
+    transform: scale(1);
+    box-shadow: 0 8px 20px rgba(109, 17, 80, 0.4), 0 4px 8px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    background-position: 100% 50%;
+    transform: scale(1.02);
+    box-shadow: 0 12px 25px rgba(109, 17, 80, 0.6),
+      0 6px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+}
+
+.level-up-button:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 15px 30px rgba(109, 17, 80, 0.5), 0 8px 15px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.level-up-button:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 5px 15px rgba(109, 17, 80, 0.4), 0 2px 5px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Button Text */
+.level-up-button-text {
+  font-family: "Gugi", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+/* Responsive cho mobile */
+@media (max-width: 430px) {
+  .level-up-content {
+    width: calc(100vw - 32px);
+    max-width: 343px;
+    margin: 0 16px;
+  }
+
+  .level-up-text-container,
+  .level-up-button {
+    width: 100%;
+    max-width: 311px;
   }
 }

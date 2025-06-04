@@ -130,6 +130,7 @@ const TAP_COIN_BY_LEVEL = [
 
 // Tính tổng HP cho mỗi level
 function getLevelHP(level) {
+  if (level <= 0) return 100; // Level 0 có 100 HP
   if (level <= 1) return 100;
   let hp = 100;
   for (let lv = 2; lv <= level; lv++) {
@@ -143,6 +144,7 @@ function getLevelHP(level) {
 
 // Tính số coin mỗi lần tap cho level hiện tại
 function getTapCoin(level) {
+  if (level <= 0) return 24; // Level 0 cũng có 24 coin mỗi tap
   for (const range of TAP_COIN_BY_LEVEL) {
     if (level >= range.from && level <= range.to) return range.value;
   }
@@ -151,12 +153,43 @@ function getTapCoin(level) {
 
 // Tính % MT nâng cấp (upgrade multiplier)
 function getUpgradeMultiplier(level) {
+  if (level <= 0) return 1; // Level 0 có multiplier = 1
   return 1 + (level - 1) * 0.05; // 100% + 5% mỗi cấp
 }
 
 // Lấy điểm cần để lên cấp cho level hiện tại
 function getLevelUpRequirement(level) {
-  return LEVEL_UP_REQUIREMENTS[level - 1] || 0;
+  const requirement = LEVEL_UP_REQUIREMENTS[level] || 0;
+  console.log(
+    `Level ${level} requires ${requirement} coins to level up to ${level + 1}`
+  );
+  return requirement;
+}
+
+// Tính tổng coin cần thiết để đạt level cụ thể
+function getTotalCoinsForLevel(level) {
+  if (level <= 0) return 0;
+  let total = 0;
+  for (let i = 0; i < level; i++) {
+    total += LEVEL_UP_REQUIREMENTS[i] || 0;
+  }
+  return total;
+}
+
+// Kiểm tra xem có thể lên level không
+function canLevelUp(currentLevel, totalCoins) {
+  const currentLevelRequirement = getLevelUpRequirement(currentLevel);
+
+  console.log(`Level up check: Current level ${currentLevel}`);
+  console.log(`- Total coins: ${totalCoins}`);
+  console.log(`- Current level requirement: ${currentLevelRequirement}`);
+  console.log(`- Can level up: ${totalCoins >= currentLevelRequirement}`);
+
+  return (
+    currentLevelRequirement > 0 &&
+    totalCoins >= currentLevelRequirement &&
+    currentLevel < 100
+  );
 }
 
 // =====================
@@ -170,13 +203,14 @@ function saveGameState(state) {
 function loadGameState() {
   const data = localStorage.getItem("taptoearn_state");
   if (data) return JSON.parse(data);
-  // Trạng thái mặc định
+  // Trạng thái mặc định - bắt đầu từ level 0
   return {
-    level: 1,
-    hp: getLevelHP(1),
+    level: 0,
+    hp: getLevelHP(1), // HP vẫn dùng công thức level 1
     coinEarn: 0,
     coinCount: 0,
     lastRecover: Date.now(),
+    lastZeroHP: null,
   };
 }
 
@@ -185,12 +219,29 @@ function loadGameState() {
 // =====================
 
 function updateUI(state) {
+  console.log("updateUI called with state:", state);
+
   // Cập nhật HP
   const maxHP = getLevelHP(state.level);
   const hpPercentage = Math.max(0, Math.min(100, (state.hp / maxHP) * 100));
 
+  console.log(
+    "Updating HP display:",
+    state.hp,
+    "/",
+    maxHP,
+    "Percentage:",
+    hpPercentage
+  );
+
   // Cập nhật text HP
-  document.getElementById("hp-per-level").textContent = `${state.hp}/${maxHP}`;
+  const hpElement = document.getElementById("hp-per-level");
+  if (hpElement) {
+    hpElement.textContent = `${state.hp}/${maxHP}`;
+    console.log("HP element updated to:", hpElement.textContent);
+  } else {
+    console.error("HP element not found!");
+  }
 
   // Cập nhật thanh progress HP và progress-icon
   const progressBar = document.querySelector(".progress-bar");
@@ -213,18 +264,43 @@ function updateUI(state) {
   document.getElementById("coin-count").textContent = state.coinCount;
 
   // Cập nhật level text
-  document.getElementById("hp-level").textContent = state.level;
-  document.getElementById("lp-level").textContent = state.level;
+  const hpLevelElement = document.getElementById("hp-level");
+  const lpLevelElement = document.getElementById("lp-level");
+
+  if (hpLevelElement) {
+    hpLevelElement.textContent = state.level;
+    console.log("HP Level element updated to:", hpLevelElement.textContent);
+  } else {
+    console.error("HP Level element not found!");
+  }
+
+  if (lpLevelElement) {
+    lpLevelElement.textContent = state.level;
+    console.log("LP Level element updated to:", lpLevelElement.textContent);
+  } else {
+    console.error("LP Level element not found!");
+  }
 
   // Tính phần trăm tiến trình level
-  const upReq = getLevelUpRequirement(state.level);
+  const currentLevelRequirement = getLevelUpRequirement(state.level);
   let levelProgress = 0;
 
-  if (upReq > 0) {
-    // Tính số coin cần cho level hiện tại
-    const currentLevelCoins = state.coinCount;
-    // Tính progress dựa trên số coin hiện tại
-    levelProgress = Math.min(100, (currentLevelCoins / upReq) * 100);
+  if (currentLevelRequirement > 0) {
+    // Tính coin đã có cho level hiện tại
+    const totalCoinsForCurrentLevel = getTotalCoinsForLevel(state.level);
+    const coinsForThisLevel = state.coinCount - totalCoinsForCurrentLevel;
+
+    // Tính progress dựa trên coin cần cho level hiện tại
+    levelProgress = Math.min(
+      100,
+      Math.max(0, (coinsForThisLevel / currentLevelRequirement) * 100)
+    );
+
+    console.log(
+      `Level progress: ${coinsForThisLevel}/${currentLevelRequirement} = ${levelProgress.toFixed(
+        1
+      )}%`
+    );
   }
 
   // Cập nhật cả 2 thanh level progress
@@ -253,33 +329,35 @@ function updateUI(state) {
 
 function tap(event, multiplier = 1) {
   let state = loadGameState();
-  if (state.hp <= 0) return; // Không tap khi HP = 0
+  console.log("Tap called - Current HP:", state.hp, "Multiplier:", multiplier);
+
+  if (state.hp <= 0) {
+    console.log("Cannot tap - HP is 0 or less");
+    return; // Không tap khi HP = 0
+  }
 
   // Tạo hiệu ứng coin bay từ vị trí click/touch
   if (event) {
-    const coinTarget = document.querySelector('img[src*="coin-icon.svg"]');
+    const coinTarget =
+      document.getElementById("coin-target-stats") ||
+      document.querySelector('img[src*="coin-icon.svg"]');
     if (coinTarget) {
-      // Tạo 3 coin bay từ vị trí tap, nhân với multiplier
-      const coinCount = Math.max(1, Math.floor(3 * multiplier));
-      for (let i = 0; i < coinCount; i++) {
-        setTimeout(() => {
-          createFlyingCoin(
-            event.clientX ||
-              event.touches?.[0]?.clientX ||
-              window.innerWidth / 2,
-            event.clientY ||
-              event.touches?.[0]?.clientY ||
-              window.innerHeight / 2,
-            coinTarget
-          );
-        }, i * 150);
-      }
+      // Tạo 1 coin bay từ vị trí tap
+      createFlyingCoin(
+        event.clientX || event.touches?.[0]?.clientX || window.innerWidth / 2,
+        event.clientY || event.touches?.[0]?.clientY || window.innerHeight / 2,
+        coinTarget
+      );
     }
+
+    // Kích hoạt hiệu ứng flash cho bottom layout
+    triggerBottomLayoutFlash();
   }
 
   // Giảm HP và tính coin với multiplier
-  const newHP = state.hp - 4;
-  state.hp = newHP <= 0 ? 0 : newHP; // Đảm bảo HP về đúng 0
+  const oldHP = state.hp;
+  state.hp -= 4;
+  console.log("HP changed from", oldHP, "to", state.hp);
 
   // Tính coin nhận được với multiplier
   let tapCoin;
@@ -296,20 +374,96 @@ function tap(event, multiplier = 1) {
   }
 
   state.coinEarn += tapCoin;
+  console.log("Coin earned:", tapCoin, "Total coinEarn:", state.coinEarn);
 
-  // Nếu HP về 0, cộng dồn coinEarn vào coinCount, reset coinEarn
-  if (state.hp === 0) {
+  // Nếu HP về 0 hoặc âm, xử lý kết thúc lượt
+  if (state.hp <= 0) {
+    console.log("HP reached 0 or below, processing end of round");
+    state.hp = 0; // Đảm bảo HP hiển thị là 0
     state.coinCount += state.coinEarn;
     state.coinEarn = 0;
     state.lastRecover = Date.now();
+    state.lastZeroHP = Date.now();
+    console.log("Round ended - Total coins:", state.coinCount, "HP set to 0");
+
+    // Lưu state và cập nhật UI ngay để hiển thị HP = 0
+    saveGameState(state);
+    updateUI(state);
+
+    // Kiểm tra lên cấp sau một delay nhỏ để giao diện kịp hiển thị HP = 0
+    setTimeout(() => {
+      let currentState = loadGameState();
+
+      console.log(
+        `Checking level up: Current level ${currentState.level}, Current coins ${currentState.coinCount}`
+      );
+
+      if (canLevelUp(currentState.level, currentState.coinCount)) {
+        console.log("Level up conditions met!");
+        currentState.level++;
+
+        // KHÔNG hồi full HP khi hết máu - chỉ hồi khi còn HP
+        if (currentState.hp > 0) {
+          currentState.hp = getLevelHP(currentState.level);
+          console.log("Level up! HP restored to:", currentState.hp);
+        } else {
+          console.log(
+            "Level up! But HP stays at 0 - must wait 3 minutes to recover"
+          );
+        }
+
+        console.log("Level up! New level:", currentState.level);
+
+        // Kiểm tra các mốc level đặc biệt
+        if (currentState.level % 10 === 0) {
+          // Thông báo đạt mốc level quan trọng
+          if (typeof showTelegramAlert === "function") {
+            showTelegramAlert(
+              `🎉 Chúc mừng! Bạn đã đạt level ${currentState.level}!\n💰 Tổng coin: ${currentState.coinCount}`
+            );
+          }
+        }
+
+        saveGameState(currentState);
+        updateUI(currentState);
+        console.log("Level up completed - State saved and UI updated");
+
+        // Hiển thị popup level up chỉ khi không phải lần đầu load
+        if (!isInitialLoad && gameInitialized) {
+          showLevelUpPopupInGame(currentState.level);
+        }
+
+        // Kiểm tra lại state sau khi lưu
+        setTimeout(() => {
+          const verifyState = loadGameState();
+          console.log("Verification - State after level up:", verifyState);
+          updateUI(verifyState);
+        }, 100);
+      } else {
+        console.log("Level up conditions NOT met");
+      }
+    }, 500); // Delay 500ms để giao diện kịp hiển thị HP = 0
+
+    return; // Kết thúc hàm sớm khi HP = 0
   }
 
-  // Kiểm tra lên cấp
-  const upReq = getLevelUpRequirement(state.level);
-  if (upReq > 0 && state.coinCount >= upReq && state.level < 100) {
+  // Kiểm tra lên cấp (chỉ khi HP > 0)
+  if (canLevelUp(state.level, state.coinCount)) {
+    const oldLevel = state.level;
     state.level++;
-    // Hồi full HP khi lên cấp
-    state.hp = getLevelHP(state.level);
+
+    // Chỉ hồi full HP khi lên cấp nếu HP > 0
+    if (state.hp > 0) {
+      state.hp = getLevelHP(state.level);
+      console.log(
+        "Level up! New level:",
+        state.level,
+        "HP restored to:",
+        state.hp
+      );
+    } else {
+      console.log("Level up! New level:", state.level, "But HP stays at 0");
+    }
 
     // Kiểm tra các mốc level đặc biệt
     if (state.level % 10 === 0) {
@@ -320,8 +474,14 @@ function tap(event, multiplier = 1) {
         );
       }
     }
+
+    // Hiển thị popup level up chỉ khi không phải lần đầu load
+    if (!isInitialLoad && gameInitialized) {
+      showLevelUpPopupInGame(state.level);
+    }
   }
 
+  console.log("Final state before save:", state);
   saveGameState(state);
   updateUI(state);
 }
@@ -363,11 +523,29 @@ function createFlyingCoin(startX, startY, targetElement) {
 function recoverHP() {
   let state = loadGameState();
   if (state.hp >= getLevelHP(state.level)) return;
+
   const now = Date.now();
+
+  // Nếu HP = 0, kiểm tra đã qua 3 phút chưa
+  if (state.hp === 0) {
+    if (!state.lastZeroHP) return; // Chưa có thời điểm hết máu
+    const msPassed = now - state.lastZeroHP;
+    if (msPassed < 3 * 60 * 1000) return; // Chưa đủ 3 phút thì không hồi máu
+
+    // Đủ 3 phút thì bắt đầu hồi máu
+    const maxHP = getLevelHP(state.level);
+    state.hp = Math.floor((maxHP * 2) / 100); // Hồi 2% HP để bắt đầu
+    state.lastRecover = now;
+    state.lastZeroHP = null; // Reset để không lặp lại
+    saveGameState(state);
+    updateUI(state);
+    return;
+  }
+
+  // HP > 0, hồi máu như cũ
   const msPassed = now - state.lastRecover;
   // 3 phút hồi 2% HP
   const recoverPercent = Math.floor(msPassed / (3 * 60 * 1000)) * 2;
-  // const recoverPercent = Math.floor(msPassed / (5 * 1000)) * 5;  5s phục hồi 5% HP
   if (recoverPercent > 0) {
     const maxHP = getLevelHP(state.level);
     state.hp = Math.min(
@@ -387,27 +565,95 @@ function recoverHP() {
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Game initialization started");
 
+  // Ẩn popup level up khi khởi tạo - đảm bảo hoàn toàn ẩn
+  const popup = document.getElementById("level-up-popup");
+  if (popup) {
+    popup.classList.remove("show");
+    popup.style.display = "none";
+    popup.style.opacity = "0";
+    popup.style.visibility = "hidden";
+    popup.style.pointerEvents = "none";
+    console.log("Level up popup completely hidden on initialization");
+  }
+
+  // Thêm event listener cho nút Confirm trong popup
+  const confirmBtn = document.getElementById("level-up-confirm-btn");
+  if (confirmBtn) {
+    confirmBtn.addEventListener(
+      "click",
+      function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        console.log("Confirm button clicked via event listener");
+        closeLevelUpPopup();
+        return false;
+      },
+      true
+    ); // Use capture phase
+    console.log("Level up confirm button event listener added");
+  }
+
+  // Thêm event listener để đóng popup khi click vào backdrop
+  if (popup) {
+    popup.addEventListener("click", function (e) {
+      if (e.target === popup) {
+        console.log("Backdrop clicked, closing popup");
+        e.preventDefault();
+        e.stopPropagation();
+        closeLevelUpPopup();
+      }
+    });
+
+    // Ngăn event bubbling từ popup content
+    const popupContent = popup.querySelector(".level-up-content");
+    if (popupContent) {
+      popupContent.addEventListener("click", function (e) {
+        e.stopPropagation();
+      });
+    }
+
+    console.log("Popup backdrop click listener added");
+  }
+
   // Cập nhật UI lần đầu
-  updateUI(loadGameState());
+  let initialState = loadGameState();
+
+  // Khởi tạo previousLevel với level hiện tại
+  previousLevel = initialState.level;
+  console.log("Initialized previousLevel to:", previousLevel);
+
+  updateUI(initialState);
 
   // Gắn sự kiện tap cho stats-panel với event
-  document
-    .getElementById("stats-panel")
-    .addEventListener("click", function (event) {
-      tap(event);
-    });
+  // document
+  //   .getElementById("stats-panel")
+  //   .addEventListener("click", function (event) {
+  //     tap(event);
+  //   });
 
   // Gắn sự kiện tap cho main-stage với event
-  document
-    .getElementById("main-stage")
-    .addEventListener("click", function (event) {
-      tap(event);
-    });
+  // document
+  //   .getElementById("main-stage")
+  //   .addEventListener("click", function (event) {
+  //     tap(event);
+  //   });
 
   // Hồi phục HP mỗi phút
   setInterval(recoverHP, 60 * 1000);
 
-  console.log("Game initialization completed");
+  console.log(
+    "Game initialization completed - popup will be enabled after delay"
+  );
+
+  // Thêm delay 3 giây trước khi cho phép popup hiển thị
+  setTimeout(() => {
+    gameInitialized = true;
+    isInitialLoad = false; // Đánh dấu đã hoàn tất khởi tạo
+    console.log(
+      "Popup now truly enabled after delay, isInitialLoad set to false"
+    );
+  }, 3000);
 });
 
 // Xử lý riêng cho nút auto earn
@@ -440,12 +686,143 @@ if (autoEarnButton) {
 // - Có thể thêm nút riêng cho tap nếu không muốn tap toàn bộ stats-panel.
 // - Có thể tối ưu lưu trạng thái để tránh ghi localStorage quá nhiều nếu cần.
 
+// =====================
+// 9. Level Up Popup Functions
+// =====================
+
+function showLevelUpPopupInGame(newLevel) {
+  console.log(
+    "Checking level up popup for level",
+    newLevel,
+    "Previous level:",
+    previousLevel,
+    "Game initialized:",
+    gameInitialized,
+    "Is initial load:",
+    isInitialLoad
+  );
+
+  // Chỉ hiển thị popup nếu game đã khởi tạo xong và không phải lần đầu load
+  if (!gameInitialized || isInitialLoad) {
+    console.log(
+      "Game not initialized yet or is initial load, not showing popup"
+    );
+    return;
+  }
+
+  // Chỉ hiển thị popup nếu level thực sự tăng lên (không bằng hoặc nhỏ hơn)
+  if (previousLevel === null || newLevel <= previousLevel) {
+    console.log(
+      "Level did not increase, not showing popup. Previous:",
+      previousLevel,
+      "New:",
+      newLevel
+    );
+    return;
+  }
+
+  // Thêm kiểm tra bổ sung: chỉ hiển thị nếu level tăng đúng 1 bậc
+  if (newLevel !== previousLevel + 1) {
+    console.log(
+      "Level jump is not exactly +1, not showing popup. Previous:",
+      previousLevel,
+      "New:",
+      newLevel
+    );
+    previousLevel = newLevel; // Cập nhật previousLevel nhưng không hiển thị popup
+    return;
+  }
+
+  console.log(
+    "Showing level up popup for level",
+    newLevel,
+    "from actual gameplay"
+  );
+  const popup = document.getElementById("level-up-popup");
+  if (popup) {
+    // Cập nhật nội dung popup
+    const titleElement = popup.querySelector(".level-up-title");
+    if (titleElement) {
+      titleElement.textContent = `Level ${newLevel}!`;
+    }
+
+    // Hiển thị popup với animation
+    popup.style.display = "flex";
+    popup.style.opacity = "1";
+    popup.style.visibility = "visible";
+    popup.style.pointerEvents = "auto";
+    popup.classList.add("show");
+  }
+
+  // Cập nhật level trước đó
+  previousLevel = newLevel;
+}
+
+function closeLevelUpPopup() {
+  console.log("closeLevelUpPopup function called");
+  const popup = document.getElementById("level-up-popup");
+  if (popup) {
+    console.log("Popup found, hiding it");
+    popup.classList.remove("show");
+
+    // Sử dụng setTimeout để đảm bảo animation hoàn tất trước khi ẩn hoàn toàn
+    setTimeout(() => {
+      popup.style.display = "none";
+      popup.style.opacity = "0";
+      popup.style.visibility = "hidden";
+      popup.style.pointerEvents = "none";
+      console.log("Popup completely hidden");
+    }, 300); // Đợi animation kết thúc
+  } else {
+    console.error("Popup not found!");
+  }
+}
+
+// Thêm hàm vào global scope để có thể gọi từ HTML
+window.closeLevelUpPopup = closeLevelUpPopup;
+
+// Thêm hàm test popup để debug
+window.testLevelUpPopup = function () {
+  console.log("Testing level up popup");
+  const popup = document.getElementById("level-up-popup");
+  if (popup) {
+    popup.style.display = "flex";
+    popup.style.opacity = "1";
+    popup.style.visibility = "visible";
+    popup.style.pointerEvents = "auto";
+    popup.classList.add("show");
+    console.log("Test popup shown");
+  } else {
+    console.error("Popup not found for testing!");
+  }
+};
+
+// Thêm hàm reset game để test
+window.resetGame = function () {
+  localStorage.removeItem("taptoearn_state");
+  location.reload();
+};
+
 // Handle touch events
 document.addEventListener(
   "touchstart",
   function (event) {
+    // Kiểm tra xem popup có đang hiển thị không
+    const popup = document.getElementById("level-up-popup");
+    if (popup && popup.classList.contains("show")) {
+      return; // Không xử lý tap khi popup đang hiển thị
+    }
+
     // Kiểm tra xem có phải click vào nút auto earn không
     if (event.target.closest("#auto-earn-button")) {
+      return;
+    }
+
+    // Chỉ xử lý tap khi touch vào stats-panel hoặc main-stage
+    if (
+      !event.target.closest("#stats-panel") &&
+      !event.target.closest("#main-stage")
+    ) {
       return;
     }
 
@@ -465,8 +842,22 @@ document.addEventListener(
 
 // Keep click handler for desktop testing
 document.addEventListener("click", function (event) {
+  // Kiểm tra xem popup có đang hiển thị không
+  const popup = document.getElementById("level-up-popup");
+  if (popup && popup.classList.contains("show")) {
+    return; // Không xử lý click khi popup đang hiển thị
+  }
+
   // Kiểm tra xem có phải click vào nút auto earn không
   if (event.target.closest("#auto-earn-button")) {
+    return;
+  }
+
+  // Chỉ xử lý tap khi click vào stats-panel hoặc main-stage
+  if (
+    !event.target.closest("#stats-panel") &&
+    !event.target.closest("#main-stage")
+  ) {
     return;
   }
 
@@ -507,6 +898,9 @@ function switchToGame2() {
 // Biến theo dõi trạng thái auto earn
 let isAutoEarnEnabled = false;
 let autoEarnInterval = null;
+let previousLevel = null; // Theo dõi level trước đó để tránh hiển thị popup không cần thiết
+let gameInitialized = false; // Flag để kiểm tra game đã khởi tạo xong chưa
+let isInitialLoad = true; // Flag để tránh popup khi lần đầu load game
 
 // Hàm thực hiện auto tap
 function autoTap() {
@@ -582,3 +976,28 @@ window.addEventListener("load", function () {
     console.error("Auto earn button not found");
   }
 });
+
+// =====================
+// 10. Bottom Layout Flash Effect
+// =====================
+
+function triggerBottomLayoutFlash() {
+  const bottomLayoutContainer = document.getElementById(
+    "bottom-layout-container"
+  );
+  if (bottomLayoutContainer) {
+    // Remove existing flash class if any
+    bottomLayoutContainer.classList.remove("flash-active");
+
+    // Force reflow to ensure the class removal takes effect
+    bottomLayoutContainer.offsetHeight;
+
+    // Add flash class to trigger animation
+    bottomLayoutContainer.classList.add("flash-active");
+
+    // Remove flash class after animation completes
+    setTimeout(() => {
+      bottomLayoutContainer.classList.remove("flash-active");
+    }, 800); // Match animation duration
+  }
+}

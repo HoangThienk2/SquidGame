@@ -9,6 +9,7 @@
     <title>Telegram Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./css/style.css" />
     <link rel="stylesheet" href="./css/animations.css" />
     <script>
       tailwind.config = {
@@ -29,16 +30,49 @@
     </script>
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Gugi&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+
       body {
         font-family: "Arial", sans-serif;
-        background: linear-gradient(180deg, #2d1b3d 0%, #1a0f2e 100%);
+        background-color: #120106;
         min-height: 100vh;
-        overflow-x: hidden;
+        width: 100vw;
+        display: block;
+        position: relative;
+        color: white;
+      }
+
+      /* Main container positioned in center like a phone */
+      .phone-container {
+        max-width: 375px;
+        width: 100%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-height: 100vh;
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(180deg, #2d1b3d 0%, #1a0f2e 100%);
         background-image: url("./images/screen1/background-image.png");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
-        color: white;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border-radius: 16px;
+        overflow: hidden;
       }
 
       .progress-bar {
@@ -77,10 +111,8 @@
         );
       }
       #main-stage {
-        background: url("./images/screen1/character.svg") no-repeat center
-          bottom -5px;
-        background-size: contain;
         position: relative;
+        z-index: 30;
       }
       .background-color-gradient {
         background: radial-gradient(
@@ -137,16 +169,25 @@
       /* Game container */
       .game-container {
         width: 100%;
-        max-width: 428px; /* Max width for largest iPhone */
-        margin: 0 auto;
-        padding: 0 16px;
         height: 100%;
+        padding: 20px 16px;
         display: flex;
         flex-direction: column;
+        position: relative;
+        z-index: 1;
       }
 
       /* Base styles for smallest phones (iPhone SE, small Android) */
       @media screen and (max-width: 375px) {
+        .phone-container {
+          max-width: 100%;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+
         .resource-header {
           height: 24px;
         }
@@ -168,6 +209,10 @@
 
       /* Styles for medium phones (iPhone X, 11, 12, 13, most Android) */
       @media screen and (min-width: 376px) and (max-width: 390px) {
+        .phone-container {
+          max-width: 390px;
+        }
+
         .resource-header {
           height: 26px;
         }
@@ -180,10 +225,19 @@
         .text-lg {
           font-size: 0.925rem;
         }
+
+        .px-4 {
+          padding-left: 10px;
+          padding-right: 10px;
+        }
       }
 
-      /* Styles for larger phones (Pro Max, larger Android) */
+      /* Styles for larger phones (iPhone Pro Max, larger Android) */
       @media screen and (min-width: 391px) {
+        .phone-container {
+          max-width: 428px;
+        }
+
         .resource-header {
           height: 28px;
         }
@@ -196,13 +250,21 @@
 
       /* Portrait mode optimization for shorter screens */
       @media screen and (max-height: 700px) {
+        .phone-container {
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+
         .pt-6 {
           padding-top: 0.75rem;
         }
 
         #main-stage {
-          height: 160px !important;
-          background-size: auto 105% !important;
+          height: 220px;
+          background-size: auto 85%;
         }
 
         .mb-4 {
@@ -212,29 +274,97 @@
 
       /* Common mobile adjustments */
       @media screen and (max-width: 428px) {
-        .game-container {
-          padding: 0 12px;
-        }
-
         .level-bars {
           height: 8px;
         }
 
-        #stats-panel {
-          padding: 12px;
+        .progress-icon {
+          height: 12px;
         }
 
-        button {
-          min-width: 44px; /* Minimum touch target size */
-          min-height: 44px;
+        /* Điều chỉnh khoảng cách */
+        .space-x-4 > * + * {
+          margin-left: 0.75rem;
+        }
+      }
+
+      /* Bottom navigation adjustments for phone container */
+      #bottom-nav {
+        z-index: 20;
+      }
+
+      /* Bottom layout adjustments */
+      .bottom-layout-image {
+        z-index: 10;
+      }
+
+      /* iPhone SE specific adjustments */
+      @media screen and (max-width: 375px) {
+        .bottom-layout-image {
+          bottom: -55px !important;
         }
 
-        /* Adjust icon sizes */
-        .w-5 {
-          width: 1.25rem;
+        /* Character overlay adjustments for iPhone SE */
+        #character-overlay {
+          bottom: 200px !important;
+          height: 240px !important;
         }
-        .h-5 {
-          height: 1.25rem;
+
+        /* Auto earn button adjustments for iPhone SE */
+        .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          margin-bottom: 20px !important;
+          margin-right: 12px !important;
+          transform: translateY(-80px) !important;
+        }
+
+        /* Alternative selector for auto earn container */
+        .game-container + div {
+          margin-bottom: 40px !important;
+          margin-right: 12px !important;
+          transform: translateY(-30px) !important;
+        }
+
+        /* Auto earn button size adjustment */
+        #auto-earn-button {
+          width: 40px !important;
+          padding: 8px !important;
+        }
+
+        #auto-earn-button img {
+          width: 18px !important;
+          height: 18px !important;
+        }
+
+        /* Auto earn text size */
+        .gugi-regular.text-xs {
+          font-size: 10px !important;
+        }
+      }
+
+      /* Bottom layout flash effect */
+      .bottom-layout-flash {
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Additional glow effect */
+      .bottom-layout-flash.flash-active {
+        filter: brightness(1.3) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+        animation: pulseGlow 0.8s ease-out;
+      }
+
+      @keyframes pulseGlow {
+        0% {
+          filter: brightness(1) drop-shadow(0 0 0px rgba(255, 215, 0, 0));
+        }
+        30% {
+          filter: brightness(1.4) drop-shadow(0 0 25px rgba(255, 215, 0, 0.9));
+        }
+        60% {
+          filter: brightness(1.2) drop-shadow(0 0 15px rgba(255, 215, 0, 0.6));
+        }
+        100% {
+          filter: brightness(1) drop-shadow(0 0 0px rgba(255, 215, 0, 0));
         }
       }
 
@@ -313,44 +443,6 @@
         }
       }
 
-      /* Common styles for all mobile devices */
-      @media screen and (max-width: 428px) {
-        .game-container {
-          max-width: 100%;
-          padding: 0 12px;
-        }
-
-        .level-bars {
-          height: 8px;
-        }
-
-        .progress-icon {
-          height: 12px;
-        }
-
-        #stats-panel {
-          padding: 12px;
-        }
-
-        /* Điều chỉnh kích thước nút */
-        .background-color-gradient.w-[104px] {
-          width: 80px;
-        }
-
-        /* Điều chỉnh icon size */
-        .w-[65px] {
-          width: 50px;
-        }
-        .h-[65px] {
-          height: 50px;
-        }
-
-        /* Điều chỉnh khoảng cách */
-        .space-x-4 > * + * {
-          margin-left: 0.75rem;
-        }
-      }
-
       /* Portrait mode optimization */
       @media screen and (max-height: 700px) {
         .pt-6 {
@@ -368,220 +460,252 @@
       }
     </style>
   </head>
-  <body class="container text-white font-game pt-6">
-    <!-- Game Container -->
-    <div class="game-container">
-      <!-- Resource Header -->
-      <div class="flex space-x-3 mb-4">
-        <!-- Ruby Counter -->
-        <div
-          class="resource-header background-color-gradient flex-1 rounded-full px-4 py-3 flex items-center space-x-3"
-        >
-          <div class="w-5 h-5 rounded-full flex items-center justify-center">
-            <img
-              src="./images/screen1/icons/ruby-icon.svg"
-              alt="Ruby Icon"
-              class="w-5 h-5"
-            />
-          </div>
-          <span class="gugi-regular text-white font-bold text-lg">30</span>
-        </div>
-
-        <!-- Coin Counter -->
-        <div
-          class="resource-header background-color-gradient flex-1 rounded-full px-4 py-3 flex items-center space-x-3"
-        >
-          <div class="w-5 h-5 rounded-full flex items-center justify-center">
-            <img
-              src="./images/screen1/icons/coin-icon.svg"
-              alt="Coin Icon"
-              class="w-5 h-5"
-              id="coin-target"
-            />
-          </div>
-          <span
-            id="coin-count"
-            class="gugi-regular text-white font-bold text-lg"
-            >0</span
-          >
-        </div>
-      </div>
-
-      <!-- Stats Panel -->
-      <div
-        id="stats-panel"
-        class="background-color-gradient bg-opacity-30 rounded-2xl p-4 mb-4 relative"
-      >
-        <!-- HP Section -->
-        <div class="mb-4 flex items-center justify-between gap-6">
-          <div class="flex flex-col justify-between items-center mb-2 w-full">
-            <div class="flex items-center justify-between w-full mb-2">
-              <span class="gugi-regular text-[#FF6B8B]">HP</span>
-              <span id="hp-per-level" class="gugi-regular text-white"
-                >100/100</span
-              >
-            </div>
-            <div class="w-full h-3 relative">
-              <div class="hp-progress-container">
-                <div class="progress-bar"></div>
-                <div class="progress-icon"></div>
-              </div>
-            </div>
-          </div>
+  <body>
+    <!-- Phone Container -->
+    <div class="phone-container">
+      <!-- Game Container -->
+      <div class="game-container">
+        <!-- Resource Header -->
+        <div class="flex space-x-3 mb-4">
+          <!-- Ruby Counter -->
           <div
-            class="flex flex-col items-center px-2 py-3 rounded-[12px] w-[100px]"
-            style="background-color: #fc376621"
+            class="resource-header background-color-gradient flex-1 rounded-full px-4 py-3 flex items-center space-x-3"
           >
-            <img
-              src="./images/screen1/icons/coin-icon.svg"
-              alt="Point Icon"
-              class="w-5 h-5"
-            />
-            <span id="coin-earn" class="gugi-regular text-white font-bold"
+            <div class="w-5 h-5 rounded-full flex items-center justify-center">
+              <img
+                src="./images/screen1/icons/ruby-icon.svg"
+                alt="Ruby Icon"
+                class="w-5 h-5"
+              />
+            </div>
+            <span class="gugi-regular text-white font-bold text-lg">30</span>
+          </div>
+
+          <!-- Coin Counter -->
+          <div
+            class="resource-header background-color-gradient flex-1 rounded-full px-4 py-3 flex items-center space-x-3"
+          >
+            <div class="w-5 h-5 rounded-full flex items-center justify-center">
+              <img
+                src="./images/screen1/icons/coin-icon.svg"
+                alt="Coin Icon"
+                class="w-5 h-5"
+                id="coin-target"
+              />
+            </div>
+            <span
+              id="coin-count"
+              class="gugi-regular text-white font-bold text-lg"
               >0</span
             >
           </div>
         </div>
+
+        <!-- Stats Panel -->
         <div
-          style="
-            width: 319px;
-            height: 1.5px;
-            background: radial-gradient(
-              closest-side at 50% 50%,
-              rgba(249, 238, 246, 0.35) 0%,
-              rgba(215, 12, 163, 0) 100%
-            );
-            margin: 16px auto;
-          "
-        ></div>
-        <!-- Level Bars -->
-        <div class="flex space-x-4">
-          <div class="flex-1">
-            <div class="flex justify-between items-center mb-2">
-              <span class="gugi-regular text-[#FF6B8B]">HP lv</span>
-              <span id="hp-level" class="gugi-regular text-white font-bold"
-                >1</span
-              >
-            </div>
-            <div class="relative level-bars w-full">
-              <div class="hp-level-progress-container">
-                <div class="level-progress-bar"></div>
-                <div class="level-progress-icon"></div>
+          id="stats-panel"
+          class="background-color-gradient bg-opacity-30 rounded-2xl p-4 mb-4 relative"
+        >
+          <!-- HP Section -->
+          <div class="mb-4 flex items-center justify-between gap-6">
+            <div class="flex flex-col justify-between items-center mb-2 w-full">
+              <div class="flex items-center justify-between w-full mb-2">
+                <span class="gugi-regular text-[#FF6B8B]">HP</span>
+                <span id="hp-per-level" class="gugi-regular text-white"
+                  >100/100</span
+                >
+              </div>
+              <div class="w-full h-3 relative">
+                <div class="hp-progress-container">
+                  <div class="progress-bar"></div>
+                  <div class="progress-icon"></div>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div class="flex-1">
-            <div class="flex justify-between items-center mb-2">
-              <span class="gugi-regular text-[#FF6B8B]">LP lv</span>
-              <span id="lp-level" class="gugi-regular text-white font-bold"
-                >1</span
+            <div
+              class="flex flex-col items-center px-2 py-3 rounded-[12px] w-[100px]"
+              style="background-color: #fc376621"
+            >
+              <img
+                src="./images/screen1/icons/coin-icon.svg"
+                alt="Point Icon"
+                class="w-5 h-5"
+                id="coin-target-stats"
+              />
+              <span id="coin-earn" class="gugi-regular text-white font-bold"
+                >0</span
               >
             </div>
-            <div class="relative level-bars w-full">
-              <div class="lp-level-progress-container">
-                <div class="level-progress-bar"></div>
-                <div class="level-progress-icon"></div>
+          </div>
+          <div
+            style="
+              width: 319px;
+              height: 1.5px;
+              background: radial-gradient(
+                closest-side at 50% 50%,
+                rgba(249, 238, 246, 0.35) 0%,
+                rgba(215, 12, 163, 0) 100%
+              );
+              margin: 16px auto;
+            "
+          ></div>
+          <!-- Level Bars -->
+          <div class="flex space-x-4">
+            <div class="flex-1">
+              <div class="flex justify-between items-center mb-2">
+                <span class="gugi-regular text-[#FF6B8B]">HP lv</span>
+                <span id="hp-level" class="gugi-regular text-white font-bold"
+                  >1</span
+                >
+              </div>
+              <div class="relative level-bars w-full">
+                <div class="hp-level-progress-container">
+                  <div class="level-progress-bar"></div>
+                  <div class="level-progress-icon"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex-1">
+              <div class="flex justify-between items-center mb-2">
+                <span class="gugi-regular text-[#FF6B8B]">LP lv</span>
+                <span id="lp-level" class="gugi-regular text-white font-bold"
+                  >1</span
+                >
+              </div>
+              <div class="relative level-bars w-full">
+                <div class="lp-level-progress-container">
+                  <div class="level-progress-bar"></div>
+                  <div class="level-progress-icon"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
+
+        <!-- Event Button and Game 2 Button -->
+        <div class="flex justify-end space-x-4">
+          <!-- Event Button -->
+          <div
+            class="background-color-gradient rounded-xl flex justify-center w-[104px]"
+          >
+            <button class="pt-3 flex flex-col items-center justify-center">
+              <span class="gugi-regular text-white text-xs font-bold"
+                >이벤트</span
+              >
+              <img
+                src="./images/screen1/icons/event-icon.svg"
+                alt="Event Icon"
+                class="w-[65px] h-[65px]"
+              />
+            </button>
+          </div>
+
+          <!-- Game 2 Button -->
+        </div>
+
+        <!-- Main Stage Area -->
+        <div id="main-stage" class="relative h-[290px] z-30">
+          <!-- Character will appear here with highest z-index -->
+        </div>
       </div>
 
-      <!-- Event Button and Game 2 Button -->
-      <div class="flex justify-end space-x-4">
-        <!-- Event Button -->
-        <div
-          class="background-color-gradient rounded-xl flex justify-center w-[104px]"
-        >
-          <button class="pt-3 flex flex-col items-center justify-center">
-            <span class="gugi-regular text-white text-xs font-bold"
-              >이벤트</span
-            >
+      <div class="flex justify-end mr-4 mb-4 relative z-50">
+        <div class="flex flex-col items-center space-y-2">
+          <button
+            id="auto-earn-button"
+            class="py-3 flex flex-col items-center justify-center background-color-gradient rounded-xl w-[48px]"
+          >
             <img
-              src="./images/screen1/icons/event-icon.svg"
+              src="./images/screen1/icons/auto-earn.svg"
               alt="Event Icon"
-              class="w-[65px] h-[65px]"
+              class="w-[22px] h-[22px]"
+            />
+          </button>
+          <span class="gugi-regular text-[#FF6B8B] text-xs font-bold"
+            >Auto earn</span
+          >
+        </div>
+      </div>
+
+      <!-- Character overlay to appear above bottom layout -->
+      <div
+        id="character-overlay"
+        class="absolute bottom-[280px] left-0 right-0 z-40 pointer-events-none"
+      >
+        <div
+          class="w-full h-[280px] bg-no-repeat bg-center bg-contain"
+          style="
+            background-image: url('./images/screen1/character.svg');
+            background-position: center bottom;
+            background-size: auto 90%;
+          "
+        ></div>
+      </div>
+
+      <!-- Add coin container for flying coins -->
+      <div id="coin-container" class="coin-container"></div>
+
+      <!-- Bottom Layout Image -->
+      <div
+        class="absolute bottom-0 left-0 right-0 flex justify-center items-center pointer-events-none z-10 bottom-layout-image bottom-layout-flash"
+        id="bottom-layout-container"
+      >
+        <img
+          src="./images/screen1/bottom-layout.png"
+          alt="Bottom Layout"
+          class="w-[104%] max-w-md object-contain"
+          style="transform: translateX(-12px)"
+        />
+      </div>
+
+      <!-- Bottom Navigation -->
+      <div id="bottom-nav" class="absolute bottom-5 left-0 right-0 px-4 z-20">
+        <div
+          class="flex justify-around items-center py-4 px-4 background-bottom-nav rounded-full"
+        >
+          <button class="">
+            <image
+              src="./images/screen1/icons/shopping-cart-icon.svg"
+              alt="Shopping Cart Icon"
+              class="w-6 h-6 text-game-pink"
+            />
+          </button>
+
+          <button class="">
+            <image
+              src="./images/screen1/icons/refresh-icon.svg"
+              alt="Refresh Icon"
+              class="w-6 h-6 text-game-pink"
+            />
+          </button>
+
+          <button class="">
+            <image
+              src="./images/screen1/icons/wallet-icon.svg"
+              alt="Wallet Icon"
+              class="w-6 h-6 text-game-pink"
+            />
+          </button>
+
+          <button class="">
+            <image
+              src="./images/screen1/icons/star-icon.svg"
+              alt="Star Icon"
+              class="w-6 h-6 text-game-pink"
+            />
+          </button>
+
+          <button class="">
+            <image
+              src="./images/screen1/icons/building-icon.svg"
+              alt="Building Icon"
+              class="w-6 h-6 text-game-pink"
             />
           </button>
         </div>
-
-        <!-- Game 2 Button -->
-      </div>
-
-      <!-- Main Stage Area -->
-      <div id="main-stage" class="relative h-[290px]">
-        <!-- Remove glow effect -->
       </div>
     </div>
-
-    <div class="flex justify-end mr-4 mb-4">
-      <div class="flex flex-col items-center space-y-2">
-        <button
-          id="auto-earn-button"
-          class="py-3 flex flex-col items-center justify-center background-color-gradient rounded-xl w-[48px]"
-        >
-          <img
-            src="./images/screen1/icons/auto-earn.svg"
-            alt="Event Icon"
-            class="w-[22px] h-[22px]"
-          />
-        </button>
-        <span class="gugi-regular text-[#FF6B8B] text-xs font-bold"
-          >Auto earn</span
-        >
-      </div>
-    </div>
-
-    <!-- Bottom Navigation -->
-    <div id="bottom-nav" class="fixed bottom-5 left-0 right-0 px-4">
-      <div
-        class="flex justify-around items-center py-4 px-4 background-bottom-nav rounded-full"
-      >
-        <button class="">
-          <image
-            src="./images/screen1/icons/shopping-cart-icon.svg"
-            alt="Shopping Cart Icon"
-            class="w-6 h-6 text-game-pink"
-          />
-        </button>
-
-        <button class="">
-          <image
-            src="./images/screen1/icons/refresh-icon.svg"
-            alt="Refresh Icon"
-            class="w-6 h-6 text-game-pink"
-          />
-        </button>
-
-        <button class="">
-          <image
-            src="./images/screen1/icons/wallet-icon.svg"
-            alt="Wallet Icon"
-            class="w-6 h-6 text-game-pink"
-          />
-        </button>
-
-        <button class="">
-          <image
-            src="./images/screen1/icons/star-icon.svg"
-            alt="Star Icon"
-            class="w-6 h-6 text-game-pink"
-          />
-        </button>
-
-        <button class="">
-          <image
-            src="./images/screen1/icons/building-icon.svg"
-            alt="Building Icon"
-            class="w-6 h-6 text-game-pink"
-          />
-        </button>
-      </div>
-    </div>
-
-    <!-- Add coin container for flying coins -->
-    <div id="coin-container" class="coin-container"></div>
 
     <script>
       // Game logic will go here
@@ -609,5 +733,68 @@
     </script>
     <script src="./js/taptoearn.js"></script>
     <script src="./js/telegram-integration.js"></script>
+
+    <!-- Level Up Popup -->
+    <div id="level-up-popup" class="level-up-popup">
+      <div class="level-up-content">
+        <div class="level-up-emoji">🎉</div>
+        <div class="level-up-text-container">
+          <div class="level-up-title">Level Up!</div>
+          <div class="level-up-description">
+            New rewards unlocked and stronger power await you.
+          </div>
+        </div>
+        <button
+          id="level-up-confirm-btn"
+          class="level-up-button"
+          onclick="closeLevelUpPopupInline(event)"
+        >
+          <span class="level-up-button-text">Confirm</span>
+        </button>
+      </div>
+    </div>
+
+    <script>
+      // Định nghĩa hàm đóng popup trực tiếp trong HTML
+      function closeLevelUpPopupInline(event) {
+        console.log("closeLevelUpPopupInline called");
+
+        // Ngăn event bubbling và default behavior
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+        }
+
+        const popup = document.getElementById("level-up-popup");
+        if (popup) {
+          console.log("Hiding popup inline");
+          popup.classList.remove("show");
+          popup.style.display = "none";
+          popup.style.opacity = "0";
+          popup.style.visibility = "hidden";
+          popup.style.pointerEvents = "none";
+          console.log("Popup hidden successfully");
+        } else {
+          console.error("Popup not found in inline function!");
+        }
+
+        return false; // Ngăn thêm event propagation
+      }
+
+      // Test function
+      function testPopup() {
+        console.log("Testing popup");
+        const popup = document.getElementById("level-up-popup");
+        if (popup) {
+          popup.style.display = "flex";
+          popup.style.opacity = "1";
+          popup.style.visibility = "visible";
+          popup.style.pointerEvents = "auto";
+          popup.classList.add("show");
+          console.log("Test popup shown");
+        }
+      }
+    </script>
   </body>
 </html>
