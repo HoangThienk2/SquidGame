@@ -985,19 +985,26 @@ function triggerBottomLayoutFlash() {
   const bottomLayoutContainer = document.getElementById(
     "bottom-layout-container"
   );
-  if (bottomLayoutContainer) {
+  const bottomLayoutImage = bottomLayoutContainer?.querySelector("img");
+
+  if (bottomLayoutContainer && bottomLayoutImage) {
     // Remove existing flash class if any
     bottomLayoutContainer.classList.remove("flash-active");
 
     // Force reflow to ensure the class removal takes effect
     bottomLayoutContainer.offsetHeight;
 
+    // Change to bottom-layout-2.png when tapping
+    bottomLayoutImage.src = "./images/screen1/bottom-layout-2.png";
+
     // Add flash class to trigger animation
     bottomLayoutContainer.classList.add("flash-active");
 
-    // Remove flash class after animation completes
+    // Remove flash class and restore original image after animation completes
     setTimeout(() => {
       bottomLayoutContainer.classList.remove("flash-active");
+      // Restore original image
+      bottomLayoutImage.src = "./images/screen1/bottom-layout.png";
     }, 800); // Match animation duration
   }
 }

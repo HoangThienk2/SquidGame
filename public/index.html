@@ -158,6 +158,11 @@
         );
       }
 
+      /* Auto earn button default position - override all media queries */
+      .flex.justify-end.mr-4.mb-4.relative.z-50 {
+        transform: translateY(67px) !important;
+      }
+
       /* Telegram WebApp Styles */
       .in-telegram-app {
         max-width: 100%;
@@ -230,6 +235,19 @@
           padding-left: 10px;
           padding-right: 10px;
         }
+
+        /* Character overlay adjustments for iPhone 12 Pro */
+        #character-overlay {
+          bottom: 200px !important;
+        }
+
+        /* Bottom layout adjustments for iPhone 12 Pro */
+        .bottom-layout-image {
+          bottom: -20px !important;
+        }
+        .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          transform: translateY(26px) !important;
+        }
       }
 
       /* Styles for larger phones (iPhone Pro Max, larger Android) */
@@ -245,6 +263,21 @@
         #main-stage {
           height: 280px;
           background-size: auto 85%;
+        }
+
+        /* Character overlay adjustments for iPhone 14 Pro Max */
+        #character-overlay {
+          bottom: 210px !important;
+        }
+
+        /* Bottom layout adjustments for iPhone 14 Pro Max */
+        .bottom-layout-image {
+          bottom: -25px !important;
+        }
+
+        /* Auto earn button adjustments for iPhone 14 Pro Max */
+        .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          transform: translateY(33px) !important;
         }
       }
 
@@ -301,12 +334,12 @@
       /* iPhone SE specific adjustments */
       @media screen and (max-width: 375px) {
         .bottom-layout-image {
-          bottom: -55px !important;
+          bottom: -75px !important;
         }
 
         /* Character overlay adjustments for iPhone SE */
         #character-overlay {
-          bottom: 200px !important;
+          bottom: 170px !important;
           height: 240px !important;
         }
 
@@ -314,7 +347,7 @@
         .flex.justify-end.mr-4.mb-4.relative.z-50 {
           margin-bottom: 20px !important;
           margin-right: 12px !important;
-          transform: translateY(-80px) !important;
+          transform: translateY(-57px) !important;
         }
 
         /* Alternative selector for auto earn container */
@@ -457,6 +490,11 @@
         .mb-4 {
           margin-bottom: 0.5rem;
         }
+      }
+
+      /* HIGH PRIORITY OVERRIDE - Must be last to override all media queries */
+      .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
+        transform: translateY(67px) !important;
       }
     </style>
   </head>
@@ -631,7 +669,7 @@
       <!-- Character overlay to appear above bottom layout -->
       <div
         id="character-overlay"
-        class="absolute bottom-[280px] left-0 right-0 z-40 pointer-events-none"
+        class="absolute bottom-[240px] left-0 right-0 z-40 pointer-events-none"
       >
         <div
           class="w-full h-[280px] bg-no-repeat bg-center bg-contain"
