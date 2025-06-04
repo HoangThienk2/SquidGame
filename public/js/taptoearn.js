@@ -9,104 +9,104 @@
 
 // Điểm cần để lên cấp (level 1 -> 100)
 const LEVEL_UP_REQUIREMENTS = [
-  1600,
-  2600,
-  3750,
-  5050,
-  6500,
-  8100,
-  9800,
-  11650,
-  13700,
-  15850, // 1-10
-  24200,
-  27500,
-  31000,
-  34600,
-  38400,
-  42450,
-  46700,
-  51100,
-  55700,
-  60500, // 11-20
-  81850,
-  88350,
-  95050,
-  102000,
-  109200,
-  116650,
-  124350,
-  132250,
-  140400,
-  148800, // 21-30
-  194850,
-  211700,
-  229100,
-  247100,
-  265700,
-  284850,
-  304600,
-  324900,
-  345750,
-  367200, // 31-40
-  454100,
-  480450,
-  507550,
-  535250,
-  563650,
-  592700,
-  622450,
-  652850,
-  683950,
+  3200,
+  5200,
+  7500,
+  10100,
+  13000,
+  16200,
+  19600,
+  23300,
+  27400,
+  31700, // 1-10
+  48400,
+  55000,
+  62000,
+  69200,
+  76800,
+  84900,
+  93400,
+  102200,
+  111400,
+  121000, // 11-20
+  163700,
+  176700,
+  190100,
+  204000,
+  218400,
+  233300,
+  248700,
+  264500,
+  280800,
+  297600, // 21-30
+  389700,
+  423400,
+  458200,
+  494200,
+  531400,
+  569700,
+  609200,
+  649800,
+  691500,
+  734400, // 31-40
+  908200,
+  960900,
+  1015100,
+  1070500,
+  1127300,
+  1185400,
+  1244900,
+  1305700,
+  1367900,
   0, // 41-49, 50 là ruby
-  855000,
-  940500,
-  1026000,
-  1111500,
-  0, // 51-54, 55 là ruby
-  1368000,
-  1453500,
-  1539000,
-  1624500,
-  0, // 56-59, 60 là ruby
   1710000,
   1881000,
   2052000,
   2223000,
-  0, // 61-64, 65 là ruby
+  0, // 51-54, 55 là ruby
+  2394000,
   2565000,
   2736000,
   2907000,
-  3078000,
+  0, // 56-59, 60 là ruby
+  3420000,
+  3762000,
+  4104000,
+  4446000,
+  0, // 61-64, 65 là ruby
+  5130000,
+  5472000,
+  5814000,
+  6156000,
   0, // 66-69, 70 là ruby
-  3249000,
-  3573900,
-  3898800,
-  4223700,
+  6498000,
+  7147000,
+  7797600,
+  8447400,
   0, // 71-74, 75 là ruby
-  4873500,
-  5198400,
-  5523300,
-  5848200,
+  9747000,
+  10396800,
+  11046600,
+  11696400,
   0, // 76-79, 80 là ruby
-  6173100,
-  6790410,
-  7407720,
-  8025030,
+  12346200,
+  13580820,
+  14815440,
+  16050060,
   0, // 81-84, 85 là ruby
-  9259650,
-  9876960,
-  10494270,
-  11111580,
+  18519300,
+  19753920,
+  20988540,
+  22223160,
   0, // 86-89, 90 là ruby
-  11728890,
-  13488224,
-  15247557,
-  17006891,
+  23457780,
+  26976448,
+  30495114,
+  34013782,
   0, // 91-94, 95 là ruby
-  20525558,
-  22284891,
-  24004225,
+  41051116,
+  44569782,
+  48008450,
   0, // 96-98, 99 là ruby
 ];
 
@@ -116,8 +116,8 @@ const TAP_COIN_BY_LEVEL = [
   { from: 11, to: 20, value: 27 },
   { from: 21, to: 30, value: 31 },
   { from: 31, to: 40, value: 35 },
-  { from: 41, to: 50, value: 39 },
-  { from: 51, to: 60, value: 47 },
+  { from: 41, to: 49, value: 39 },
+  { from: 50, to: 60, value: 47 },
   { from: 61, to: 70, value: 54 },
   { from: 71, to: 80, value: 61 },
   { from: 81, to: 90, value: 70 },
@@ -130,8 +130,7 @@ const TAP_COIN_BY_LEVEL = [
 
 // Tính tổng HP cho mỗi level
 function getLevelHP(level) {
-  if (level <= 0) return 100; // Level 0 có 100 HP
-  if (level <= 1) return 100;
+  if (level <= 1) return 100; // Level 1 có 100 HP
   let hp = 100;
   for (let lv = 2; lv <= level; lv++) {
     if (lv <= 30) hp += 50;
@@ -144,7 +143,7 @@ function getLevelHP(level) {
 
 // Tính số coin mỗi lần tap cho level hiện tại
 function getTapCoin(level) {
-  if (level <= 0) return 24; // Level 0 cũng có 24 coin mỗi tap
+  if (level <= 1) return 24; // Level 1 có 24 coin mỗi tap
   for (const range of TAP_COIN_BY_LEVEL) {
     if (level >= range.from && level <= range.to) return range.value;
   }
@@ -153,13 +152,15 @@ function getTapCoin(level) {
 
 // Tính % MT nâng cấp (upgrade multiplier)
 function getUpgradeMultiplier(level) {
-  if (level <= 0) return 1; // Level 0 có multiplier = 1
+  if (level <= 1) return 1; // Level 1 có multiplier = 1
   return 1 + (level - 1) * 0.05; // 100% + 5% mỗi cấp
 }
 
 // Lấy điểm cần để lên cấp cho level hiện tại
 function getLevelUpRequirement(level) {
-  const requirement = LEVEL_UP_REQUIREMENTS[level] || 0;
+  // Level 1 cần LEVEL_UP_REQUIREMENTS[0] để lên level 2
+  // Level 2 cần LEVEL_UP_REQUIREMENTS[1] để lên level 3, v.v.
+  const requirement = LEVEL_UP_REQUIREMENTS[level - 1] || 0;
   console.log(
     `Level ${level} requires ${requirement} coins to level up to ${level + 1}`
   );
@@ -168,9 +169,9 @@ function getLevelUpRequirement(level) {
 
 // Tính tổng coin cần thiết để đạt level cụ thể
 function getTotalCoinsForLevel(level) {
-  if (level <= 0) return 0;
+  if (level <= 1) return 0; // Level 1 không cần coin để đạt được
   let total = 0;
-  for (let i = 0; i < level; i++) {
+  for (let i = 0; i < level - 1; i++) {
     total += LEVEL_UP_REQUIREMENTS[i] || 0;
   }
   return total;
@@ -203,10 +204,10 @@ function saveGameState(state) {
 function loadGameState() {
   const data = localStorage.getItem("taptoearn_state");
   if (data) return JSON.parse(data);
-  // Trạng thái mặc định - bắt đầu từ level 0
+  // Trạng thái mặc định - bắt đầu từ level 1
   return {
-    level: 0,
-    hp: getLevelHP(1), // HP vẫn dùng công thức level 1
+    level: 1,
+    hp: getLevelHP(1), // HP dùng công thức level 1
     coinEarn: 0,
     coinCount: 0,
     lastRecover: Date.now(),
@@ -268,17 +269,17 @@ function updateUI(state) {
   const lpLevelElement = document.getElementById("lp-level");
 
   if (hpLevelElement) {
-    hpLevelElement.textContent = state.level;
+    hpLevelElement.textContent = `${state.level}/100`;
     console.log("HP Level element updated to:", hpLevelElement.textContent);
   } else {
     console.error("HP Level element not found!");
   }
 
   if (lpLevelElement) {
-    lpLevelElement.textContent = state.level;
-    console.log("LP Level element updated to:", lpLevelElement.textContent);
+    lpLevelElement.textContent = `${state.level}/100`;
+    console.log("MT Level element updated to:", lpLevelElement.textContent);
   } else {
-    console.error("LP Level element not found!");
+    console.error("MT Level element not found!");
   }
 
   // Tính phần trăm tiến trình level
@@ -371,6 +372,12 @@ function tap(event, multiplier = 1) {
     tapCoin = Math.round(
       getTapCoin(state.level) * getUpgradeMultiplier(state.level) * multiplier
     );
+  }
+
+  // Thêm bonus 5 coin khi tap 3 ngón tay
+  if (multiplier === 3) {
+    tapCoin += 5;
+    console.log("3-finger tap bonus: +5 coins added");
   }
 
   state.coinEarn += tapCoin;
@@ -499,14 +506,32 @@ function createFlyingCoin(startX, startY, targetElement) {
   coin.style.left = `${startX}px`;
   coin.style.top = `${startY}px`;
 
-  // Tính toán vị trí đích (icon coin)
-  const targetRect = targetElement.getBoundingClientRect();
-  const tx = targetRect.left - startX + targetRect.width / 2;
-  const ty = targetRect.top - startY + targetRect.height / 2;
+  // Tìm target element nếu không được truyền vào
+  if (!targetElement) {
+    targetElement =
+      document.getElementById("coin-target-stats") ||
+      document.getElementById("coin-target") ||
+      document.querySelector('img[src*="coin-icon.svg"]');
+  }
 
-  // Set biến CSS cho animation
-  coin.style.setProperty("--tx", `${tx}px`);
-  coin.style.setProperty("--ty", `${ty}px`);
+  // Nếu vẫn không tìm thấy target, sử dụng vị trí mặc định
+  if (!targetElement) {
+    console.warn("No target element found for flying coin");
+    // Sử dụng vị trí coin counter làm target mặc định
+    const tx = window.innerWidth / 2 - startX;
+    const ty = 50 - startY; // Vị trí gần coin counter
+    coin.style.setProperty("--tx", `${tx}px`);
+    coin.style.setProperty("--ty", `${ty}px`);
+  } else {
+    // Tính toán vị trí đích (icon coin)
+    const targetRect = targetElement.getBoundingClientRect();
+    const tx = targetRect.left - startX + targetRect.width / 2;
+    const ty = targetRect.top - startY + targetRect.height / 2;
+
+    // Set biến CSS cho animation
+    coin.style.setProperty("--tx", `${tx}px`);
+    coin.style.setProperty("--ty", `${ty}px`);
+  }
 
   coinContainer.appendChild(coin);
 
@@ -803,25 +828,26 @@ window.resetGame = function () {
   location.reload();
 };
 
-// Handle touch events
+// Touch handler for mobile
 document.addEventListener(
   "touchstart",
   function (event) {
     // Kiểm tra xem popup có đang hiển thị không
     const popup = document.getElementById("level-up-popup");
     if (popup && popup.classList.contains("show")) {
-      return; // Không xử lý tap khi popup đang hiển thị
+      return; // Không xử lý touch khi popup đang hiển thị
     }
 
-    // Kiểm tra xem có phải click vào nút auto earn không
+    // Kiểm tra xem có phải touch vào nút auto earn không
     if (event.target.closest("#auto-earn-button")) {
       return;
     }
 
-    // Chỉ xử lý tap khi touch vào stats-panel hoặc main-stage
+    // Chỉ xử lý tap khi touch vào stats-panel, main-stage hoặc bottom-tap-area
     if (
       !event.target.closest("#stats-panel") &&
-      !event.target.closest("#main-stage")
+      !event.target.closest("#main-stage") &&
+      !event.target.closest("#bottom-tap-area")
     ) {
       return;
     }
@@ -853,10 +879,11 @@ document.addEventListener("click", function (event) {
     return;
   }
 
-  // Chỉ xử lý tap khi click vào stats-panel hoặc main-stage
+  // Chỉ xử lý tap khi click vào stats-panel, main-stage hoặc bottom-tap-area
   if (
     !event.target.closest("#stats-panel") &&
-    !event.target.closest("#main-stage")
+    !event.target.closest("#main-stage") &&
+    !event.target.closest("#bottom-tap-area")
   ) {
     return;
   }
@@ -985,26 +1012,38 @@ function triggerBottomLayoutFlash() {
   const bottomLayoutContainer = document.getElementById(
     "bottom-layout-container"
   );
-  const bottomLayoutImage = bottomLayoutContainer?.querySelector("img");
+  const characterOverlay = document.getElementById("character-overlay");
 
-  if (bottomLayoutContainer && bottomLayoutImage) {
+  if (bottomLayoutContainer) {
     // Remove existing flash class if any
     bottomLayoutContainer.classList.remove("flash-active");
 
     // Force reflow to ensure the class removal takes effect
     bottomLayoutContainer.offsetHeight;
 
-    // Change to bottom-layout-2.png when tapping
-    bottomLayoutImage.src = "./images/screen1/bottom-layout-2.png";
-
-    // Add flash class to trigger animation
+    // Add flash class to trigger white glow animation (no image change)
     bottomLayoutContainer.classList.add("flash-active");
 
-    // Remove flash class and restore original image after animation completes
+    // Remove flash class after animation completes
     setTimeout(() => {
       bottomLayoutContainer.classList.remove("flash-active");
-      // Restore original image
-      bottomLayoutImage.src = "./images/screen1/bottom-layout.png";
+    }, 800); // Match animation duration
+  }
+
+  // Trigger character press down effect
+  if (characterOverlay) {
+    // Remove existing press class if any
+    characterOverlay.classList.remove("character-press");
+
+    // Force reflow to ensure the class removal takes effect
+    characterOverlay.offsetHeight;
+
+    // Add press class to trigger animation
+    characterOverlay.classList.add("character-press");
+
+    // Remove press class after animation completes
+    setTimeout(() => {
+      characterOverlay.classList.remove("character-press");
     }, 800); // Match animation duration
   }
 }
