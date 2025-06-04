@@ -368,17 +368,14 @@ function tap(event, multiplier = 1) {
       (getTapCoin(state.level) * getUpgradeMultiplier(state.level)) / 4
     );
   } else {
-    // Các trường hợp khác giữ nguyên công thức cũ
+    // Các trường hợp khác sử dụng multiplier trực tiếp
     tapCoin = Math.round(
       getTapCoin(state.level) * getUpgradeMultiplier(state.level) * multiplier
     );
   }
 
-  // Thêm bonus 5 coin khi tap 3 ngón tay
-  if (multiplier === 3) {
-    tapCoin += 5;
-    console.log("3-finger tap bonus: +5 coins added");
-  }
+  // Không cần thêm bonus riêng cho tap 3 ngón vì đã được tính trong multiplier
+  console.log("Coin earned with multiplier", multiplier + ":", tapCoin);
 
   state.coinEarn += tapCoin;
   console.log("Coin earned:", tapCoin, "Total coinEarn:", state.coinEarn);
@@ -1019,9 +1016,9 @@ function triggerBottomLayoutFlash() {
     bottomLayoutContainer.classList.remove("flash-active");
 
     // Force reflow to ensure the class removal takes effect
-    bottomLayoutContainer.offsetHeight;
+    void bottomLayoutContainer.offsetHeight;
 
-    // Add flash class to trigger white glow animation (no image change)
+    // Add flash class to trigger animation
     bottomLayoutContainer.classList.add("flash-active");
 
     // Remove flash class after animation completes
@@ -1036,7 +1033,7 @@ function triggerBottomLayoutFlash() {
     characterOverlay.classList.remove("character-press");
 
     // Force reflow to ensure the class removal takes effect
-    characterOverlay.offsetHeight;
+    void characterOverlay.offsetHeight;
 
     // Add press class to trigger animation
     characterOverlay.classList.add("character-press");
