@@ -46,35 +46,145 @@ function detectMobileDevice() {
       position: fixed;
       top: 0;
       left: 0;
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.9);
       color: white;
-      padding: 10px;
-      font-size: 12px;
+      padding: 8px;
+      font-size: 11px;
       z-index: 9999;
       max-width: 100vw;
       word-wrap: break-word;
       display: none;
+      border-radius: 0 0 8px 0;
     `;
+
+    const browserUIHeight = screen.height - window.innerHeight;
+    const isFullscreen = browserUIHeight < 50;
+    const is393x651 = window.innerWidth === 393 && window.innerHeight === 651;
+
     debugDiv.innerHTML = `
-      <div>UA: ${userAgent.substring(0, 50)}...</div>
+      <div><strong>Device Info:</strong></div>
+      <div>UA: ${userAgent.substring(0, 40)}...</div>
       <div>Screen: ${screen.width}x${screen.height}</div>
       <div>Window: ${window.innerWidth}x${window.innerHeight}</div>
+      <div>Viewport: ${document.documentElement.clientWidth}x${
+      document.documentElement.clientHeight
+    }</div>
       <div>DPR: ${window.devicePixelRatio}</div>
+      <div>Browser UI: ${browserUIHeight}px ${
+      isFullscreen ? "(Hidden)" : "(Visible)"
+    }</div>
       <div>iOS: ${isIOS}, Android: ${isAndroid}</div>
       <div>Telegram: ${isTelegram}</div>
+      <div>393x651 Fix: ${is393x651 ? "APPLIED" : "Not needed"}</div>
+      <div>Orientation: ${deviceInfo.orientation}°</div>
+      <div><strong>CSS Variables:</strong></div>
+      <div>--vh: ${getComputedStyle(document.documentElement).getPropertyValue(
+        "--vh"
+      )}</div>
     `;
     document.body.appendChild(debugDiv);
 
-    // Show debug info for 5 seconds
+    // Show debug info for 8 seconds
     setTimeout(() => {
       debugDiv.style.display = "block";
       setTimeout(() => {
         debugDiv.style.display = "none";
-      }, 5000);
+      }, 8000);
     }, 1000);
+
+    // Update debug info every 2 seconds
+    setInterval(() => {
+      if (debugDiv.style.display === "block") {
+        const currentBrowserUIHeight = screen.height - window.innerHeight;
+        const currentIsFullscreen = currentBrowserUIHeight < 50;
+        const currentIs393x651 =
+          window.innerWidth === 393 && window.innerHeight === 651;
+
+        debugDiv.innerHTML = `
+          <div><strong>Device Info:</strong></div>
+          <div>UA: ${userAgent.substring(0, 40)}...</div>
+          <div>Screen: ${screen.width}x${screen.height}</div>
+          <div>Window: ${window.innerWidth}x${window.innerHeight}</div>
+          <div>Viewport: ${document.documentElement.clientWidth}x${
+          document.documentElement.clientHeight
+        }</div>
+          <div>DPR: ${window.devicePixelRatio}</div>
+          <div>Browser UI: ${currentBrowserUIHeight}px ${
+          currentIsFullscreen ? "(Hidden)" : "(Visible)"
+        }</div>
+          <div>iOS: ${isIOS}, Android: ${isAndroid}</div>
+          <div>Telegram: ${isTelegram}</div>
+          <div>393x651 Fix: ${currentIs393x651 ? "APPLIED" : "Not needed"}</div>
+          <div>Orientation: ${
+            screen.orientation ? screen.orientation.angle : "unknown"
+          }°</div>
+          <div><strong>CSS Variables:</strong></div>
+          <div>--vh: ${getComputedStyle(
+            document.documentElement
+          ).getPropertyValue("--vh")}</div>
+        `;
+      }
+    }, 2000);
   }
 
   return deviceInfo;
+}
+
+// Initialize Telegram WebApp
+function initializeTelegramWebApp(tg) {
+  console.log("Initializing Telegram WebApp...");
+
+  try {
+    // Expand to full height
+    tg.expand();
+    console.log("Telegram WebApp expanded");
+
+    // Set theme colors to match game
+    tg.setHeaderColor("#120106");
+    tg.setBackgroundColor("#120106");
+    console.log("Telegram WebApp theme colors set");
+
+    // Enable closing confirmation
+    tg.enableClosingConfirmation();
+    console.log("Telegram WebApp closing confirmation enabled");
+
+    // Set main button if needed (for future features)
+    tg.MainButton.setText("Play Game");
+    tg.MainButton.color = "#E91E63";
+    tg.MainButton.textColor = "#FFFFFF";
+    // Don't show main button by default
+    // tg.MainButton.show();
+
+    // Handle viewport changes
+    tg.onEvent("viewportChanged", function () {
+      console.log("Telegram viewport changed:", {
+        height: tg.viewportHeight,
+        stableHeight: tg.viewportStableHeight,
+        isExpanded: tg.isExpanded,
+      });
+
+      // Update CSS variables for Telegram viewport
+      const vh = tg.viewportHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+
+      // Force layout recalculation
+      setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 100);
+    });
+
+    // Handle theme changes
+    tg.onEvent("themeChanged", function () {
+      console.log("Telegram theme changed:", tg.themeParams);
+      // Could adapt game colors to Telegram theme here
+    });
+
+    // Ready signal
+    tg.ready();
+    console.log("Telegram WebApp ready signal sent");
+  } catch (error) {
+    console.error("Error initializing Telegram WebApp:", error);
+  }
 }
 
 // Fix viewport issues on mobile
@@ -82,17 +192,143 @@ function fixMobileViewport() {
   const deviceInfo = detectMobileDevice();
 
   if (deviceInfo.isMobile) {
+    // Force fullscreen on mobile to hide browser UI
+    const forceFullscreen = () => {
+      // Try to hide browser UI by scrolling
+      window.scrollTo(0, 1);
+
+      // Force viewport height calculation
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+
+      // Special handling for iPhone 15 Pro with browser UI (393x651)
+      if (window.innerWidth === 393 && window.innerHeight === 651) {
+        console.log(
+          "Detected iPhone 15 Pro with browser UI (393x651), forcing fullscreen"
+        );
+
+        // Force use of full viewport
+        document.documentElement.style.height = "100vh";
+        document.body.style.height = "100vh";
+        document.documentElement.style.maxHeight = "100vh";
+        document.body.style.maxHeight = "100vh";
+
+        // Force phone container to use full viewport
+        const phoneContainer = document.querySelector(".phone-container");
+        if (phoneContainer) {
+          phoneContainer.style.height = "100vh";
+          phoneContainer.style.maxHeight = "100vh";
+          phoneContainer.style.width = "100vw";
+          phoneContainer.style.maxWidth = "100vw";
+          phoneContainer.style.position = "fixed";
+          phoneContainer.style.top = "0";
+          phoneContainer.style.left = "0";
+          phoneContainer.style.transform = "none";
+          phoneContainer.style.borderRadius = "0";
+        }
+
+        // Set CSS variable to use full viewport height
+        const fullVH = 100 / 100;
+        document.documentElement.style.setProperty("--vh", `${fullVH}vh`);
+
+        console.log("Forced fullscreen for 393x651 window");
+        return;
+      }
+
+      // For devices with browser UI, force use screen height
+      if (screen.height > window.innerHeight) {
+        console.log(
+          `Browser UI detected: screen ${screen.height} > window ${window.innerHeight}`
+        );
+
+        // Use screen height instead of window height
+        const realVH = screen.height * 0.01;
+        document.documentElement.style.setProperty("--vh", `${realVH}px`);
+
+        // Force body and html to use screen height
+        document.documentElement.style.height = `${screen.height}px`;
+        document.body.style.height = `${screen.height}px`;
+
+        // Force phone container to use screen dimensions
+        const phoneContainer = document.querySelector(".phone-container");
+        if (phoneContainer) {
+          phoneContainer.style.height = `${screen.height}px`;
+          phoneContainer.style.maxHeight = `${screen.height}px`;
+          phoneContainer.style.width = `${screen.width}px`;
+          phoneContainer.style.maxWidth = `${screen.width}px`;
+        }
+
+        console.log(`Forced fullscreen: ${screen.width}x${screen.height}`);
+      }
+    };
+
     // Fix iOS Safari viewport height issue
     if (deviceInfo.isIOS) {
       const setVH = () => {
-        const vh = window.innerHeight * 0.01;
+        // Special handling for 393x651 window size
+        if (window.innerWidth === 393 && window.innerHeight === 651) {
+          console.log(
+            "iOS device with 393x651 window, applying special viewport fix"
+          );
+
+          // Force use of viewport units instead of pixel values
+          document.documentElement.style.setProperty("--vh", "1vh");
+
+          // Force elements to use viewport dimensions
+          document.documentElement.style.height = "100vh";
+          document.body.style.height = "100vh";
+          document.documentElement.style.overflow = "hidden";
+          document.body.style.overflow = "hidden";
+          document.documentElement.style.position = "fixed";
+          document.body.style.position = "fixed";
+
+          return;
+        }
+
+        // First try normal viewport height
+        let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty("--vh", `${vh}px`);
+
+        // If browser UI is visible, use screen height
+        if (screen.height > window.innerHeight + 100) {
+          // 100px threshold for browser UI
+          vh = screen.height * 0.01;
+          document.documentElement.style.setProperty("--vh", `${vh}px`);
+          console.log(
+            `iOS: Using screen height ${screen.height} instead of window ${window.innerHeight}`
+          );
+        }
       };
 
       setVH();
-      window.addEventListener("resize", setVH);
+      forceFullscreen();
+
+      window.addEventListener("resize", () => {
+        setTimeout(setVH, 100);
+        setTimeout(forceFullscreen, 200);
+      });
+
       window.addEventListener("orientationchange", () => {
         setTimeout(setVH, 100);
+        setTimeout(forceFullscreen, 300);
+      });
+
+      // Try to enter fullscreen mode
+      document.addEventListener(
+        "touchstart",
+        function () {
+          if (window.innerHeight < screen.height - 50) {
+            forceFullscreen();
+          }
+        },
+        { once: true }
+      );
+    } else {
+      // Android and other mobile devices
+      forceFullscreen();
+
+      window.addEventListener("resize", () => {
+        setTimeout(forceFullscreen, 100);
       });
     }
 
@@ -125,6 +361,11 @@ function fixMobileViewport() {
       "touchmove",
       function (e) {
         if (e.touches.length > 1) {
+          e.preventDefault();
+        }
+
+        // Prevent scroll to hide browser UI
+        if (e.touches.length === 1) {
           e.preventDefault();
         }
       },
