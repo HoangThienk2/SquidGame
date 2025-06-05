@@ -889,10 +889,13 @@
 
         // Check for 3-finger tap on touch devices
         let finalMultiplier = multiplier;
-        let hpMultiplier = 1; // New: separate multiplier for HP loss
+        let hpMultiplier = 1; // Separate multiplier for HP loss
+        let is3FingerTap = false;
+
         if (event && event.touches && event.touches.length === 3) {
           finalMultiplier = multiplier * 3; // 3x coins for 3-finger tap
           hpMultiplier = 3; // 3x HP loss for 3-finger tap
+          is3FingerTap = true;
           console.log(
             "3-finger tap detected! Coin multiplier:",
             finalMultiplier,
@@ -911,8 +914,7 @@
           );
           if (totalCoinsBox) {
             // Create multiple coins for 3-finger tap
-            const coinCount =
-              event.touches && event.touches.length === 3 ? 3 : 1;
+            const coinCount = is3FingerTap ? 3 : 1;
             for (let i = 0; i < coinCount; i++) {
               setTimeout(() => {
                 createFlyingCoin(
@@ -932,17 +934,42 @@
           triggerCharacterPress();
         }
 
-        // Decrease HP with multiplier for 3-finger tap
+        // Decrease HP with proper calculation
         const oldHP = state.hp;
-        const hpLoss = 4 * hpMultiplier; // Base HP loss (4) * multiplier
-        state.hp -= hpLoss;
-        console.log(
-          "HP changed from",
-          oldHP,
-          "to",
-          state.hp,
-          "(-" + hpLoss + " HP)"
-        );
+        const baseHPLoss = 4; // Base HP loss per tap
+        const hpLoss = baseHPLoss * hpMultiplier; // Should be 4 for normal, 12 for 3-finger
+
+        // Validate HP loss calculation
+        const expectedHPLoss = is3FingerTap ? 12 : 4;
+        if (hpLoss !== expectedHPLoss) {
+          console.error(
+            "HP loss calculation error! Expected:",
+            expectedHPLoss,
+            "Got:",
+            hpLoss
+          );
+          // Force correct value
+          const correctedHPLoss = expectedHPLoss;
+          state.hp -= correctedHPLoss;
+          console.log(
+            "HP changed from",
+            oldHP,
+            "to",
+            state.hp,
+            "(-" + correctedHPLoss + " HP - CORRECTED)",
+            is3FingerTap ? "(3-finger tap)" : "(normal tap)"
+          );
+        } else {
+          state.hp -= hpLoss;
+          console.log(
+            "HP changed from",
+            oldHP,
+            "to",
+            state.hp,
+            "(-" + hpLoss + " HP)",
+            is3FingerTap ? "(3-finger tap)" : "(normal tap)"
+          );
+        }
 
         // Calculate coins with proper multiplier
         let tapCoin;
@@ -955,7 +982,7 @@
           // For normal tap: base coin * upgrade multiplier * 1
           const baseCoin =
             getTapCoin(state.level) * getUpgradeMultiplier(state.level);
-          if (event && event.touches && event.touches.length === 3) {
+          if (is3FingerTap) {
             tapCoin = Math.round(baseCoin * 3); // Exactly 3x for 3-finger tap
           } else {
             tapCoin = Math.round(baseCoin * finalMultiplier);
@@ -1167,31 +1194,29 @@
       // 10. Event Listeners
       // =====================
 
+      // Add debounce mechanism to prevent multiple taps
+      let lastTapTime = 0;
+      const TAP_DEBOUNCE_MS = 100; // 100ms debounce
+
+      function debouncedTap(event, multiplier = 1) {
+        const currentTime = Date.now();
+        if (currentTime - lastTapTime < TAP_DEBOUNCE_MS) {
+          console.log("Tap ignored due to debounce");
+          return;
+        }
+        lastTapTime = currentTime;
+        tap(event, multiplier);
+      }
+
       document.addEventListener("DOMContentLoaded", function () {
         // Initialize game
         let initialState = loadGameState();
         updateUI(initialState);
 
-        // Add tap event listeners for specific elements
-        document
-          .getElementById("younghee")
-          .addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation(); // Prevent bubbling to main container
-            tap(event);
-          });
-
-        document
-          .getElementById("sole")
-          .addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation(); // Prevent bubbling to main container
-            tap(event);
-          });
-
-        // Add tap event listeners for the main container
+        // Add tap event listeners for the main container only
         const mainContainer = document.querySelector(".w-\\[375px\\]");
         if (mainContainer) {
+          // Handle click events
           mainContainer.addEventListener("click", function (event) {
             // Don't tap if clicking on buttons or UI elements
             if (
@@ -1201,9 +1226,12 @@
             ) {
               return;
             }
-            tap(event);
+            event.preventDefault();
+            event.stopPropagation();
+            debouncedTap(event);
           });
 
+          // Handle touch events (for mobile)
           mainContainer.addEventListener("touchstart", function (event) {
             // Don't tap if touching buttons or UI elements
             if (
@@ -1214,26 +1242,19 @@
               return;
             }
             event.preventDefault();
-            tap(event);
+            event.stopPropagation();
+            debouncedTap(event);
+          });
+
+          // Prevent default touch behaviors that might interfere
+          mainContainer.addEventListener("touchend", function (event) {
+            event.preventDefault();
+          });
+
+          mainContainer.addEventListener("touchmove", function (event) {
+            event.preventDefault();
           });
         }
-
-        // Touch events for mobile on specific elements
-        document
-          .getElementById("younghee")
-          .addEventListener("touchstart", function (event) {
-            event.preventDefault();
-            event.stopPropagation(); // Prevent bubbling to main container
-            tap(event);
-          });
-
-        document
-          .getElementById("sole")
-          .addEventListener("touchstart", function (event) {
-            event.preventDefault();
-            event.stopPropagation(); // Prevent bubbling to main container
-            tap(event);
-          });
 
         // Auto earn button
         document
