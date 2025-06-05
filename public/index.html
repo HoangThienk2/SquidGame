@@ -1,198 +1,269 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
-    />
-    <!-- Additional mobile meta tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta
-      name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent"
-    />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="theme-color" content="#2D1B3D" />
-    <title>Telegram Game</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="./css/style.css" />
-    <link rel="stylesheet" href="./css/animations.css" />
-    <link rel="stylesheet" href="./css/responsive-positioning.css" />
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              "game-purple": "#2D1B3D",
-              "game-pink": "#E91E63",
-              "game-gold": "#FFD700",
-              "game-ruby": "#E53E3E",
-            },
-            fontFamily: {
-              game: ["Arial", "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gugi&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Gugi&display=swap");
-
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      .gradient-bg {
+        background: linear-gradient(
+          360deg,
+          rgba(211, 47, 181, 0) 3.4%,
+          #250a1f 98.64%
+        );
       }
 
-      html,
-      body {
-        height: 100%;
-        width: 100%;
-        /* Safari mobile viewport fix */
-        height: 100vh;
-        height: 100dvh; /* Dynamic viewport height for modern browsers */
-        overflow: hidden; /* Prevent scrolling that can trigger address bar */
+      .card-bg {
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          #450832 0%,
+          #2e032c 100%
+        );
+        border: 1px solid rgba(215, 12, 163, 0.3);
+        box-shadow: inset 0px 1px 4px 0px rgba(70, 13, 55, 0.69);
       }
 
-      body {
-        font-family: "Arial", sans-serif;
-        background-color: #120106;
-        min-height: 100vh;
-        min-height: 100dvh; /* Dynamic viewport height */
-        width: 100vw;
-        display: block;
-        position: relative;
-        color: white;
-        /* Safari specific fixes */
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: none; /* Prevent bounce scrolling */
-      }
-
-      /* Main container positioned in center like a phone */
-      .phone-container {
-        max-width: 375px;
-        width: 100%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        min-height: 100vh;
-        min-height: 100dvh; /* Dynamic viewport height */
-        max-height: 100vh;
-        max-height: 100dvh; /* Dynamic viewport height */
-        display: flex;
-        flex-direction: column;
-        background: linear-gradient(180deg, #2d1b3d 0%, #1a0f2e 100%);
-        background-image: url("./images/screen1/background-image.png");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        border-radius: 16px;
+      /* Custom Progress Bar Styles */
+      .custom-progress-bg {
+        background-color: #2e032c;
+        border-radius: 4px;
         overflow: hidden;
+        position: relative;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
       }
 
-      /* Safari mobile specific fixes */
-      @supports (-webkit-touch-callout: none) {
-        /* Safari only styles */
-        html,
-        body {
-          height: -webkit-fill-available;
-          height: calc(var(--vh, 1vh) * 100); /* Use custom property */
-        }
-
-        .phone-container {
-          min-height: -webkit-fill-available;
-          max-height: -webkit-fill-available;
-          min-height: calc(var(--vh, 1vh) * 100);
-          max-height: calc(var(--vh, 1vh) * 100);
-        }
-
-        /* Force full height on Safari */
-        .game-container {
-          height: -webkit-fill-available;
-          height: calc(var(--vh, 1vh) * 100);
-        }
+      .custom-progress-fill {
+        background: linear-gradient(
+          90deg,
+          #ff6b8b 0%,
+          #ff4081 50%,
+          #ff6b8b 100%
+        );
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease-in-out;
+        position: relative;
+        box-shadow: 0 0 8px rgba(255, 107, 139, 0.4);
       }
 
-      /* iOS Safari viewport fix */
-      @media screen and (max-width: 428px) {
-        .phone-container {
-          border-radius: 0;
-          top: 0;
-          left: 0;
-          transform: none;
-          position: fixed;
-          width: 100vw;
-          height: 100vh;
-          height: 100dvh;
-          height: calc(var(--vh, 1vh) * 100); /* Use custom property */
-          max-width: 100vw;
-        }
-
-        /* Safari specific height fix */
-        @supports (-webkit-touch-callout: none) {
-          .phone-container {
-            height: -webkit-fill-available;
-            height: calc(var(--vh, 1vh) * 100);
-          }
-        }
+      .custom-progress-fill::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.3) 50%,
+          transparent 100%
+        );
+        animation: shimmer 2s infinite;
       }
 
-      /* Additional mobile Safari fixes */
-      @media screen and (max-width: 428px) and (-webkit-min-device-pixel-ratio: 2) {
-        /* High DPI mobile devices (iPhone, etc.) */
-        body {
-          position: fixed;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
+      .custom-progress-fill::before {
+        content: "";
+        position: absolute;
+        top: 1px;
+        left: 1px;
+        right: 1px;
+        height: 40%;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.4) 0%,
+          rgba(255, 255, 255, 0.1) 100%
+        );
+        border-radius: 3px;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
         }
 
-        .phone-container {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          overflow-y: auto;
-          -webkit-overflow-scrolling: touch;
+        50% {
+          transform: translateX(100%);
         }
 
-        /* Prevent rubber band scrolling */
-        .game-container {
-          overscroll-behavior: none;
-          -webkit-overscroll-behavior: none;
+        100% {
+          transform: translateX(200%);
         }
       }
 
-      /* Landscape orientation fixes for mobile */
-      @media screen and (max-width: 926px) and (orientation: landscape) {
-        .phone-container {
-          height: 100vh;
-          height: calc(var(--vh, 1vh) * 100);
-          max-height: 100vh;
-          max-height: calc(var(--vh, 1vh) * 100);
-        }
+      .progress-interactive {
+        cursor: pointer;
+      }
 
-        /* Adjust main stage for landscape */
-        #main-stage {
-          height: 200px;
-        }
+      .progress-interactive:hover .custom-progress-fill {
+        box-shadow: 0 0 12px rgba(255, 107, 139, 0.6);
+      }
 
-        /* Adjust character overlay for landscape */
-        #character-overlay {
-          bottom: 160px !important;
-        }
+      body {
+        font-family: "Gugi", sans-serif;
+      }
 
-        /* Adjust bottom layout for landscape */
-        .bottom-layout-image {
-          bottom: -40px !important;
+      /* Character and Sole Press Animation */
+      .character-container {
+        transition: transform 0.1s ease-out;
+        z-index: 50; /* Ensure character is above sole */
+      }
+
+      .character-container.pressed {
+        transform: translateY(3px);
+      }
+
+      #sole {
+        transition: transform 0.1s ease-out;
+        z-index: 10; /* Lower than character */
+      }
+
+      #sole.pressed {
+        transform: translateY(2px);
+      }
+
+      /* Coin Flying Animation */
+      @keyframes coinFly {
+        0% {
+          transform: translate(0, 0) scale(0.5) rotate(0deg);
+          opacity: 0;
+        }
+        10% {
+          transform: translate(0, -20px) scale(1.2) rotate(45deg);
+          opacity: 1;
+        }
+        50% {
+          transform: translate(
+              calc(var(--tx) * 0.5),
+              calc(var(--ty) * 0.5 - 50px)
+            )
+            scale(1) rotate(180deg);
+          opacity: 0.8;
+        }
+        80% {
+          transform: translate(calc(var(--tx) * 0.8), calc(var(--ty) * 0.8))
+            scale(0.9) rotate(270deg);
+          opacity: 0.6;
+        }
+        100% {
+          transform: translate(var(--tx), var(--ty)) scale(0.7) rotate(360deg);
+          opacity: 0;
         }
       }
 
+      .flying-coin {
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        background: url("./image/money.svg") no-repeat center;
+        background-size: contain;
+        pointer-events: none;
+        z-index: 9999;
+        animation: coinFly 1s ease-out forwards;
+      }
+
+      /* Level Up Popup Styles */
+      .level-up-popup {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+      }
+
+      .level-up-popup.show {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+
+      .level-up-content {
+        background: linear-gradient(135deg, #2e032c 0%, #450832 100%);
+        border: 2px solid rgba(215, 12, 163, 0.5);
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        max-width: 300px;
+        width: 90%;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .level-up-emoji {
+        font-size: 48px;
+        margin-bottom: 15px;
+      }
+
+      .level-up-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #ff6b8b;
+        margin-bottom: 10px;
+      }
+
+      .level-up-description {
+        color: white;
+        margin-bottom: 20px;
+        font-size: 14px;
+      }
+
+      .level-up-button {
+        background: linear-gradient(90deg, #ff6b8b 0%, #ff4081 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 30px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+      }
+
+      .level-up-button:hover {
+        transform: scale(1.05);
+      }
+
+      /* Tap area styles */
+      .tap-area {
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+      }
+
+      /* Flash effect for tap feedback */
+      @keyframes flash {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .flash {
+        animation: flash 0.2s ease-out;
+      }
+
+      /* Progress Bar Styles from index.html */
       .progress-bar {
         background: linear-gradient(90deg, #e45f90 0%, #f06292 100%);
         height: 8px;
@@ -208,310 +279,53 @@
         transition: left 0.3s ease;
       }
 
-      .stage-platform {
-        background: conic-gradient(
-          from 0deg,
-          #e91e63,
-          #f8bbd9,
-          #e91e63,
-          #f8bbd9,
-          #e91e63
-        );
-        border-radius: 50%;
-      }
-
-      .curtain-bg {
-        background: linear-gradient(
-          180deg,
-          #8b4513 0%,
-          #654321 50%,
-          #3e2723 100%
-        );
-      }
-      #main-stage {
-        position: relative;
-        z-index: 30;
-      }
-      .background-color-gradient {
-        background: radial-gradient(
-          50% 50% at 50% 50%,
-          #450832 0%,
-          #2e032c 100%
-        );
-        backdrop-filter: blur(10px);
-        border: 1px solid;
-        border: 1px solid rgba(215, 12, 163, 0.42);
-      }
-      .background-bottom-nav {
-        background-color: #27012a;
-        border: 1px solid;
-        border: 1px solid rgba(215, 12, 163, 0.42);
-      }
-      .resource-header {
-        height: 30px;
-      }
       .level-bars {
-        background-color: #4ade806b;
+        background-color: #16a34a;
         height: 12px;
       }
-      .gugi-regular {
-        font-family: "Gugi", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-      }
 
-      /* Auto earn button styles */
-      #auto-earn-button.active {
-        background: radial-gradient(
-          50% 50% at 50% 50%,
-          #450832 0%,
-          #2e032c 100%
-        );
-      }
-      #auto-earn-button:not(.active) {
-        background: radial-gradient(
-          50% 50% at 50% 50%,
-          rgba(69, 8, 50, 0.5) 0%,
-          rgba(46, 3, 44, 0.5) 100%
-        );
-      }
-
-      /* Auto earn button default position - override all media queries */
-      .flex.justify-end.mr-4.mb-4.relative.z-50 {
-        position: absolute !important;
-        bottom: 180px !important; /* Position below character's feet */
-        right: 16px !important;
-        margin: 0 !important;
-        transform: none !important;
-        z-index: 45 !important; /* Below character but above bottom layout */
-      }
-
-      /* HIGH PRIORITY OVERRIDE - Must be last to override all media queries */
-      .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-        position: absolute !important;
-        bottom: 180px !important; /* Position below character's feet */
-        right: 16px !important;
-        margin: 0 !important;
-        transform: none !important;
-        z-index: 45 !important;
-      }
-
-      /* Auto earn button responsive positioning based on character position */
-      @media screen and (max-width: 375px) {
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          bottom: 160px !important; /* Adjust for smaller character on iPhone SE */
-        }
-      }
-
-      @media screen and (min-width: 376px) and (max-width: 390px) {
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          bottom: 170px !important; /* Adjust for medium phones */
-        }
-      }
-
-      @media screen and (min-width: 391px) {
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          bottom: 190px !important; /* Adjust for larger phones */
-        }
-      }
-
-      /* Landscape orientation adjustments for auto earn button */
-      @media screen and (max-width: 926px) and (orientation: landscape) {
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          bottom: 120px !important; /* Adjust for landscape mode */
-        }
-      }
-
-      /* Portrait mode optimization for auto earn button */
-      @media screen and (max-height: 700px) {
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          bottom: 140px !important; /* Adjust for shorter screens */
-        }
-      }
-
-      /* Telegram WebApp Styles */
-      .in-telegram-app {
-        max-width: 100%;
-        margin: 0 auto;
-        overflow-x: hidden;
-        height: 100vh;
-      }
-
-      /* Game container */
-      .game-container {
-        width: 100%;
-        height: 100%;
-        padding: 20px 16px;
-        display: flex;
-        flex-direction: column;
+      /* HP Progress Container */
+      .hp-progress-container {
         position: relative;
-        z-index: 1;
+        width: 100%;
+        height: 12px;
+        background: rgba(215, 12, 163, 0.42);
+        border-radius: 4px;
+        overflow: hidden;
       }
 
-      /* Base styles for smallest phones (iPhone SE, small Android) */
-      @media screen and (max-width: 375px) {
-        .phone-container {
-          max-width: 100%;
-          border-radius: 0;
-          top: 0;
-          left: 0;
-          transform: none;
-          position: fixed;
-        }
-
-        .resource-header {
-          height: 24px;
-        }
-
-        #main-stage {
-          height: 240px;
-          background-position: center bottom -2px;
-        }
-
-        .text-lg {
-          font-size: 0.875rem;
-        }
-
-        .px-4 {
-          padding-left: 8px;
-          padding-right: 8px;
-        }
+      /* HP Level Progress Container */
+      .hp-level-progress-container {
+        position: relative;
+        width: 100%;
+        height: 12px;
+        background: rgba(215, 12, 163, 0.42);
+        border-radius: 4px;
+        overflow: hidden;
       }
 
-      /* Styles for medium phones (iPhone X, 11, 12, 13, most Android) */
-      @media screen and (min-width: 376px) and (max-width: 390px) {
-        .phone-container {
-          max-width: 390px;
-        }
-
-        .resource-header {
-          height: 26px;
-        }
-
-        #main-stage {
-          height: 260px;
-          background-size: auto 85%;
-        }
-
-        .text-lg {
-          font-size: 0.925rem;
-        }
-
-        .px-4 {
-          padding-left: 10px;
-          padding-right: 10px;
-        }
-
-        /* Character overlay adjustments for iPhone 12 Pro */
-        #character-overlay {
-          bottom: 200px !important;
-        }
-
-        /* Bottom layout adjustments for iPhone 12 Pro */
-        .bottom-layout-image {
-          bottom: -20px !important;
-        }
+      /* LP Level Progress Container */
+      .lp-level-progress-container {
+        position: relative;
+        width: 100%;
+        height: 12px;
+        background: rgba(215, 12, 163, 0.42);
+        border-radius: 4px;
+        overflow: hidden;
       }
 
-      /* Styles for larger phones (iPhone Pro Max, larger Android) */
-      @media screen and (min-width: 391px) {
-        .phone-container {
-          max-width: 428px;
-        }
-
-        .resource-header {
-          height: 28px;
-        }
-
-        #main-stage {
-          height: 280px;
-          background-size: auto 85%;
-        }
-
-        /* Character overlay adjustments for iPhone 14 Pro Max */
-        #character-overlay {
-          bottom: 210px !important;
-        }
-
-        /* Bottom layout adjustments for iPhone 14 Pro Max */
-        .bottom-layout-image {
-          bottom: -25px !important;
-        }
+      /* Level Progress Icon */
+      .level-progress-icon {
+        position: absolute;
+        border-radius: 0.5px;
+        background: linear-gradient(0deg, #bac1d6 0.01%, #ffffff 99.98%);
+        width: 5.5px;
+        height: 14px;
+        top: -1px;
+        transition: left 0.3s ease;
       }
 
-      /* Specific adjustments for iPhone 15 Pro (393x852) */
-      @media screen and (min-width: 390px) and (max-width: 395px) and (min-height: 844px) {
-        .phone-container {
-          max-width: 393px;
-          border-radius: 0;
-          top: 0;
-          left: 0;
-          transform: none;
-          position: fixed;
-        }
-
-        /* Bottom navigation specific for iPhone 15 Pro */
-        #bottom-nav {
-          bottom: 34px !important; /* Account for home indicator */
-          z-index: 30 !important;
-          padding-bottom: 10px !important;
-        }
-
-        /* Character overlay adjustments for iPhone 15 Pro */
-        #character-overlay {
-          bottom: 220px !important;
-          transform: translate(-50%, -40%) !important;
-        }
-
-        /* Bottom layout adjustments for iPhone 15 Pro */
-        .bottom-layout-image {
-          bottom: -15px !important;
-        }
-
-        /* Auto earn button adjustments for iPhone 15 Pro */
-        .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          transform: translateY(40px) !important;
-        }
-      }
-
-      /* General iPhone adjustments for devices with home indicator */
-      @media screen and (min-width: 375px) and (min-height: 812px) {
-        #bottom-nav {
-          bottom: 34px !important; /* Safe area for home indicator */
-          padding-bottom: 10px !important;
-        }
-      }
-
-      /* Portrait mode optimization for shorter screens */
-      @media screen and (max-height: 700px) {
-        .phone-container {
-          border-radius: 0;
-          top: 0;
-          left: 0;
-          transform: none;
-          position: fixed;
-        }
-
-        .pt-6 {
-          padding-top: 0.75rem;
-        }
-
-        #main-stage {
-          height: 220px;
-          background-size: auto 85%;
-        }
-
-        .mb-4 {
-          margin-bottom: 0.5rem;
-        }
-      }
-
-      /* Common mobile adjustments */
+      /* Mobile adjustments */
       @media screen and (max-width: 428px) {
         .level-bars {
           height: 8px;
@@ -521,887 +335,214 @@
           height: 12px;
         }
 
-        /* Điều chỉnh khoảng cách */
-        .space-x-4 > * + * {
-          margin-left: 0.75rem;
-        }
-      }
-
-      /* Bottom layout adjustments */
-      .bottom-layout-image {
-        z-index: 10;
-      }
-
-      /* Bottom layout flash effect */
-      .bottom-layout-flash {
-        position: relative;
-        overflow: hidden;
-      }
-
-      /* Additional glow effect - giữ nguyên hiệu ứng gốc */
-      .bottom-layout-flash.flash-active {
-        filter: brightness(1.8) drop-shadow(0 0 40px rgba(255, 255, 255, 1))
-          drop-shadow(0 0 80px rgba(255, 255, 255, 0.8));
-        animation: pulseGlow 0.8s ease-out;
-      }
-
-      /* Mobile-specific flash effect fallback - chỉ áp dụng khi drop-shadow không hoạt động */
-      @media screen and (max-width: 768px) {
-        /* Kiểm tra nếu drop-shadow không được hỗ trợ tốt trên mobile */
-        @supports not (filter: drop-shadow(0 0 40px rgba(255, 255, 255, 1))) {
-          .bottom-layout-flash.flash-active {
-            filter: brightness(2.2) saturate(1.3) !important;
-            animation: mobileFlash 0.8s ease-out !important;
-            transform: scale(1.02);
-          }
-        }
-
-        /* Fallback cho các thiết bị mobile có performance thấp */
-        .bottom-layout-flash.flash-active {
-          /* Thêm transform để tăng cường hiệu ứng trên mobile */
-          transform: scale(1.01);
-          transition: transform 0.1s ease;
-        }
-      }
-
-      /* Bounce effect for bottom layout when tapping */
-      .bottom-layout-flash.flash-active img {
-        animation: bottomLayoutBounce 0.8s ease-out;
-      }
-
-      /* Character press down effect when tapping */
-      #character-overlay.character-press {
-        animation: characterPressDown 0.8s ease-out;
-      }
-
-      @keyframes bottomLayoutBounce {
-        0% {
-          transform: translateX(-12px) translateY(0px);
-        }
-        15% {
-          transform: translateX(-12px) translateY(15px);
-        }
-        30% {
-          transform: translateX(-12px) translateY(0px);
-        }
-        45% {
-          transform: translateX(-12px) translateY(8px);
-        }
-        60% {
-          transform: translateX(-12px) translateY(0px);
-        }
-        75% {
-          transform: translateX(-12px) translateY(3px);
-        }
-        100% {
-          transform: translateX(-12px) translateY(0px);
-        }
-      }
-
-      @keyframes pulseGlow {
-        0% {
-          filter: brightness(1) drop-shadow(0 0 0px rgba(255, 255, 255, 0));
-        }
-        30% {
-          filter: brightness(2.2) drop-shadow(0 0 60px rgba(255, 255, 255, 1))
-            drop-shadow(0 0 120px rgba(255, 255, 255, 0.9));
-        }
-        60% {
-          filter: brightness(1.8) drop-shadow(0 0 40px rgba(255, 255, 255, 0.8))
-            drop-shadow(0 0 80px rgba(255, 255, 255, 0.6));
-        }
-        100% {
-          filter: brightness(1) drop-shadow(0 0 0px rgba(255, 255, 255, 0));
-        }
-      }
-
-      @keyframes characterPressDown {
-        0% {
-          transform: translateY(0px);
-        }
-        15% {
-          transform: translateY(15px);
-        }
-        30% {
-          transform: translateY(0px);
-        }
-        45% {
-          transform: translateY(8px);
-        }
-        60% {
-          transform: translateY(0px);
-        }
-        75% {
-          transform: translateY(3px);
-        }
-        100% {
-          transform: translateY(0px);
-        }
-      }
-
-      @keyframes mobileFlash {
-        0% {
-          filter: brightness(1) saturate(1);
-          transform: scale(1);
-        }
-        30% {
-          filter: brightness(2.5) saturate(1.5);
-          transform: scale(1.03);
-        }
-        60% {
-          filter: brightness(2) saturate(1.3);
-          transform: scale(1.02);
-        }
-        100% {
-          filter: brightness(1) saturate(1);
-          transform: scale(1);
-        }
-      }
-
-      /* Styles cho web thường */
-      .standalone-web {
-        max-width: 960px;
-        margin: 0 auto;
-      }
-
-      /* Telegram WebApp Responsive Styles */
-
-      /* Base styles for smallest phones (iPhone SE) */
-      @media screen and (max-width: 375px) {
-        .resource-header {
-          height: 24px;
-        }
-
-        #main-stage {
-          height: 240px;
-          background-size: auto 85%;
-          transform: translateY(15px);
-        }
-
-        .text-lg {
-          font-size: 0.875rem;
-        }
-
-        .px-4 {
-          padding-left: 8px;
-          padding-right: 8px;
-        }
-
-        .space-x-3 > * + * {
-          margin-left: 0.5rem;
-        }
-
-        .mb-4 {
-          margin-bottom: 0.75rem;
-        }
-      }
-
-      /* Styles for medium phones (iPhone X, 11, 12, 13, most Android) */
-      @media screen and (min-width: 376px) and (max-width: 390px) {
-        .resource-header {
-          height: 26px;
-        }
-
-        #main-stage {
-          height: 260px;
-          background-size: auto 85%;
-        }
-
-        .text-lg {
-          font-size: 0.925rem;
-        }
-
-        .px-4 {
-          padding-left: 10px;
-          padding-right: 10px;
-        }
-      }
-
-      /* Styles for larger phones (iPhone Pro Max, larger Android) */
-      @media screen and (min-width: 391px) {
-        .resource-header {
-          height: 30px;
-        }
-
-        #main-stage {
-          height: 315px;
-          background-size: auto 85%;
-        }
-
-        .text-lg {
-          font-size: 1rem;
-        }
-      }
-
-      /* Portrait mode optimization */
-      @media screen and (max-height: 700px) {
-        .pt-6 {
-          padding-top: 0.75rem;
-        }
-
-        #main-stage {
-          height: 220px;
-          background-size: auto 85%;
-        }
-
-        .mb-4 {
-          margin-bottom: 0.5rem;
-        }
-      }
-
-      /* Safari safe area adjustments */
-      @supports (padding: max(0px)) {
-        #bottom-nav {
-          padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
-          bottom: max(5px, env(safe-area-inset-bottom)) !important;
-        }
-
-        .phone-container {
-          padding-top: env(safe-area-inset-top);
-          padding-bottom: env(safe-area-inset-bottom);
-          padding-left: env(safe-area-inset-left);
-          padding-right: env(safe-area-inset-right);
-        }
-      }
-
-      /* Prevent text selection and context menu on mobile */
-      .phone-container {
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        -ms-user-select: none;
-        user-select: none;
-        -webkit-touch-callout: none;
-        -webkit-tap-highlight-color: transparent;
-      }
-
-      /* Ensure smooth scrolling and prevent bounce */
-      .phone-container,
-      .game-container {
-        -webkit-overflow-scrolling: touch;
-        overscroll-behavior: none;
-        -webkit-overscroll-behavior: none;
-      }
-
-      /* Fix for Safari address bar issue - final override */
-      @media screen and (max-device-width: 428px) {
-        .phone-container {
-          position: fixed !important;
-          top: 0 !important;
-          left: 0 !important;
-          width: 100vw !important;
-          height: 100vh !important;
-          height: calc(var(--vh, 1vh) * 100) !important;
-          transform: none !important;
-          border-radius: 0 !important;
-          max-width: 100vw !important;
-          max-height: 100vh !important;
-          max-height: calc(var(--vh, 1vh) * 100) !important;
-        }
-      }
-
-      /* Force bottom-nav to be visible on all devices */
-      #bottom-nav {
-        position: fixed !important;
-        bottom: 5px !important;
-        left: 0 !important;
-        right: 0 !important;
-        z-index: 50 !important;
-        padding: 0 16px !important;
-        pointer-events: auto !important;
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-      }
-
-      /* Ensure bottom-nav content is visible */
-      #bottom-nav > div {
-        background-color: #27012a !important;
-        border: 1px solid rgba(215, 12, 163, 0.42) !important;
-        border-radius: 9999px !important;
-        padding: 16px !important;
-        display: flex !important;
-        justify-content: space-around !important;
-        align-items: center !important;
-      }
-
-      /* iPhone with home indicator adjustments */
-      @media screen and (min-height: 812px) {
-        #bottom-nav {
-          bottom: 34px !important;
-          padding-bottom: 10px !important;
-        }
-      }
-
-      /* FIXED POSITIONING FOR CHARACTER AND BOTTOM LAYOUT - BASED ON IPHONE XR (414x896) */
-
-      /* Character overlay - fixed position based on iPhone XR standard */
-      #character-overlay {
-        position: fixed !important;
-        top: 50% !important; /* Center vertically */
-        left: 50% !important; /* Center horizontally */
-        transform: translate(-50%, -50%);
-        width: 100% !important;
-        max-width: 414px !important; /* iPhone XR width */
-        z-index: 40 !important;
-        pointer-events: none !important;
-        height: 25vh;
-      }
-
-      /* Character image sizing - consistent across all devices */
-      #character-overlay > div {
-        width: 100% !important;
-        height: 280px !important;
-        background-image: url("./images/screen1/character.svg") !important;
-        background-position: center bottom !important;
-        background-size: auto 90% !important;
-        background-repeat: no-repeat !important;
-      }
-
-      /* Bottom layout - centered positioning for all screens */
-      .bottom-layout-image {
-        position: fixed !important;
-        top: 50%; /* Center vertically */
-        left: 50% !important; /* Center horizontally */
-        transform: translate(-50%, -50%) !important;
-        width: 100% !important;
-        max-width: 430px !important;
-        z-index: 10 !important;
-        pointer-events: none !important;
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        height: 100vh;
-      }
-
-      /* Bottom layout image sizing */
-      .bottom-layout-image img {
-        width: 104% !important;
-        max-width: 450px !important;
-        object-fit: contain !important;
-        transform: translateX(-12px) !important;
-      }
-
-      @media screen and (max-width: 375px) and (max-height: 667px) {
-        .bottom-layout-image img {
-          transform: translate(-12px, 76px);
-        }
-      }
-
-      @media screen and (min-width: 912px) and (max-width: 912px) and (min-height: 1368px) {
-        .bottom-layout-image {
-          top: 58% !important;
-        }
-
-        #character-overlay {
-          top: 61% !important;
-        }
-      }
-      /* Auto earn button - adjust position relative to character */
-      .flex.justify-end.mr-4.mb-4.relative.z-50,
-      .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-        position: fixed !important;
-        bottom: 180px !important; /* Fixed position below character */
-        right: 16px !important;
-        margin: 0 !important;
-        transform: none !important;
-        z-index: 45 !important;
-      }
-
-      /* Tap area - adjust to match bottom layout position */
-      #bottom-tap-area {
-        position: fixed !important;
-        bottom: 0px !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 200px !important;
-        z-index: 5 !important;
-        pointer-events: auto !important;
-      }
-
-      /* Override all previous media queries for character and bottom layout positioning */
-      @media screen and (max-width: 375px) {
-        /* Character overlay - maintain fixed position on all devices */
-        #character-overlay {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 414px !important;
-          z-index: 40 !important;
-        }
-
-        /* Bottom layout - maintain fixed position on all devices */
-        .bottom-layout-image {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 430px !important;
-          z-index: 10 !important;
-        }
-
-        /* Auto earn button - maintain fixed position on all devices */
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          position: fixed !important;
-          bottom: 180px !important;
-          right: 16px !important;
-          margin: 0 !important;
-          transform: none !important;
-          z-index: 45 !important;
-        }
-      }
-
-      @media screen and (min-width: 376px) and (max-width: 390px) {
-        /* Character overlay - maintain fixed position on all devices */
-        #character-overlay {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 414px !important;
-          z-index: 40 !important;
-        }
-
-        /* Bottom layout - maintain fixed position on all devices */
-        .bottom-layout-image {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 430px !important;
-          z-index: 10 !important;
-        }
-
-        /* Auto earn button - maintain fixed position on all devices */
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          position: fixed !important;
-          bottom: 180px !important;
-          right: 16px !important;
-          margin: 0 !important;
-          transform: none !important;
-          z-index: 45 !important;
-        }
-      }
-
-      @media screen and (min-width: 391px) {
-        /* Character overlay - maintain fixed position on all devices */
-        #character-overlay {
-          position: fixed !important;
-          top: 55% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 414px !important;
-          z-index: 40 !important;
-        }
-
-        /* Bottom layout - maintain fixed position on all devices */
-        .bottom-layout-image {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 430px !important;
-          z-index: 10 !important;
-        }
-
-        /* Auto earn button - maintain fixed position on all devices */
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          position: fixed !important;
-          bottom: 180px !important;
-          right: 16px !important;
-          margin: 0 !important;
-          transform: none !important;
-          z-index: 45 !important;
-        }
-      }
-
-      @media screen and (min-width: 390px) and (max-width: 395px) and (min-height: 844px) {
-        /* Character overlay - maintain fixed position on all devices */
-        #character-overlay {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 414px !important;
-          z-index: 40 !important;
-        }
-
-        /* Bottom layout - maintain fixed position on all devices */
-        .bottom-layout-image {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 430px !important;
-          z-index: 10 !important;
-        }
-
-        /* Auto earn button - maintain fixed position on all devices */
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          position: fixed !important;
-          bottom: 180px !important;
-          right: 16px !important;
-          margin: 0 !important;
-          transform: none !important;
-          z-index: 45 !important;
-        }
-      }
-
-      @media screen and (max-height: 700px) {
-        /* Character overlay - maintain fixed position on all devices */
-        #character-overlay {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 414px !important;
-          z-index: 40 !important;
-        }
-
-        /* Bottom layout - maintain fixed position on all devices */
-        .bottom-layout-image {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 430px !important;
-          z-index: 10 !important;
-        }
-
-        /* Auto earn button - maintain fixed position on all devices */
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          position: fixed !important;
-          bottom: 180px !important;
-          right: 16px !important;
-          margin: 0 !important;
-          transform: none !important;
-          z-index: 45 !important;
-        }
-      }
-
-      @media screen and (max-width: 926px) and (orientation: landscape) {
-        /* Character overlay - maintain fixed position on all devices */
-        #character-overlay {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 414px !important;
-          z-index: 40 !important;
-        }
-
-        /* Bottom layout - maintain fixed position on all devices */
-        .bottom-layout-image {
-          position: fixed !important;
-          top: 50% !important; /* Center vertically */
-          left: 50% !important; /* Center horizontally */
-          transform: translate(-50%, -50%) !important;
-          width: 100% !important;
-          max-width: 430px !important;
-          z-index: 10 !important;
-        }
-
-        /* Auto earn button - maintain fixed position on all devices */
-        .flex.justify-end.mr-4.mb-4.relative.z-50,
-        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          position: fixed !important;
-          bottom: 180px !important;
-          right: 16px !important;
-          margin: 0 !important;
-          transform: none !important;
-          z-index: 45 !important;
+        .level-progress-icon {
+          height: 12px;
         }
       }
     </style>
   </head>
-  <body>
-    <!-- Phone Container -->
-    <div class="phone-container">
-      <!-- Game Container -->
-      <div class="game-container">
-        <!-- Resource Header -->
-        <div class="flex space-x-3 mb-4">
-          <!-- Ruby Counter -->
-          <div
-            class="resource-header background-color-gradient flex-1 rounded-full px-4 py-3 flex items-center space-x-3"
-          >
-            <div class="w-5 h-5 rounded-full flex items-center justify-center">
-              <img
-                src="./images/screen1/icons/ruby-icon.svg"
-                alt="Ruby Icon"
-                class="w-5 h-5"
-              />
-            </div>
-            <span class="gugi-regular text-white font-bold text-lg">0</span>
-          </div>
 
-          <!-- Coin Counter -->
+  <body class="bg-gray-900 min-h-screen">
+    <div
+      class="w-[375px] relative h-[667px] rounded-[20px] mx-auto gradient-bg p-[16px]"
+    >
+      <img
+        class="absolute rounded-[20px] top-0 left-0 z-[-1] bottom-0 right-0"
+        src="./image/bg.png"
+        alt=""
+      />
+      <div class="flex flex-col gap-[8px]">
+        <div class="flex justify-between items-center">
           <div
-            class="resource-header background-color-gradient flex-1 rounded-full px-4 py-3 flex items-center space-x-3"
+            class="flex w-[165.5px] h-[30px] px-[4px] pr-[12px] py-[4px] gap-[8px] rounded-full card-bg items-center"
           >
-            <div class="w-5 h-5 rounded-full flex items-center justify-center">
-              <img
-                src="./images/screen1/icons/coin-icon.svg"
-                alt="Coin Icon"
-                class="w-5 h-5"
-                id="coin-target"
-              />
-            </div>
+            <img src="./image/ruby.svg" alt="" />
+
             <span
               id="coin-count"
-              class="gugi-regular text-white font-bold text-lg"
+              class="gugi-font text-[14px] leading-[22px] tracking-[0%] align-middle text-white"
+              >0</span
+            >
+          </div>
+
+          <div
+            class="flex w-[165.5px] h-[30px] px-[4px] pr-[12px] py-[4px] gap-[8px] rounded-full card-bg items-center"
+          >
+            <img src="./image/money.svg" alt="" />
+
+            <span
+              id="coin-earn"
+              class="gugi-font text-[14px] leading-[22px] tracking-[0%] align-middle text-white"
               >0</span
             >
           </div>
         </div>
 
-        <!-- Stats Panel -->
         <div
-          id="stats-panel"
-          class="background-color-gradient bg-opacity-30 rounded-2xl p-4 mb-4 relative"
+          class="card-bg gradient-bg p-[12px] rounded-[20px] w-full h-[142.5px]"
         >
-          <!-- HP Section -->
-          <div class="mb-4 flex items-center justify-between gap-6">
-            <div class="flex flex-col justify-between items-center mb-2 w-full">
-              <div class="flex items-center justify-between w-full mb-2">
-                <span class="gugi-regular text-[#FF6B8B]">HP</span>
-                <span id="hp-per-level" class="gugi-regular text-white"
-                  >100/100</span
-                >
-              </div>
-              <div class="w-full h-3 relative">
+          <div class="flex flex-col gap-[8px]">
+            <div class="flex justify-between">
+              <div class="flex flex-col gap-[10px] w-[228px]">
+                <div class="flex justify-between">
+                  <p
+                    class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-[#FF6B8B]"
+                  >
+                    HP
+                  </p>
+                  <p
+                    id="hp-display"
+                    class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-white"
+                  >
+                    100/100
+                  </p>
+                </div>
+                <!-- HP Progress Bar -->
                 <div class="hp-progress-container">
-                  <div class="progress-bar"></div>
-                  <div class="progress-icon"></div>
+                  <div
+                    class="progress-bar"
+                    id="hp-bar"
+                    style="width: 100%; transition: width 0.3s ease-in-out"
+                  ></div>
+                  <div class="progress-icon" style="left: 100%"></div>
                 </div>
               </div>
-            </div>
-            <div
-              class="flex flex-col items-center px-2 py-3 rounded-[12px] w-[100px]"
-              style="background-color: #fc376621"
-            >
-              <img
-                src="./images/screen1/icons/coin-icon.svg"
-                alt="Point Icon"
-                class="w-5 h-5"
-                id="coin-target-stats"
-              />
-              <span id="coin-earn" class="gugi-regular text-white font-bold"
-                >0</span
+              <div
+                class="w-[63px] h-[52px] bg-[rgba(252,55,102,0.13)] flex flex-col gap-[4px] items-center justify-center rounded-[8px]"
               >
-            </div>
-          </div>
-          <div
-            style="
-              width: 319px;
-              height: 1.5px;
-              background: radial-gradient(
-                closest-side at 50% 50%,
-                rgba(249, 238, 246, 0.35) 0%,
-                rgba(215, 12, 163, 0) 100%
-              );
-              margin: 16px auto;
-            "
-          ></div>
-          <!-- Level Bars -->
-          <div class="flex space-x-4">
-            <div class="flex-1">
-              <div class="flex justify-between items-center mb-2">
-                <span class="gugi-regular text-[#FF6B8B]">HP lv</span>
-                <span id="hp-level" class="gugi-regular text-white font-bold"
-                  >1/100</span
+                <img class="w-[16px] h-[16px]" src="./image/money.png" alt="" />
+                <p
+                  id="total-coins"
+                  class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-white"
                 >
+                  0
+                </p>
               </div>
-              <div class="relative level-bars w-full">
+            </div>
+            <img src="./image/divider.svg" alt="" />
+            <div class="flex justify-between items-center">
+              <div class="w-[143px] flex flex-col gap-[9px]">
+                <div class="flex justify-between">
+                  <p
+                    class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-[#FF6B8B]"
+                  >
+                    HP lv
+                  </p>
+                  <p
+                    id="hp-level-display"
+                    class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-white"
+                  >
+                    1/100
+                  </p>
+                </div>
+
+                <!-- HP Level Progress Bar -->
                 <div class="hp-level-progress-container">
-                  <div class="level-progress-bar"></div>
-                  <div class="level-progress-icon"></div>
+                  <div
+                    class="level-bars"
+                    id="hp-level-bar"
+                    style="width: 0%; transition: width 0.3s ease-in-out"
+                  ></div>
+                  <div class="level-progress-icon" style="left: 0%"></div>
                 </div>
               </div>
-            </div>
 
-            <div class="flex-1">
-              <div class="flex justify-between items-center mb-2">
-                <span class="gugi-regular text-[#FF6B8B]">MT lv</span>
-                <span id="lp-level" class="gugi-regular text-white font-bold"
-                  >1/100</span
-                >
-              </div>
-              <div class="relative level-bars w-full">
+              <div class="w-[143px] flex flex-col gap-[9px]">
+                <div class="flex justify-between">
+                  <p
+                    class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-[#FF6B8B]"
+                  >
+                    MT lv
+                  </p>
+                  <p
+                    id="lp-level-display"
+                    class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-white"
+                  >
+                    1/100
+                  </p>
+                </div>
+
+                <!-- LP Level Progress Bar -->
                 <div class="lp-level-progress-container">
-                  <div class="level-progress-bar"></div>
-                  <div class="level-progress-icon"></div>
+                  <div
+                    class="level-bars"
+                    id="lp-level-bar"
+                    style="width: 0%; transition: width 0.3s ease-in-out"
+                  ></div>
+                  <div class="level-progress-icon" style="left: 0%"></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Event Button and Game 2 Button -->
-        <div class="flex justify-end space-x-4">
-          <!-- Event Button -->
+        <div class="w-full flex justify-end">
           <div
-            class="background-color-gradient rounded-xl flex justify-center w-[104px]"
+            class="card-bg gradient-bg w-[85px] py-[8px] px-[12px] flex flex-col gap-[8px] rounded-lg"
           >
-            <button class="pt-3 flex flex-col items-center justify-center">
-              <span class="gugi-regular text-white text-xs font-bold"
-                >이벤트</span
-              >
-              <img
-                src="./images/screen1/icons/event-icon.svg"
-                alt="Event Icon"
-                class="w-[65px] h-[65px]"
-              />
-            </button>
+            <p
+              class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-white"
+            >
+              이벤트
+            </p>
+            <img class="w-[61px] h-[61px]" src="./image/gift.png" alt="" />
           </div>
-
-          <!-- Game 2 Button -->
-        </div>
-
-        <!-- Main Stage Area -->
-        <div id="main-stage" class="relative h-[290px] z-30">
-          <!-- Character will appear here with highest z-index -->
         </div>
       </div>
-
-      <div class="flex justify-end mr-4 mb-4 relative z-50">
-        <div class="flex flex-col items-center space-y-2">
-          <button
-            id="auto-earn-button"
-            class="py-3 flex flex-col items-center justify-center background-color-gradient rounded-xl w-[48px]"
+      <div class="absolute bottom-[-20px] left-[-12px] p-[10px]">
+        <div class="relative flex flex-col justify-between items-center">
+          <div
+            class="absolute top-[-170px] left-0 right-0 flex justify-center character-container"
           >
             <img
-              src="./images/screen1/icons/auto-earn.svg"
-              alt="Event Icon"
-              class="w-[22px] h-[22px]"
+              id="younghee"
+              class="w-[149px] h-[224px] tap-area"
+              src="./image/character.png"
+              alt=""
             />
-          </button>
-          <span class="gugi-regular text-[#FF6B8B] text-xs font-bold"
-            >Auto earn</span
-          >
+          </div>
+          <div class="">
+            <img id="sole" class="tap-area" src="./image/sole1.png" alt="" />
+          </div>
         </div>
       </div>
-
-      <!-- Character overlay to appear above bottom layout -->
       <div
-        id="character-overlay"
-        class="absolute bottom-[240px] left-0 right-0 z-40 pointer-events-none"
+        class="absolute bottom-[-20px] right-[16px] flex flex-col items-center justify-center"
       >
-        <div
-          class="w-full h-[280px] bg-no-repeat bg-center bg-contain"
-          style="
-            background-image: url('./images/screen1/character.svg');
-            background-position: center bottom;
-            background-size: auto 90%;
-          "
-        ></div>
-      </div>
-
-      <!-- Add coin container for flying coins -->
-      <div id="coin-container" class="coin-container"></div>
-
-      <!-- Tap area behind bottom layout -->
-      <div
-        class="absolute bottom-0 left-0 right-0 h-[200px] z-5"
-        id="bottom-tap-area"
-        style="pointer-events: auto"
-      ></div>
-
-      <!-- Bottom Layout Image -->
-      <div
-        class="absolute bottom-0 left-0 right-0 flex justify-center items-center pointer-events-none z-10 bottom-layout-image bottom-layout-flash"
-        id="bottom-layout-container"
-      >
-        <img
-          src="./images/screen1/bottom-layout.png"
-          alt="Bottom Layout"
-          class="w-[104%] max-w-md object-contain"
-          style="transform: translateX(-12px)"
-        />
-      </div>
-
-      <!-- Bottom Navigation -->
-      <div id="bottom-nav" class="absolute bottom-5 left-0 right-0 px-4 z-20">
-        <div
-          class="flex justify-around items-center py-4 px-4 background-bottom-nav rounded-full"
+        <button
+          id="auto-earn-button"
+          class="gradient-bg card-bg w-[48px] h-[48px] rounded-lg flex items-center justify-center"
         >
-          <button class="">
-            <image
-              src="./images/screen1/icons/shopping-cart-icon.svg"
-              alt="Shopping Cart Icon"
-              class="w-6 h-6 text-game-pink"
-            />
-          </button>
+          <img src="./image/button.svg" alt="" />
+        </button>
+        <p
+          class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-[#FF6B8B]"
+        >
+          Auto earn
+        </p>
+      </div>
 
-          <button class="">
-            <image
-              src="./images/screen1/icons/refresh-icon.svg"
-              alt="Refresh Icon"
-              class="w-6 h-6 text-game-pink"
-            />
-          </button>
-
-          <button class="">
-            <image
-              src="./images/screen1/icons/wallet-icon.svg"
-              alt="Wallet Icon"
-              class="w-6 h-6 text-game-pink"
-            />
-          </button>
-
-          <button class="">
-            <image
-              src="./images/screen1/icons/star-icon.svg"
-              alt="Star Icon"
-              class="w-6 h-6 text-game-pink"
-            />
-          </button>
-
-          <button class="">
-            <image
-              src="./images/screen1/icons/building-icon.svg"
-              alt="Building Icon"
-              class="w-6 h-6 text-game-pink"
-            />
-          </button>
-        </div>
+      <div
+        class="absolute bottom-[-110px] gradient-bg card-bg w-[343px] h-[64px] rounded-full p-[20px]"
+      >
+        <ul class="flex justify-between items-center gap-[16px]">
+          <li class="w-[24px] h-[24px]">
+            <img src="./image/cart.svg" alt="" />
+          </li>
+          <li class="w-[24px] h-[24px]">
+            <img src="./image/refesh.svg" alt="" />
+          </li>
+          <li class="w-[24px] h-[24px]">
+            <img src="./image/wallet.svg" alt="" />
+          </li>
+          <li class="w-[24px] h-[24px]">
+            <img src="./image/star.svg" alt="" />
+          </li>
+          <li class="w-[24px] h-[24px]">
+            <img src="./image/building.svg" alt="" />
+          </li>
+        </ul>
       </div>
     </div>
-
-    <script>
-      // Game logic will go here
-      console.log("Telegram Game Loaded");
-
-      // Example: Handle navigation clicks
-      document
-        .querySelectorAll("#bottom-nav button")
-        .forEach((button, index) => {
-          button.addEventListener("click", () => {
-            // Add navigation logic here
-          });
-        });
-
-      // Flying coin effect is handled in taptoearn.js tap function
-      // No need for separate click listener here
-    </script>
-    <script src="./js/taptoearn.js"></script>
-    <script src="./js/telegram-integration.js"></script>
 
     <!-- Level Up Popup -->
     <div id="level-up-popup" class="level-up-popup">
@@ -1416,7 +557,7 @@
         <button
           id="level-up-confirm-btn"
           class="level-up-button"
-          onclick="closeLevelUpPopupInline(event)"
+          onclick="closeLevelUpPopup()"
         >
           <span class="level-up-button-text">Confirm</span>
         </button>
@@ -1424,103 +565,683 @@
     </div>
 
     <script>
-      // Định nghĩa hàm đóng popup trực tiếp trong HTML
-      function closeLevelUpPopupInline(event) {
-        console.log("closeLevelUpPopupInline called");
+      // =====================
+      // 1. Game Configuration - 100 Levels
+      // =====================
 
-        // Ngăn event bubbling và default behavior
-        if (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          event.stopImmediatePropagation();
+      // Level up requirements (same as index.html)
+      const LEVEL_UP_REQUIREMENTS = [
+        3200,
+        5200,
+        7500,
+        10100,
+        13000,
+        16200,
+        19600,
+        23300,
+        27400,
+        31700, // 1-10
+        48400,
+        55000,
+        62000,
+        69200,
+        76800,
+        84900,
+        93400,
+        102200,
+        111400,
+        121000, // 11-20
+        163700,
+        176700,
+        190100,
+        204000,
+        218400,
+        233300,
+        248700,
+        264500,
+        280800,
+        297600, // 21-30
+        389700,
+        423400,
+        458200,
+        494200,
+        531400,
+        569700,
+        609200,
+        649800,
+        691500,
+        734400, // 31-40
+        908200,
+        960900,
+        1015100,
+        1070500,
+        1127300,
+        1185400,
+        1244900,
+        1305700,
+        1367900,
+        0, // 41-49, 50 là ruby
+        1710000,
+        1881000,
+        2052000,
+        2223000,
+        0, // 51-54, 55 là ruby
+        2394000,
+        2565000,
+        2736000,
+        2907000,
+        0, // 56-59, 60 là ruby
+        3420000,
+        3762000,
+        4104000,
+        4446000,
+        0, // 61-64, 65 là ruby
+        5130000,
+        5472000,
+        5814000,
+        6156000,
+        0, // 66-69, 70 là ruby
+        6498000,
+        7147000,
+        7797600,
+        8447400,
+        0, // 71-74, 75 là ruby
+        9747000,
+        10396800,
+        11046600,
+        11696400,
+        0, // 76-79, 80 là ruby
+        12346200,
+        13580820,
+        14815440,
+        16050060,
+        0, // 81-84, 85 là ruby
+        18519300,
+        19753920,
+        20988540,
+        22223160,
+        0, // 86-89, 90 là ruby
+        23457780,
+        26976448,
+        30495114,
+        34013782,
+        0, // 91-94, 95 là ruby
+        41051116,
+        44569782,
+        48008450,
+        0, // 96-98, 99 là ruby
+      ];
+
+      // Coin per tap by level
+      const TAP_COIN_BY_LEVEL = [
+        { from: 1, to: 10, value: 24 },
+        { from: 11, to: 20, value: 27 },
+        { from: 21, to: 30, value: 31 },
+        { from: 31, to: 40, value: 35 },
+        { from: 41, to: 49, value: 39 },
+        { from: 50, to: 60, value: 47 },
+        { from: 61, to: 70, value: 54 },
+        { from: 71, to: 80, value: 61 },
+        { from: 81, to: 90, value: 70 },
+        { from: 91, to: 100, value: 80 },
+      ];
+
+      // =====================
+      // 2. Game State Management
+      // =====================
+
+      function getLevelHP(level) {
+        if (level <= 1) return 100;
+        let hp = 100;
+        for (let lv = 2; lv <= level; lv++) {
+          if (lv <= 30) hp += 50;
+          else if (lv <= 60) hp += 100;
+          else if (lv <= 90) hp += 150;
+          else hp += 200;
         }
-
-        const popup = document.getElementById("level-up-popup");
-        if (popup) {
-          console.log("Hiding popup inline");
-          popup.classList.remove("show");
-          popup.style.display = "none";
-          popup.style.opacity = "0";
-          popup.style.visibility = "hidden";
-          popup.style.pointerEvents = "none";
-          console.log("Popup hidden successfully");
-        } else {
-          console.error("Popup not found in inline function!");
-        }
-
-        return false; // Ngăn thêm event propagation
+        return hp;
       }
 
-      // Test function
-      function testPopup() {
-        console.log("Testing popup");
-        const popup = document.getElementById("level-up-popup");
-        if (popup) {
-          popup.style.display = "flex";
-          popup.style.opacity = "1";
-          popup.style.visibility = "visible";
-          popup.style.pointerEvents = "auto";
-          popup.classList.add("show");
-          console.log("Test popup shown");
+      function getTapCoin(level) {
+        if (level <= 1) return 24;
+        for (const range of TAP_COIN_BY_LEVEL) {
+          if (level >= range.from && level <= range.to) return range.value;
         }
+        return 24;
       }
 
-      // Safari viewport fix - Handle address bar show/hide
-      function handleSafariViewport() {
-        // Set CSS custom property for actual viewport height
-        const setViewportHeight = () => {
-          const vh = window.innerHeight * 0.01;
-          document.documentElement.style.setProperty("--vh", `${vh}px`);
+      function getUpgradeMultiplier(level) {
+        if (level <= 1) return 1;
+        return 1 + (level - 1) * 0.05;
+      }
+
+      function getLevelUpRequirement(level) {
+        return LEVEL_UP_REQUIREMENTS[level - 1] || 0;
+      }
+
+      function getTotalCoinsForLevel(level) {
+        if (level <= 1) return 0;
+        let total = 0;
+        for (let i = 0; i < level - 1; i++) {
+          total += LEVEL_UP_REQUIREMENTS[i] || 0;
+        }
+        return total;
+      }
+
+      function canLevelUp(currentLevel, totalCoins) {
+        const currentLevelRequirement = getLevelUpRequirement(currentLevel);
+        return (
+          currentLevelRequirement > 0 &&
+          totalCoins >= currentLevelRequirement &&
+          currentLevel < 100
+        );
+      }
+
+      function loadGameState() {
+        const data = localStorage.getItem("game_interface_state");
+        if (data) return JSON.parse(data);
+        return {
+          level: 1,
+          hp: getLevelHP(1),
+          coinEarn: 0,
+          coinCount: 0,
+          lastRecover: Date.now(),
+          lastZeroHP: null,
         };
-
-        // Initial set
-        setViewportHeight();
-
-        // Update on resize (when address bar shows/hides)
-        let resizeTimer;
-        window.addEventListener("resize", () => {
-          clearTimeout(resizeTimer);
-          resizeTimer = setTimeout(setViewportHeight, 100);
-        });
-
-        // Update on orientation change
-        window.addEventListener("orientationchange", () => {
-          setTimeout(setViewportHeight, 500);
-        });
-
-        // Prevent scrolling that can trigger address bar
-        document.addEventListener(
-          "touchmove",
-          (e) => {
-            if (e.target.closest(".phone-container")) {
-              e.preventDefault();
-            }
-          },
-          { passive: false }
-        );
-
-        // Prevent zoom on double tap
-        let lastTouchEnd = 0;
-        document.addEventListener(
-          "touchend",
-          (e) => {
-            const now = new Date().getTime();
-            if (now - lastTouchEnd <= 300) {
-              e.preventDefault();
-            }
-            lastTouchEnd = now;
-          },
-          false
-        );
       }
 
-      // Initialize Safari viewport fix
-      if (
-        /Safari/.test(navigator.userAgent) &&
-        /Mobile/.test(navigator.userAgent)
-      ) {
-        handleSafariViewport();
+      function saveGameState(state) {
+        localStorage.setItem("game_interface_state", JSON.stringify(state));
       }
+
+      // =====================
+      // 3. UI Update Functions
+      // =====================
+
+      function updateUI(state) {
+        const maxHP = getLevelHP(state.level);
+        const hpPercentage = Math.max(
+          0,
+          Math.min(100, (state.hp / maxHP) * 100)
+        );
+
+        // Update HP display
+        document.getElementById(
+          "hp-display"
+        ).textContent = `${state.hp}/${maxHP}`;
+        document.getElementById("hp-bar").style.width = `${hpPercentage}%`;
+
+        // Update HP progress icon position
+        const hpProgressIcon = document.querySelector(
+          ".hp-progress-container .progress-icon"
+        );
+        if (hpProgressIcon) {
+          hpProgressIcon.style.left = `${hpPercentage}%`;
+        }
+
+        // Update coin displays
+        // Ruby (coin-count) stays at 0 - not used
+        // Money (coin-earn) shows final coinCount after HP=0
+        // Total-coins box shows current coinEarn during tapping
+        document.getElementById("coin-count").textContent = "0";
+        document.getElementById("coin-earn").textContent = state.coinCount;
+        document.getElementById("total-coins").textContent = state.coinEarn;
+
+        // Update level displays
+        document.getElementById(
+          "hp-level-display"
+        ).textContent = `${state.level}/100`;
+        document.getElementById(
+          "lp-level-display"
+        ).textContent = `${state.level}/100`;
+
+        // Calculate level progress based on level/100
+        const levelProgress = Math.min(100, (state.level / 100) * 100);
+
+        // Update level progress bars - fix the IDs
+        const hpLevelBar = document.getElementById("hp-level-bar");
+        const lpLevelBar = document.getElementById("lp-level-bar");
+
+        if (hpLevelBar) {
+          hpLevelBar.style.width = `${levelProgress}%`;
+        }
+        if (lpLevelBar) {
+          lpLevelBar.style.width = `${levelProgress}%`;
+        }
+
+        // Update level progress icons
+        const hpLevelIcon = document.querySelector(
+          ".hp-level-progress-container .level-progress-icon"
+        );
+        const lpLevelIcon = document.querySelector(
+          ".lp-level-progress-container .level-progress-icon"
+        );
+
+        if (hpLevelIcon) {
+          hpLevelIcon.style.left = `${levelProgress}%`;
+        }
+        if (lpLevelIcon) {
+          lpLevelIcon.style.left = `${levelProgress}%`;
+        }
+      }
+
+      // =====================
+      // 4. Flying Coin Animation
+      // =====================
+
+      function createFlyingCoin(startX, startY, targetElement) {
+        const coin = document.createElement("div");
+        coin.className = "flying-coin";
+        coin.style.left = startX + "px";
+        coin.style.top = startY + "px";
+
+        const targetRect = targetElement.getBoundingClientRect();
+        const targetX = targetRect.left + targetRect.width / 2;
+        const targetY = targetRect.top + targetRect.height / 2;
+
+        const deltaX = targetX - startX;
+        const deltaY = targetY - startY;
+
+        coin.style.setProperty("--tx", deltaX + "px");
+        coin.style.setProperty("--ty", deltaY + "px");
+
+        document.body.appendChild(coin);
+
+        setTimeout(() => {
+          if (coin.parentNode) {
+            coin.parentNode.removeChild(coin);
+          }
+        }, 1000);
+      }
+
+      // =====================
+      // 5. Character Animation Functions
+      // =====================
+
+      function triggerCharacterPress() {
+        const characterContainer = document.querySelector(
+          ".character-container"
+        );
+        const soleElement = document.getElementById("sole");
+
+        characterContainer.classList.add("pressed");
+        soleElement.classList.add("pressed");
+
+        setTimeout(() => {
+          characterContainer.classList.remove("pressed");
+          soleElement.classList.remove("pressed");
+        }, 100);
+      }
+
+      // =====================
+      // 6. Main Tap Function
+      // =====================
+
+      function tap(event, multiplier = 1) {
+        console.log("Tap function called!", event, multiplier);
+        let state = loadGameState();
+        console.log("Current state:", state);
+
+        if (state.hp <= 0) {
+          console.log("Cannot tap - HP is 0");
+          return;
+        }
+
+        // Check for 3-finger tap on touch devices
+        let finalMultiplier = multiplier;
+        if (event && event.touches && event.touches.length === 3) {
+          finalMultiplier = multiplier * 3; // 3x coins for 3-finger tap
+          console.log(
+            "3-finger tap detected! Multiplier increased to:",
+            finalMultiplier
+          );
+
+          // Add special visual feedback for 3-finger tap
+          triggerSpecial3FingerEffect();
+        }
+
+        // Create flying coin effect - target the total-coins box
+        if (event) {
+          const totalCoinsBox = document.querySelector(
+            ".w-\\[63px\\].h-\\[52px\\]"
+          );
+          if (totalCoinsBox) {
+            // Create multiple coins for 3-finger tap
+            const coinCount =
+              event.touches && event.touches.length === 3 ? 3 : 1;
+            for (let i = 0; i < coinCount; i++) {
+              setTimeout(() => {
+                createFlyingCoin(
+                  event.clientX ||
+                    event.touches?.[0]?.clientX ||
+                    window.innerWidth / 2,
+                  event.clientY ||
+                    event.touches?.[0]?.clientY ||
+                    window.innerHeight / 2,
+                  totalCoinsBox
+                );
+              }, i * 100); // Stagger the coins
+            }
+          }
+
+          // Trigger character press animation
+          triggerCharacterPress();
+        }
+
+        // Decrease HP and calculate coins
+        const oldHP = state.hp;
+        state.hp -= 4;
+        console.log("HP changed from", oldHP, "to", state.hp);
+
+        let tapCoin;
+        if (finalMultiplier === 0.25) {
+          tapCoin = Math.floor(
+            (getTapCoin(state.level) * getUpgradeMultiplier(state.level)) / 4
+          );
+        } else {
+          tapCoin = Math.round(
+            getTapCoin(state.level) *
+              getUpgradeMultiplier(state.level) *
+              finalMultiplier
+          );
+        }
+
+        // Add coins to coinEarn (which shows in total-coins box during tapping)
+        state.coinEarn += tapCoin;
+        console.log("Coin earned:", tapCoin, "Total coinEarn:", state.coinEarn);
+
+        // Handle HP reaching 0
+        if (state.hp <= 0) {
+          state.hp = 0;
+          // Transfer coins from coinEarn to coinCount (top display)
+          state.coinCount += state.coinEarn;
+          state.coinEarn = 0;
+          state.lastRecover = Date.now();
+          state.lastZeroHP = Date.now();
+
+          saveGameState(state);
+          updateUI(state);
+
+          // Check for level up after delay
+          setTimeout(() => {
+            let currentState = loadGameState();
+            if (canLevelUp(currentState.level, currentState.coinCount)) {
+              currentState.level++;
+              if (currentState.hp > 0) {
+                currentState.hp = getLevelHP(currentState.level);
+              }
+              saveGameState(currentState);
+              updateUI(currentState);
+              showLevelUpPopup(currentState.level);
+            }
+          }, 500);
+
+          return;
+        }
+
+        // Check for level up (when HP > 0)
+        if (canLevelUp(state.level, state.coinCount)) {
+          const oldLevel = state.level;
+          state.level++;
+          if (state.hp > 0) {
+            state.hp = getLevelHP(state.level);
+          }
+          showLevelUpPopup(state.level);
+        }
+
+        saveGameState(state);
+        updateUI(state);
+        console.log("Tap completed, state saved");
+      }
+
+      // =====================
+      // 6.1. Special 3-Finger Effect
+      // =====================
+
+      function triggerSpecial3FingerEffect() {
+        // Add special glow effect to character
+        const character = document.getElementById("younghee");
+        const sole = document.getElementById("sole");
+
+        if (character && sole) {
+          character.style.filter =
+            "drop-shadow(0 0 20px #FFD700) brightness(1.3)";
+          sole.style.filter = "drop-shadow(0 0 15px #FFD700) brightness(1.2)";
+
+          // Remove effect after animation
+          setTimeout(() => {
+            character.style.filter = "";
+            sole.style.filter = "";
+          }, 500);
+        }
+
+        // Show 3x multiplier text
+        show3xMultiplierText();
+      }
+
+      function show3xMultiplierText() {
+        // Create floating 3x text
+        const multiplierText = document.createElement("div");
+        multiplierText.textContent = "3X COINS!";
+        multiplierText.style.cssText = `
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 24px;
+          font-weight: bold;
+          color: #FFD700;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+          z-index: 9999;
+          pointer-events: none;
+          animation: bounce3x 1s ease-out forwards;
+        `;
+
+        // Add bounce animation
+        const style = document.createElement("style");
+        style.textContent = `
+          @keyframes bounce3x {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) translateY(-30px); opacity: 0; }
+          }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(multiplierText);
+
+        // Remove after animation
+        setTimeout(() => {
+          if (multiplierText.parentNode) {
+            multiplierText.parentNode.removeChild(multiplierText);
+          }
+          if (style.parentNode) {
+            style.parentNode.removeChild(style);
+          }
+        }, 1000);
+      }
+
+      // =====================
+      // 7. HP Recovery Function
+      // =====================
+
+      function recoverHP() {
+        let state = loadGameState();
+
+        // Only 3-minute 2% HP recovery logic
+        const currentTime = Date.now();
+        if (!state.lastRecover) {
+          state.lastRecover = currentTime;
+        }
+
+        const timeSinceLastRecover = currentTime - state.lastRecover;
+        if (timeSinceLastRecover >= 3 * 60 * 1000) {
+          // 3 minutes
+          const maxHP = getLevelHP(state.level);
+          const recoveryAmount = Math.floor(maxHP * 0.02); // 2% of max HP
+
+          // Recover 2% regardless of current HP amount, but don't exceed max HP
+          if (state.hp < maxHP) {
+            state.hp = Math.min(maxHP, state.hp + recoveryAmount);
+            state.lastRecover = currentTime;
+            saveGameState(state);
+            updateUI(state);
+          }
+        }
+      }
+
+      // =====================
+      // 8. Level Up Popup Functions
+      // =====================
+
+      function showLevelUpPopup(newLevel) {
+        const popup = document.getElementById("level-up-popup");
+        const titleElement = popup.querySelector(".level-up-title");
+
+        if (titleElement) {
+          titleElement.textContent = `Level ${newLevel}!`;
+        }
+
+        popup.style.display = "flex";
+        popup.classList.add("show");
+      }
+
+      function closeLevelUpPopup() {
+        const popup = document.getElementById("level-up-popup");
+        popup.classList.remove("show");
+        setTimeout(() => {
+          popup.style.display = "none";
+        }, 300);
+      }
+
+      // =====================
+      // 9. Auto Earn Function
+      // =====================
+
+      let isAutoEarnEnabled = false;
+      let autoEarnInterval = null;
+
+      function toggleAutoEarn() {
+        const button = document.getElementById("auto-earn-button");
+
+        if (isAutoEarnEnabled) {
+          // Disable auto earn
+          isAutoEarnEnabled = false;
+          if (autoEarnInterval) {
+            clearInterval(autoEarnInterval);
+            autoEarnInterval = null;
+          }
+          button.classList.remove("active");
+        } else {
+          // Enable auto earn
+          isAutoEarnEnabled = true;
+          autoEarnInterval = setInterval(() => {
+            if (isAutoEarnEnabled) {
+              const fakeEvent = {
+                clientX: window.innerWidth / 2,
+                clientY: window.innerHeight / 2,
+              };
+              tap(fakeEvent, 0.25);
+            }
+          }, 1000);
+          button.classList.add("active");
+        }
+      }
+
+      // =====================
+      // 10. Event Listeners
+      // =====================
+
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize game
+        let initialState = loadGameState();
+        updateUI(initialState);
+
+        // Add tap event listeners for specific elements
+        document
+          .getElementById("younghee")
+          .addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation(); // Prevent bubbling to main container
+            tap(event);
+          });
+
+        document
+          .getElementById("sole")
+          .addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation(); // Prevent bubbling to main container
+            tap(event);
+          });
+
+        // Add tap event listeners for the main container
+        const mainContainer = document.querySelector(".w-\\[375px\\]");
+        if (mainContainer) {
+          mainContainer.addEventListener("click", function (event) {
+            // Don't tap if clicking on buttons or UI elements
+            if (
+              event.target.closest("#auto-earn-button") ||
+              event.target.closest(".level-up-popup") ||
+              event.target.closest("button")
+            ) {
+              return;
+            }
+            tap(event);
+          });
+
+          mainContainer.addEventListener("touchstart", function (event) {
+            // Don't tap if touching buttons or UI elements
+            if (
+              event.target.closest("#auto-earn-button") ||
+              event.target.closest(".level-up-popup") ||
+              event.target.closest("button")
+            ) {
+              return;
+            }
+            event.preventDefault();
+            tap(event);
+          });
+        }
+
+        // Touch events for mobile on specific elements
+        document
+          .getElementById("younghee")
+          .addEventListener("touchstart", function (event) {
+            event.preventDefault();
+            event.stopPropagation(); // Prevent bubbling to main container
+            tap(event);
+          });
+
+        document
+          .getElementById("sole")
+          .addEventListener("touchstart", function (event) {
+            event.preventDefault();
+            event.stopPropagation(); // Prevent bubbling to main container
+            tap(event);
+          });
+
+        // Auto earn button
+        document
+          .getElementById("auto-earn-button")
+          .addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleAutoEarn();
+          });
+
+        // HP recovery interval
+        setInterval(recoverHP, 60 * 1000); // Every minute
+
+        console.log("Game Interface Initialized");
+      });
+
+      // Close popup when clicking outside
+      document
+        .getElementById("level-up-popup")
+        .addEventListener("click", function (event) {
+          if (event.target === this) {
+            closeLevelUpPopup();
+          }
+        });
     </script>
   </body>
 </html>

@@ -647,19 +647,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
   updateUI(initialState);
 
+  // Gắn sự kiện tap cho bottom-tap-area
+  const bottomTapArea = document.getElementById("bottom-tap-area");
+  if (bottomTapArea) {
+    bottomTapArea.addEventListener("click", function (event) {
+      console.log("Bottom tap area clicked");
+      tap(event);
+    });
+
+    bottomTapArea.addEventListener("touchstart", function (event) {
+      console.log("Bottom tap area touched");
+      event.preventDefault(); // Prevent default touch behavior
+      tap(event);
+    });
+
+    console.log("Bottom tap area event listeners added");
+  }
+
   // Gắn sự kiện tap cho stats-panel với event
-  // document
-  //   .getElementById("stats-panel")
-  //   .addEventListener("click", function (event) {
-  //     tap(event);
-  //   });
+  document
+    .getElementById("stats-panel")
+    .addEventListener("click", function (event) {
+      console.log("Stats panel clicked");
+      tap(event);
+    });
 
   // Gắn sự kiện tap cho main-stage với event
-  // document
-  //   .getElementById("main-stage")
-  //   .addEventListener("click", function (event) {
-  //     tap(event);
-  //   });
+  document
+    .getElementById("main-stage")
+    .addEventListener("click", function (event) {
+      console.log("Main stage clicked");
+      tap(event);
+    });
 
   // Hồi phục HP mỗi phút
   setInterval(recoverHP, 60 * 1000);
