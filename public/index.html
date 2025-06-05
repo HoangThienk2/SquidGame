@@ -4,8 +4,15 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <title>Telegram Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,6 +38,15 @@
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Gugi&display=swap");
 
+      /* CSS Variables for dynamic viewport */
+      :root {
+        --vh: 1vh;
+        --safe-area-inset-top: env(safe-area-inset-top);
+        --safe-area-inset-bottom: env(safe-area-inset-bottom);
+        --safe-area-inset-left: env(safe-area-inset-left);
+        --safe-area-inset-right: env(safe-area-inset-right);
+      }
+
       * {
         margin: 0;
         padding: 0;
@@ -41,16 +57,42 @@
       body {
         height: 100%;
         width: 100%;
+        overflow-x: hidden;
+        position: fixed;
+        -webkit-overflow-scrolling: touch;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
       }
 
       body {
         font-family: "Arial", sans-serif;
         background-color: #120106;
         min-height: 100vh;
+        min-height: calc(var(--vh, 1vh) * 100);
+        min-height: -webkit-fill-available;
         width: 100vw;
         display: block;
         position: relative;
         color: white;
+        margin: 0;
+        padding: 0;
+        /* iOS Safari specific fixes */
+        padding-top: var(--safe-area-inset-top);
+        padding-bottom: var(--safe-area-inset-bottom);
+        padding-left: var(--safe-area-inset-left);
+        padding-right: var(--safe-area-inset-right);
+      }
+
+      /* Fix for iOS Safari viewport height issues */
+      @supports (-webkit-touch-callout: none) {
+        body {
+          min-height: -webkit-fill-available;
+          min-height: calc(var(--vh, 1vh) * 100);
+        }
       }
 
       /* Main container positioned in center like a phone */
@@ -62,7 +104,11 @@
         left: 50%;
         transform: translate(-50%, -50%);
         min-height: 100vh;
+        min-height: calc(var(--vh, 1vh) * 100);
+        min-height: -webkit-fill-available;
         max-height: 100vh;
+        max-height: calc(var(--vh, 1vh) * 100);
+        max-height: -webkit-fill-available;
         display: flex;
         flex-direction: column;
         background: linear-gradient(180deg, #2d1b3d 0%, #1a0f2e 100%);
@@ -73,6 +119,11 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         border-radius: 16px;
         overflow: hidden;
+        /* Touch optimization */
+        -webkit-transform: translate(-50%, -50%);
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        will-change: transform;
       }
 
       .progress-bar {
@@ -159,28 +210,14 @@
       }
 
       /* Auto earn button default position - override all media queries */
-      .flex.justify-end.mr-4.mb-4.relative.z-50 {
-        transform: translateY(67px) !important;
+      .auto-earn-container {
+        position: absolute !important;
+        right: 16px !important;
+        bottom: 180px !important; /* Đặt dưới chân younghee mặc định */
+        z-index: 50 !important;
       }
 
       /* Telegram WebApp Styles */
-      .in-telegram-app {
-        max-width: 100%;
-        margin: 0 auto;
-        overflow-x: hidden;
-        height: 100vh;
-      }
-
-      /* Game container */
-      .game-container {
-        width: 100%;
-        height: 100%;
-        padding: 20px 16px;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        z-index: 1;
-      }
 
       /* Base styles for smallest phones (iPhone SE, small Android) */
       @media screen and (max-width: 375px) {
@@ -209,6 +246,11 @@
         .px-4 {
           padding-left: 8px;
           padding-right: 8px;
+        }
+
+        /* Auto earn button cho iPhone SE - dưới chân younghee */
+        .auto-earn-container {
+          bottom: 110px !important; /* Điều chỉnh cho iPhone SE (170px - 60px = 110px) */
         }
       }
 
@@ -245,8 +287,10 @@
         .bottom-layout-image {
           bottom: -20px !important;
         }
-        .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          transform: translateY(26px) !important;
+
+        /* Auto earn button cho iPhone 12 Pro - dưới chân younghee */
+        .auto-earn-container {
+          bottom: 140px !important; /* Điều chỉnh cho iPhone 12 Pro (200px - 60px = 140px) */
         }
       }
 
@@ -275,9 +319,9 @@
           bottom: -25px !important;
         }
 
-        /* Auto earn button adjustments for iPhone 14 Pro Max */
-        .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          transform: translateY(33px) !important;
+        /* Auto earn button cho iPhone 14 Pro Max - dưới chân younghee */
+        .auto-earn-container {
+          bottom: 150px !important; /* Điều chỉnh cho iPhone 14 Pro Max (210px - 60px = 150px) */
         }
 
         /* Bottom navigation adjustments for larger phones */
@@ -315,9 +359,9 @@
           bottom: -15px !important;
         }
 
-        /* Auto earn button adjustments for iPhone 15 Pro */
-        .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          transform: translateY(40px) !important;
+        /* Auto earn button cho iPhone 15 Pro - dưới chân younghee */
+        .auto-earn-container {
+          bottom: 160px !important; /* Điều chỉnh cho iPhone 15 Pro (220px - 60px = 160px) */
         }
       }
 
@@ -351,6 +395,11 @@
         .mb-4 {
           margin-bottom: 0.5rem;
         }
+
+        /* Auto earn button cho màn hình ngắn - dưới chân younghee */
+        .auto-earn-container {
+          bottom: 120px !important; /* Điều chỉnh cho màn hình ngắn */
+        }
       }
 
       /* Common mobile adjustments */
@@ -376,127 +425,230 @@
 
       /* Bottom layout flash effect */
       .bottom-layout-flash {
-        position: relative;
-        overflow: hidden;
+        transition: all 0.3s ease;
+        -webkit-transition: all 0.3s ease;
+        -moz-transition: all 0.3s ease;
+        -o-transition: all 0.3s ease;
       }
 
-      /* Additional glow effect - giữ nguyên hiệu ứng gốc */
       .bottom-layout-flash.flash-active {
-        filter: brightness(1.8) drop-shadow(0 0 40px rgba(255, 255, 255, 1))
-          drop-shadow(0 0 80px rgba(255, 255, 255, 0.8));
+        filter: brightness(1.5) saturate(1.3) contrast(1.2);
+        -webkit-filter: brightness(1.5) saturate(1.3) contrast(1.2);
         animation: pulseGlow 0.8s ease-out;
-      }
+        -webkit-animation: pulseGlow 0.8s ease-out;
+        -moz-animation: pulseGlow 0.8s ease-out;
+        -o-animation: pulseGlow 0.8s ease-out;
 
-      /* Mobile-specific flash effect fallback - chỉ áp dụng khi drop-shadow không hoạt động */
-      @media screen and (max-width: 768px) {
-        /* Kiểm tra nếu drop-shadow không được hỗ trợ tốt trên mobile */
-        @supports not (filter: drop-shadow(0 0 40px rgba(255, 255, 255, 1))) {
-          .bottom-layout-flash.flash-active {
-            filter: brightness(2.2) saturate(1.3) !important;
-            animation: mobileFlash 0.8s ease-out !important;
-            transform: scale(1.02);
-          }
-        }
-
-        /* Fallback cho các thiết bị mobile có performance thấp */
-        .bottom-layout-flash.flash-active {
-          /* Thêm transform để tăng cường hiệu ứng trên mobile */
-          transform: scale(1.01);
-          transition: transform 0.1s ease;
-        }
-      }
-
-      /* Bounce effect for bottom layout when tapping */
-      .bottom-layout-flash.flash-active img {
-        animation: bottomLayoutBounce 0.8s ease-out;
-      }
-
-      /* Character press down effect when tapping */
-      #character-overlay.character-press {
-        animation: characterPressDown 0.8s ease-out;
-      }
-
-      @keyframes bottomLayoutBounce {
-        0% {
-          transform: translateX(-12px) translateY(0px);
-        }
-        15% {
-          transform: translateX(-12px) translateY(15px);
-        }
-        30% {
-          transform: translateX(-12px) translateY(0px);
-        }
-        45% {
-          transform: translateX(-12px) translateY(8px);
-        }
-        60% {
-          transform: translateX(-12px) translateY(0px);
-        }
-        75% {
-          transform: translateX(-12px) translateY(3px);
-        }
-        100% {
-          transform: translateX(-12px) translateY(0px);
-        }
+        /* Fallback for older browsers */
+        transform: scale(1.02);
+        -webkit-transform: scale(1.02);
+        -moz-transform: scale(1.02);
+        -o-transform: scale(1.02);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        -webkit-box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        -moz-box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
       }
 
       @keyframes pulseGlow {
         0% {
-          filter: brightness(1) drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+          filter: brightness(1) saturate(1) contrast(1);
+          -webkit-filter: brightness(1) saturate(1) contrast(1);
+          transform: scale(1);
+          -webkit-transform: scale(1);
         }
-        30% {
-          filter: brightness(2.2) drop-shadow(0 0 60px rgba(255, 255, 255, 1))
-            drop-shadow(0 0 120px rgba(255, 255, 255, 0.9));
-        }
-        60% {
-          filter: brightness(1.8) drop-shadow(0 0 40px rgba(255, 255, 255, 0.8))
-            drop-shadow(0 0 80px rgba(255, 255, 255, 0.6));
+        50% {
+          filter: brightness(1.8) saturate(1.5) contrast(1.3);
+          -webkit-filter: brightness(1.8) saturate(1.5) contrast(1.3);
+          transform: scale(1.03);
+          -webkit-transform: scale(1.03);
         }
         100% {
-          filter: brightness(1) drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+          filter: brightness(1) saturate(1) contrast(1);
+          -webkit-filter: brightness(1) saturate(1) contrast(1);
+          transform: scale(1);
+          -webkit-transform: scale(1);
         }
+      }
+
+      @-webkit-keyframes pulseGlow {
+        0% {
+          -webkit-filter: brightness(1) saturate(1) contrast(1);
+          -webkit-transform: scale(1);
+        }
+        50% {
+          -webkit-filter: brightness(1.8) saturate(1.5) contrast(1.3);
+          -webkit-transform: scale(1.03);
+        }
+        100% {
+          -webkit-filter: brightness(1) saturate(1) contrast(1);
+          -webkit-transform: scale(1);
+        }
+      }
+
+      /* Mobile optimized flash effect */
+      @media (max-width: 768px) {
+        .bottom-layout-flash.flash-active {
+          filter: brightness(2) saturate(1.8) contrast(1.4);
+          -webkit-filter: brightness(2) saturate(1.8) contrast(1.4);
+          animation: mobileFlash 0.8s ease-out;
+          -webkit-animation: mobileFlash 0.8s ease-out;
+          -moz-animation: mobileFlash 0.8s ease-out;
+          -o-animation: mobileFlash 0.8s ease-out;
+
+          /* Enhanced mobile fallback */
+          transform: scale(1.05);
+          -webkit-transform: scale(1.05);
+          -moz-transform: scale(1.05);
+          -o-transform: scale(1.05);
+          box-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
+          -webkit-box-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
+          -moz-box-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
+
+          /* Hardware acceleration for mobile */
+          -webkit-transform: translateZ(0) scale(1.05);
+          -moz-transform: translateZ(0) scale(1.05);
+          transform: translateZ(0) scale(1.05);
+          will-change: transform, filter, box-shadow;
+          -webkit-backface-visibility: hidden;
+          -moz-backface-visibility: hidden;
+          backface-visibility: hidden;
+        }
+
+        @keyframes mobileFlash {
+          0% {
+            filter: brightness(1) saturate(1) contrast(1);
+            -webkit-filter: brightness(1) saturate(1) contrast(1);
+            transform: translateZ(0) scale(1);
+            -webkit-transform: translateZ(0) scale(1);
+            box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+            -webkit-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+          }
+          25% {
+            filter: brightness(2.2) saturate(2) contrast(1.5);
+            -webkit-filter: brightness(2.2) saturate(2) contrast(1.5);
+            transform: translateZ(0) scale(1.08);
+            -webkit-transform: translateZ(0) scale(1.08);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.7),
+              inset 0 0 25px rgba(255, 255, 255, 0.3);
+            -webkit-box-shadow: 0 0 40px rgba(255, 255, 255, 0.7),
+              inset 0 0 25px rgba(255, 255, 255, 0.3);
+          }
+          50% {
+            filter: brightness(2.5) saturate(2.2) contrast(1.6);
+            -webkit-filter: brightness(2.5) saturate(2.2) contrast(1.6);
+            transform: translateZ(0) scale(1.1);
+            -webkit-transform: translateZ(0) scale(1.1);
+            box-shadow: 0 0 50px rgba(255, 255, 255, 0.8),
+              inset 0 0 30px rgba(255, 255, 255, 0.4);
+            -webkit-box-shadow: 0 0 50px rgba(255, 255, 255, 0.8),
+              inset 0 0 30px rgba(255, 255, 255, 0.4);
+          }
+          75% {
+            filter: brightness(1.8) saturate(1.5) contrast(1.3);
+            -webkit-filter: brightness(1.8) saturate(1.5) contrast(1.3);
+            transform: translateZ(0) scale(1.05);
+            -webkit-transform: translateZ(0) scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+              inset 0 0 20px rgba(255, 255, 255, 0.2);
+            -webkit-box-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+              inset 0 0 20px rgba(255, 255, 255, 0.2);
+          }
+          100% {
+            filter: brightness(1) saturate(1) contrast(1);
+            -webkit-filter: brightness(1) saturate(1) contrast(1);
+            transform: translateZ(0) scale(1);
+            -webkit-transform: translateZ(0) scale(1);
+            box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+            -webkit-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+          }
+        }
+
+        @-webkit-keyframes mobileFlash {
+          0% {
+            -webkit-filter: brightness(1) saturate(1) contrast(1);
+            -webkit-transform: translateZ(0) scale(1);
+            -webkit-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+          }
+          25% {
+            -webkit-filter: brightness(2.2) saturate(2) contrast(1.5);
+            -webkit-transform: translateZ(0) scale(1.08);
+            -webkit-box-shadow: 0 0 40px rgba(255, 255, 255, 0.7),
+              inset 0 0 25px rgba(255, 255, 255, 0.3);
+          }
+          50% {
+            -webkit-filter: brightness(2.5) saturate(2.2) contrast(1.6);
+            -webkit-transform: translateZ(0) scale(1.1);
+            -webkit-box-shadow: 0 0 50px rgba(255, 255, 255, 0.8),
+              inset 0 0 30px rgba(255, 255, 255, 0.4);
+          }
+          75% {
+            -webkit-filter: brightness(1.8) saturate(1.5) contrast(1.3);
+            -webkit-transform: translateZ(0) scale(1.05);
+            -webkit-box-shadow: 0 0 30px rgba(255, 255, 255, 0.5),
+              inset 0 0 20px rgba(255, 255, 255, 0.2);
+          }
+          100% {
+            -webkit-filter: brightness(1) saturate(1) contrast(1);
+            -webkit-transform: translateZ(0) scale(1);
+            -webkit-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+          }
+        }
+
+        /* iOS Safari specific optimizations */
+        @supports (-webkit-touch-callout: none) {
+          .bottom-layout-flash.flash-active {
+            -webkit-transform: translate3d(0, 0, 0) scale(1.05);
+            transform: translate3d(0, 0, 0) scale(1.05);
+            -webkit-perspective: 1000px;
+            perspective: 1000px;
+          }
+        }
+      }
+
+      /* Character press down effect */
+      .character-press {
+        animation: characterPressDown 0.8s ease-out;
+        -webkit-animation: characterPressDown 0.8s ease-out;
+        -moz-animation: characterPressDown 0.8s ease-out;
+        -o-animation: characterPressDown 0.8s ease-out;
       }
 
       @keyframes characterPressDown {
         0% {
-          transform: translateY(0px);
+          transform: translateY(0px) scale(1);
         }
-        15% {
-          transform: translateY(15px);
+        25% {
+          transform: translateY(8px) scale(0.98);
         }
-        30% {
-          transform: translateY(0px);
-        }
-        45% {
-          transform: translateY(8px);
-        }
-        60% {
-          transform: translateY(0px);
+        50% {
+          transform: translateY(12px) scale(0.96);
         }
         75% {
-          transform: translateY(3px);
+          transform: translateY(6px) scale(0.99);
         }
         100% {
-          transform: translateY(0px);
+          transform: translateY(0px) scale(1);
         }
       }
 
-      @keyframes mobileFlash {
+      @-webkit-keyframes characterPressDown {
         0% {
-          filter: brightness(1) saturate(1);
-          transform: scale(1);
+          -webkit-transform: translateY(0px) scale(1);
         }
-        30% {
-          filter: brightness(2.5) saturate(1.5);
-          transform: scale(1.03);
+        25% {
+          -webkit-transform: translateY(8px) scale(0.98);
         }
-        60% {
-          filter: brightness(2) saturate(1.3);
-          transform: scale(1.02);
+        50% {
+          -webkit-transform: translateY(12px) scale(0.96);
+        }
+        75% {
+          -webkit-transform: translateY(6px) scale(0.99);
         }
         100% {
-          filter: brightness(1) saturate(1);
-          transform: scale(1);
+          -webkit-transform: translateY(0px) scale(1);
         }
       }
 
@@ -592,8 +744,11 @@
       }
 
       /* HIGH PRIORITY OVERRIDE - Must be last to override all media queries */
-      .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
-        transform: translateY(67px) !important;
+      .auto-earn-container {
+        position: absolute !important;
+        right: 16px !important;
+        bottom: 180px !important; /* Đặt dưới chân younghee mặc định */
+        z-index: 50 !important;
       }
 
       /* Force bottom-nav to be visible on all devices */
@@ -641,18 +796,9 @@
           height: 240px !important;
         }
 
-        /* Auto earn button adjustments for iPhone SE */
-        .flex.justify-end.mr-4.mb-4.relative.z-50 {
-          margin-bottom: 20px !important;
-          margin-right: 12px !important;
-          transform: translateY(-57px) !important;
-        }
-
-        /* Alternative selector for auto earn container */
-        .game-container + div {
-          margin-bottom: 40px !important;
-          margin-right: 12px !important;
-          transform: translateY(-30px) !important;
+        /* Auto earn button cho iPhone SE - dưới chân younghee */
+        .auto-earn-container {
+          bottom: 110px !important; /* 170px - 60px = 110px */
         }
 
         /* Auto earn button size adjustment */
@@ -676,9 +822,201 @@
           bottom: 10px !important;
         }
       }
+
+      /* Real mobile device detection and fixes */
+      @media only screen and (max-device-width: 480px) {
+        .phone-container {
+          max-width: 100vw;
+          width: 100vw;
+          height: 100vh;
+          height: -webkit-fill-available;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          -webkit-transform: none;
+          position: fixed;
+          box-shadow: none;
+        }
+
+        body {
+          overflow: hidden;
+          position: fixed;
+          width: 100vw;
+          height: 100vh;
+          height: -webkit-fill-available;
+        }
+      }
+
+      /* iPhone specific fixes */
+      @media only screen and (device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) {
+        /* iPhone 6/7/8/SE 2020 */
+        .phone-container {
+          max-width: 100vw;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+
+        .auto-earn-container {
+          bottom: 110px !important;
+        }
+
+        #character-overlay {
+          bottom: 170px !important;
+        }
+      }
+
+      @media only screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) {
+        /* iPhone XR/11 */
+        .phone-container {
+          max-width: 100vw;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+
+        .auto-earn-container {
+          bottom: 150px !important;
+        }
+
+        #character-overlay {
+          bottom: 210px !important;
+        }
+
+        #bottom-nav {
+          bottom: 34px !important;
+          padding-bottom: 10px !important;
+        }
+      }
+
+      @media only screen and (device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) {
+        /* iPhone 12/13/14 */
+        .phone-container {
+          max-width: 100vw;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+
+        .auto-earn-container {
+          bottom: 140px !important;
+        }
+
+        #character-overlay {
+          bottom: 200px !important;
+        }
+
+        #bottom-nav {
+          bottom: 34px !important;
+          padding-bottom: 10px !important;
+        }
+      }
+
+      @media only screen and (device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) {
+        /* iPhone 12/13/14 Pro Max */
+        .phone-container {
+          max-width: 100vw;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+
+        .auto-earn-container {
+          bottom: 150px !important;
+        }
+
+        #character-overlay {
+          bottom: 210px !important;
+        }
+
+        #bottom-nav {
+          bottom: 34px !important;
+          padding-bottom: 10px !important;
+        }
+      }
+
+      @media only screen and (device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) {
+        /* iPhone 15 Pro */
+        .phone-container {
+          max-width: 100vw;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+
+        .auto-earn-container {
+          bottom: 160px !important;
+        }
+
+        #character-overlay {
+          bottom: 220px !important;
+        }
+
+        #bottom-nav {
+          bottom: 34px !important;
+          padding-bottom: 10px !important;
+        }
+      }
+
+      /* Android device fixes */
+      @media only screen and (max-device-width: 480px) and (orientation: portrait) {
+        .phone-container {
+          max-width: 100vw;
+          width: 100vw;
+          height: 100vh;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+
+        .auto-earn-container {
+          bottom: 140px !important;
+        }
+
+        #character-overlay {
+          bottom: 200px !important;
+        }
+
+        #bottom-nav {
+          bottom: 20px !important;
+        }
+      }
     </style>
   </head>
   <body>
+    <!-- Debug button for mobile testing -->
+    <div
+      id="debug-toggle"
+      style="
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 10000;
+        background: rgba(255, 0, 0, 0.7);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        cursor: pointer;
+        display: none;
+      "
+    >
+      DEBUG
+    </div>
+
     <!-- Phone Container -->
     <div class="phone-container">
       <!-- Game Container -->
@@ -828,7 +1166,8 @@
         </div>
       </div>
 
-      <div class="flex justify-end mr-4 mb-4 relative z-50">
+      <!-- Auto Earn Button - positioned independently to stay below younghee's feet -->
+      <div class="auto-earn-container">
         <div class="flex flex-col items-center space-y-2">
           <button
             id="auto-earn-button"
