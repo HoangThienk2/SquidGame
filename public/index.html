@@ -339,6 +339,48 @@
           height: 12px;
         }
       }
+
+      /* Auto Earn Button Styles */
+      #auto-earn-button {
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      #auto-earn-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(255, 107, 139, 0.4);
+      }
+
+      #auto-earn-button.active {
+        background: linear-gradient(
+          135deg,
+          #ff6b8b 0%,
+          #ff4081 100%
+        ) !important;
+        border: 2px solid #ff6b8b !important;
+        box-shadow: 0 0 20px rgba(255, 107, 139, 0.6),
+          inset 0 0 10px rgba(255, 255, 255, 0.2) !important;
+        animation: pulse-glow 2s infinite;
+      }
+
+      #auto-earn-button.active img {
+        filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+      }
+
+      @keyframes pulse-glow {
+        0% {
+          box-shadow: 0 0 20px rgba(255, 107, 139, 0.6),
+            inset 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+        50% {
+          box-shadow: 0 0 30px rgba(255, 107, 139, 0.8),
+            inset 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        100% {
+          box-shadow: 0 0 20px rgba(255, 107, 139, 0.6),
+            inset 0 0 10px rgba(255, 255, 255, 0.2);
+        }
+      }
     </style>
   </head>
 
@@ -482,7 +524,7 @@
             <p
               class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-white"
             >
-              이벤트
+              Events
             </p>
             <img class="w-[61px] h-[61px]" src="./image/gift.png" alt="" />
           </div>
@@ -491,7 +533,7 @@
       <div class="absolute bottom-[-20px] left-[-12px] p-[10px]">
         <div class="relative flex flex-col justify-between items-center">
           <div
-            class="absolute top-[-160px] left-0 right-0 flex justify-center character-container"
+            class="absolute top-[-150px] left-[20px] right-0 flex justify-center character-container"
           >
             <img
               id="younghee"
@@ -1263,6 +1305,30 @@
             event.preventDefault();
             event.stopPropagation();
             toggleAutoEarn();
+          });
+
+        // Auto earn button touch support
+        document
+          .getElementById("auto-earn-button")
+          .addEventListener("touchstart", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleAutoEarn();
+          });
+
+        // Prevent auto earn button from being affected by main container events
+        document
+          .getElementById("auto-earn-button")
+          .addEventListener("touchend", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+          });
+
+        document
+          .getElementById("auto-earn-button")
+          .addEventListener("touchmove", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
           });
 
         // HP recovery interval
