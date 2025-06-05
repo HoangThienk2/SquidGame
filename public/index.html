@@ -1147,6 +1147,88 @@
           bottom: -110px !important; /* Lùi xuống tiếp từ -90px xuống -110px */
         }
       }
+
+      /* Safari Mobile Specific Fixes */
+      @supports (-webkit-touch-callout: none) {
+        /* This targets Safari on iOS */
+        .phone-container {
+          position: fixed !important;
+          top: 0 !important;
+          left: 0 !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          transform: none !important;
+          max-width: 100% !important;
+          border-radius: 0 !important;
+          height: 100vh;
+          height: calc(var(--vh, 1vh) * 100);
+          min-height: 100vh;
+          min-height: calc(var(--vh, 1vh) * 100);
+          max-height: 100vh;
+          max-height: calc(var(--vh, 1vh) * 100);
+        }
+
+        .game-container {
+          height: calc(
+            100vh - var(--safe-area-inset-top) - var(--safe-area-inset-bottom)
+          );
+          height: calc(
+            calc(var(--vh, 1vh) * 100) - var(--safe-area-inset-top) -
+              var(--safe-area-inset-bottom)
+          );
+          padding-top: max(20px, var(--safe-area-inset-top));
+          padding-bottom: max(20px, var(--safe-area-inset-bottom));
+          padding-left: max(16px, var(--safe-area-inset-left));
+          padding-right: max(16px, var(--safe-area-inset-right));
+        }
+
+        /* Bottom navigation with safe area support */
+        #bottom-nav {
+          bottom: max(5px, var(--safe-area-inset-bottom)) !important;
+          padding-bottom: var(--safe-area-inset-bottom) !important;
+          padding-left: max(16px, var(--safe-area-inset-left)) !important;
+          padding-right: max(16px, var(--safe-area-inset-right)) !important;
+        }
+
+        /* iPhone with home indicator adjustments */
+        @media screen and (min-height: 812px) {
+          #bottom-nav {
+            bottom: max(34px, var(--safe-area-inset-bottom)) !important;
+            padding-bottom: max(10px, var(--safe-area-inset-bottom)) !important;
+          }
+        }
+
+        /* Auto earn button adjustments for Safari */
+        .auto-earn-container {
+          right: max(16px, var(--safe-area-inset-right)) !important;
+          bottom: max(
+            70px,
+            calc(70px + var(--safe-area-inset-bottom))
+          ) !important;
+        }
+      }
+
+      /* Additional mobile Safari optimizations */
+      @media screen and (max-width: 428px) {
+        @supports (-webkit-touch-callout: none) {
+          /* Force full viewport usage on Safari mobile */
+          body {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
+            overflow: hidden;
+          }
+
+          /* Prevent Safari bounce effect */
+          .phone-container {
+            -webkit-overflow-scrolling: touch;
+            overflow-y: auto;
+            -webkit-transform: translate3d(0, 0, 0);
+            transform: translate3d(0, 0, 0);
+          }
+        }
+      }
     </style>
   </head>
   <body>
@@ -1427,6 +1509,75 @@
     <script>
       // Game logic will go here
       console.log("Telegram Game Loaded");
+
+      // Safari viewport height fix
+      function setViewportHeight() {
+        let vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty("--vh", `${vh}px`);
+
+        // Log for debugging
+        console.log("Viewport height set:", vh, "px");
+        console.log("Window inner height:", window.innerHeight);
+        console.log("Screen height:", screen.height);
+      }
+
+      // Set initial viewport height
+      setViewportHeight();
+
+      // Update viewport height on resize and orientation change
+      window.addEventListener("resize", setViewportHeight);
+      window.addEventListener("orientationchange", () => {
+        setTimeout(setViewportHeight, 100);
+      });
+
+      // Safari specific fixes
+      if (
+        /Safari/.test(navigator.userAgent) &&
+        /iPhone|iPad/.test(navigator.userAgent)
+      ) {
+        console.log("Safari on iOS detected");
+
+        // Additional Safari fixes
+        document.addEventListener("DOMContentLoaded", () => {
+          setTimeout(setViewportHeight, 300);
+        });
+
+        // Handle Safari address bar hide/show
+        let ticking = false;
+        function updateViewportOnScroll() {
+          if (!ticking) {
+            requestAnimationFrame(() => {
+              setViewportHeight();
+              ticking = false;
+            });
+            ticking = true;
+          }
+        }
+
+        window.addEventListener("scroll", updateViewportOnScroll, {
+          passive: true,
+        });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener(
+          "touchend",
+          function (event) {
+            const now = new Date().getTime();
+            if (now - lastTouchEnd <= 300) {
+              event.preventDefault();
+            }
+            lastTouchEnd = now;
+          },
+          false
+        );
+
+        // Force fullscreen on iOS Safari
+        if (window.navigator.standalone !== true) {
+          // Not in standalone mode, try to hide Safari UI
+          window.scrollTo(0, 1);
+        }
+      }
 
       // Example: Handle navigation clicks
       document
