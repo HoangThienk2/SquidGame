@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Squid Game Interface</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gugi&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", sans-serif;
+        background-image: url("./images/screen1//background-image.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        color: white;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .background-color-gradient {
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          #450832 0%,
+          #2e032c 100%
+        );
+        backdrop-filter: blur(10px);
+        border: 1px solid;
+        border: 1px solid rgba(215, 12, 163, 0.42);
+      }
+
+      /* Bottom Navigation */
+      .background-bottom-nav {
+        background-color: #27012a;
+        border: 1px solid;
+        border: 1px solid rgba(215, 12, 163, 0.42);
+      }
+
+      /* Status Bar */
+      .status-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background: rgba(0, 0, 0, 0.3);
+        font-size: 14px;
+        font-weight: bold;
+      }
+
+      .time {
+        font-size: 16px;
+      }
+
+      .signal-battery {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      /* Top Stats */
+      .top-stats {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0px;
+        gap: 12px;
+        width: 343px;
+        height: 30px;
+        margin: 15px auto;
+        flex: none;
+        order: 0;
+        align-self: stretch;
+        flex-grow: 0;
+        z-index: 0;
+      }
+
+      .stat-item {
+        width: 165.5px;
+        height: 30px;
+        flex: none;
+        flex-grow: 1;
+        position: relative;
+      }
+
+      .stat-item:first-child {
+        order: 0;
+      }
+
+      .stat-item:last-child {
+        order: 1;
+      }
+
+      .stat-background {
+        position: absolute;
+        left: 0%;
+        right: 0.31%;
+        top: 0%;
+        bottom: 0%;
+        border-radius: 999px;
+      }
+
+      .stat-frame {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 4px 12px 4px 4px;
+        gap: 8px;
+        isolation: isolate;
+        position: absolute;
+        left: 0%;
+        right: 0%;
+        top: 0%;
+        bottom: 0%;
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          #450832 0%,
+          #2e032c 100%
+        );
+        box-shadow: inset 0px 1px 4px rgba(70, 13, 55, 0.69);
+        border-radius: 999px;
+      }
+
+      .stat-glow {
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        left: 3px;
+        top: 4px;
+        background: rgba(248, 214, 87, 0.15);
+        filter: blur(5px);
+        flex: none;
+        order: 0;
+        flex-grow: 0;
+        z-index: 0;
+      }
+
+      .stat-icon {
+        width: 20px;
+        height: 20px;
+        flex: none;
+        order: 1;
+        flex-grow: 0;
+        z-index: 1;
+        position: relative;
+      }
+
+      /* Red Fire Icon */
+      .red-icon {
+        background: transparent;
+      }
+
+      .red-icon::before {
+        content: "";
+        position: absolute;
+        left: 20%;
+        right: 17.49%;
+        top: 5%;
+        bottom: 2.5%;
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Fire flame parts */
+      .red-icon .flame-1 {
+        position: absolute;
+        left: 35.62%;
+        right: 33.13%;
+        top: 25.17%;
+        bottom: 22.62%;
+        background: #ff6665;
+      }
+
+      .red-icon .flame-2 {
+        position: absolute;
+        left: 36.98%;
+        right: 34.25%;
+        top: 26.17%;
+        bottom: 22.62%;
+        background: #ff7777;
+      }
+
+      .red-icon .flame-3 {
+        position: absolute;
+        left: 66.88%;
+        right: 17.5%;
+        top: 36.61%;
+        bottom: 34.06%;
+        background: #fd6867;
+      }
+
+      .red-icon .flame-4 {
+        position: absolute;
+        left: 20%;
+        right: 64.37%;
+        top: 36.61%;
+        bottom: 34.06%;
+        background: #be0000;
+      }
+
+      .red-icon .flame-5 {
+        position: absolute;
+        left: 72.36%;
+        right: 17.49%;
+        top: 18.05%;
+        bottom: 48.73%;
+        background: #fd0903;
+      }
+
+      .red-icon .flame-6 {
+        position: absolute;
+        left: 72.36%;
+        right: 17.49%;
+        top: 51.27%;
+        bottom: 15.55%;
+        background: #f55c4a;
+      }
+
+      .red-icon .flame-7 {
+        position: absolute;
+        left: 20%;
+        right: 69.86%;
+        top: 18.05%;
+        bottom: 48.73%;
+        background: #cb0606;
+      }
+      .red-icon .flame-8 {
+        position: absolute;
+        left: 20%;
+        right: 69.86%;
+        top: 51.27%;
+        bottom: 15.55%;
+        background: #7e0000;
+      }
+
+      .red-icon .flame-9 {
+        position: absolute;
+        left: 41.98%;
+        right: 39.48%;
+        top: 5%;
+        bottom: 74.83%;
+        background: #ffcccb;
+      }
+
+      .red-icon .flame-10 {
+        position: absolute;
+        left: 41.98%;
+        right: 39.48%;
+        top: 77.38%;
+        bottom: 2.5%;
+        background: #be0000;
+      }
+
+      .red-icon .flame-11 {
+        position: absolute;
+        left: 51.25%;
+        right: 26.91%;
+        top: 5%;
+        bottom: 81.95%;
+        background: #fc9996;
+      }
+
+      .red-icon .flame-12 {
+        position: absolute;
+        left: 51.25%;
+        right: 26.91%;
+        top: 84.45%;
+        bottom: 2.5%;
+        background: #7c0000;
+      }
+
+      .red-icon .flame-13 {
+        position: absolute;
+        left: 29.37%;
+        right: 48.75%;
+        top: 5%;
+        bottom: 81.95%;
+        background: #f83635;
+      }
+
+      .red-icon .flame-14 {
+        position: absolute;
+        left: 29.37%;
+        right: 48.75%;
+        top: 84.45%;
+        bottom: 2.5%;
+        background: #3b0603;
+      }
+
+      .red-icon .flame-15 {
+        position: absolute;
+        left: 60.52%;
+        right: 26.91%;
+        top: 18.05%;
+        bottom: 63.39%;
+        background: #ffffff;
+      }
+
+      .red-icon .flame-16 {
+        position: absolute;
+        left: 60.52%;
+        right: 26.91%;
+        top: 65.94%;
+        bottom: 15.55%;
+        background: #c10000;
+      }
+
+      .red-icon .flame-17 {
+        position: absolute;
+        left: 29.37%;
+        right: 58.02%;
+        top: 18.05%;
+        bottom: 63.39%;
+        background: #de0000;
+      }
+
+      .red-icon .flame-18 {
+        position: absolute;
+        left: 29.37%;
+        right: 58.02%;
+        top: 65.94%;
+        bottom: 15.55%;
+        background: #be0000;
+      }
+
+      /* Additional flame parts for complete fire icon */
+      .red-icon .flame-19 {
+        position: absolute;
+        left: 51.25%;
+        right: 37.93%;
+        top: 18.05%;
+        bottom: 69.37%;
+        background: #f29796;
+      }
+
+      .red-icon .flame-20 {
+        position: absolute;
+        left: 51.25%;
+        right: 37.93%;
+        top: 71.92%;
+        bottom: 15.55%;
+        background: #fd0903;
+      }
+
+      .red-icon .flame-21 {
+        position: absolute;
+        left: 40.44%;
+        right: 48.74%;
+        top: 18.05%;
+        bottom: 69.37%;
+        background: #f93437;
+      }
+
+      .red-icon .flame-22 {
+        position: absolute;
+        left: 40.44%;
+        right: 48.74%;
+        top: 71.92%;
+        bottom: 15.55%;
+        background: #fd0903;
+      }
+
+      .red-icon .flame-23 {
+        position: absolute;
+        left: 62.08%;
+        right: 27.63%;
+        top: 30.63%;
+        bottom: 48.73%;
+        background: #fd989b;
+      }
+
+      .red-icon .flame-24 {
+        position: absolute;
+        left: 62.08%;
+        right: 27.63%;
+        top: 51.27%;
+        bottom: 28.08%;
+        background: #fd3434;
+      }
+
+      .red-icon .flame-25 {
+        position: absolute;
+        left: 30.15%;
+        right: 59.57%;
+        top: 30.63%;
+        bottom: 48.73%;
+        background: #fb2f2e;
+      }
+
+      .red-icon .flame-26 {
+        position: absolute;
+        left: 30.15%;
+        right: 59.57%;
+        top: 51.27%;
+        bottom: 28.08%;
+        background: #fb0003;
+      }
+
+      /* Yellow Icon */
+      .yellow-icon {
+        background: transparent;
+        position: relative;
+      }
+
+      .yellow-icon .coin-icon {
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        left: 2px;
+        top: 2px;
+        background: linear-gradient(45deg, #ffd700, #ffa500);
+        border-radius: 50%;
+        border: 1px solid #ffb000;
+      }
+
+      .yellow-icon .coin-icon::before {
+        content: "¥";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #8b4513;
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      .stat-value {
+        width: 16px;
+        height: 22px;
+        font-family: "Gugi", cursive;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 22px;
+        display: flex;
+        align-items: center;
+        color: #ffffff;
+        flex: none;
+        order: 2;
+        flex-grow: 0;
+        z-index: 2;
+      }
+
+      /* HP and LP Bars */
+      .progress-section {
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.3);
+        margin: 10px 20px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .hp-section {
+        margin-bottom: 20px;
+      }
+
+      .hp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .hp-label {
+        color: #ff6b9d;
+        font-weight: bold;
+        font-size: 16px;
+      }
+
+      .hp-value {
+        color: white;
+        font-size: 14px;
+      }
+
+      .coin-value {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #ffaa00;
+        font-weight: bold;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s ease;
+      }
+
+      .hp-fill {
+        background: linear-gradient(90deg, #ff6b9d, #ff8fab);
+        width: 62.5%;
+      }
+
+      .lp-section {
+        display: flex;
+        gap: 20px;
+      }
+
+      .lp-item {
+        flex: 1;
+      }
+
+      .lp-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .lp-label {
+        font-size: 14px;
+        color: #ccc;
+      }
+
+      .lp-value {
+        font-size: 14px;
+        color: white;
+      }
+
+      .hp-lv-fill {
+        background: linear-gradient(90deg, #4ade80, #22c55e);
+        width: 100%;
+      }
+
+      .lp-lv-fill {
+        background: linear-gradient(90deg, #06b6d4, #0891b2);
+        width: 100%;
+      }
+
+      /* Main Game Area */
+      .game-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        background: linear-gradient(
+          180deg,
+          rgba(139, 69, 19, 0.3) 0%,
+          rgba(101, 67, 33, 0.5) 100%
+        );
+        position: relative;
+      }
+
+      /* Wooden floor pattern */
+      .game-area::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+          90deg,
+          rgba(139, 69, 19, 0.3) 0px,
+          rgba(139, 69, 19, 0.3) 20px,
+          rgba(101, 67, 33, 0.3) 20px,
+          rgba(101, 67, 33, 0.3) 40px
+        );
+        opacity: 0.5;
+      }
+
+      /* Event Button */
+      .event-button {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 10px;
+        padding: 10px;
+        color: white;
+        font-size: 12px;
+        cursor: pointer;
+      }
+
+      .gift-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(45deg, #ff6b9d, #4ade80);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        margin-bottom: 5px;
+      }
+
+      /* Character Platform */
+      .character-platform {
+        position: relative;
+        z-index: 2;
+      }
+
+      .platform {
+        width: 200px;
+        height: 200px;
+        background: conic-gradient(
+          from 0deg,
+          #ff6b9d,
+          #ffffff,
+          #ff6b9d,
+          #ffffff,
+          #ff6b9d,
+          #ffffff,
+          #ff6b9d,
+          #ffffff
+        );
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        animation: rotate 10s linear infinite;
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .character {
+        width: 120px;
+        height: 160px;
+        background: linear-gradient(180deg, #fdbcb4 0%, #f8a695 100%);
+        border-radius: 60px 60px 20px 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 20px;
+      }
+
+      .character-head {
+        width: 60px;
+        height: 60px;
+        background: #fdbcb4;
+        border-radius: 50%;
+        position: relative;
+        margin-bottom: 10px;
+      }
+
+      .character-eyes {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+      }
+
+      .eye {
+        width: 8px;
+        height: 8px;
+        background: #333;
+        border-radius: 50%;
+      }
+
+      .character-hair {
+        position: absolute;
+        top: -5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 50px;
+        height: 25px;
+        background: #8b4513;
+        border-radius: 25px 25px 0 0;
+      }
+
+      .character-dress {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(180deg, #ff6b4a 0%, #ff4444 100%);
+        border-radius: 40px 40px 10px 10px;
+        margin-top: 5px;
+      }
+
+      /* Power Button */
+      .power-button {
+        position: absolute;
+        bottom: 80px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: rgba(0, 0, 0, 0.7);
+        border: 2px solid #ff4444;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 20px;
+        color: #ff4444;
+      }
+
+      .auto-earn {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        color: #ffaa00;
+        font-size: 12px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 5px 10px;
+        border-radius: 15px;
+      }
+
+      /* Force bottom-nav to be visible on all devices */
+      #bottom-nav {
+        position: fixed !important;
+        bottom: 5px !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 50 !important;
+        padding: 0 16px !important;
+        pointer-events: auto !important;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+
+      /* Ensure bottom-nav content is visible */
+      #bottom-nav > div {
+        background-color: #27012a !important;
+        border: 1px solid rgba(215, 12, 163, 0.42) !important;
+        border-radius: 9999px !important;
+        padding: 16px !important;
+        display: flex !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+      }
+
+      /* iPhone with home indicator adjustments */
+      @media screen and (min-height: 812px) {
+        #bottom-nav {
+          bottom: 34px !important;
+          padding-bottom: 10px !important;
+        }
+      }
+
+      /* Phone Container and Game Container */
+      .phone-container {
+        max-width: 375px;
+        width: 100%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        min-height: 100vh;
+        max-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: linear-gradient(180deg, #2d1b3d 0%, #1a0f2e 100%);
+        background-image: url("./images/screen1//background-image.png");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      .game-container {
+        width: 100%;
+        height: 100%;
+        padding: 20px 16px;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Resource Header */
+      .resource-header {
+        height: 30px;
+      }
+
+      /* Level Bars */
+      .level-bars {
+        background-color: #4ade806b;
+        height: 12px;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      /* Progress Bars */
+      .progress-bar {
+        background: linear-gradient(90deg, #e45f90 0%, #f06292 100%);
+        height: 8px;
+        border-radius: 4px;
+        width: 100%;
+      }
+
+      .progress-icon {
+        position: absolute;
+        border-radius: 0.5px;
+        background: linear-gradient(0deg, #bac1d6 0.01%, #ffffff 99.98%);
+        width: 5.5px;
+        height: 14px;
+        top: -1px;
+        transition: left 0.3s ease;
+      }
+
+      .level-progress-bar {
+        background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+        height: 100%;
+        width: 100%;
+        border-radius: 6px;
+      }
+
+      .level-progress-icon {
+        position: absolute;
+        border-radius: 0.5px;
+        background: linear-gradient(0deg, #bac1d6 0.01%, #ffffff 99.98%);
+        width: 4px;
+        height: 10px;
+        top: 1px;
+        right: 0;
+        transition: right 0.3s ease;
+      }
+
+      /* Progress Containers */
+      .hp-progress-container {
+        position: relative;
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .hp-level-progress-container {
+        position: relative;
+        width: 100%;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .lp-level-progress-container {
+        position: relative;
+        width: 100%;
+        height: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      /* Gugi Font */
+      .gugi-regular {
+        font-family: "Gugi", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      /* Coin Container */
+      .coin-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1000;
+      }
+
+      /* Character Overlay - Fixed position on background image */
+      #character-overlay {
+        position: absolute;
+        bottom: 22vh; /* Moved up from 18vh to 22vh */
+        left: 50%;
+        transform: translateX(-50%); /* Center horizontally */
+        z-index: 40;
+        pointer-events: none;
+        width: 35vw; /* Use viewport width for responsive sizing */
+        max-width: 140px; /* Maximum size limit */
+        min-width: 100px; /* Minimum size limit */
+        height: 40vh; /* Use viewport height for responsive height */
+        max-height: 280px; /* Maximum height limit */
+        min-height: 200px; /* Minimum height limit */
+        background-image: url("./images/screen1/character.svg");
+        background-position: center bottom;
+        background-size: contain; /* Ensure full character is visible */
+        background-repeat: no-repeat;
+      }
+
+      /* Responsive adjustments for character position */
+      @media screen and (max-width: 375px) {
+        #character-overlay {
+          bottom: 23vh; /* Moved up from 19vh to 23vh */
+          width: 38vw;
+          height: 38vh;
+        }
+      }
+
+      @media screen and (min-width: 376px) and (max-width: 390px) {
+        #character-overlay {
+          bottom: 22vh; /* Moved up from 18vh to 22vh */
+          width: 36vw;
+          height: 39vh;
+        }
+      }
+
+      @media screen and (min-width: 391px) and (max-width: 428px) {
+        #character-overlay {
+          bottom: 21vh; /* Moved up from 17vh to 21vh */
+          width: 34vw;
+          height: 40vh;
+        }
+      }
+
+      /* Landscape orientation adjustments */
+      @media screen and (max-width: 926px) and (orientation: landscape) {
+        #character-overlay {
+          bottom: 29vh; /* Moved up from 25vh to 29vh */
+          width: 20vw;
+          height: 50vh;
+        }
+      }
+
+      /* Very small screens (iPhone SE in portrait) */
+      @media screen and (max-height: 667px) {
+        #character-overlay {
+          bottom: 24vh; /* Moved up from 20vh to 24vh */
+          width: 40vw;
+          height: 35vh;
+        }
+      }
+
+      /* Large screens */
+      @media screen and (min-height: 844px) {
+        #character-overlay {
+          bottom: 20vh; /* Moved up from 16vh to 20vh */
+          width: 32vw;
+          height: 42vh;
+        }
+      }
+
+      /* Bottom Layout */
+      .bottom-layout-image {
+        position: absolute;
+        bottom: -8%;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .bottom-layout-flash {
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Auto Earn Button */
+      #auto-earn-button.active {
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          #450832 0%,
+          #2e032c 100%
+        );
+      }
+
+      #auto-earn-button:not(.active) {
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          rgba(69, 8, 50, 0.5) 0%,
+          rgba(46, 3, 44, 0.5) 100%
+        );
+      }
+
+      /* Auto Earn Button - Position relative to character */
+      .flex.justify-end.mr-4.mb-4.relative.z-50 {
+        position: absolute !important;
+        bottom: 32vh !important; /* Moved up from 28vh to 32vh to match character position */
+        right: 8vw !important; /* Use viewport width for responsive right margin */
+        margin: 0 !important;
+        transform: none !important;
+        z-index: 45 !important;
+      }
+
+      /* HIGH PRIORITY OVERRIDE for auto earn button */
+      .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
+        position: absolute !important;
+        bottom: 32vh !important; /* Moved up from 28vh to 32vh */
+        right: 8vw !important;
+        margin: 0 !important;
+        transform: none !important;
+        z-index: 45 !important;
+      }
+
+      /* Responsive adjustments for auto earn button */
+      @media screen and (max-width: 375px) {
+        .flex.justify-end.mr-4.mb-4.relative.z-50,
+        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          bottom: 33vh !important; /* Moved up from 29vh to 33vh */
+          right: 10vw !important;
+        }
+      }
+
+      @media screen and (min-width: 376px) and (max-width: 390px) {
+        .flex.justify-end.mr-4.mb-4.relative.z-50,
+        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          bottom: 32vh !important; /* Moved up from 28vh to 32vh */
+          right: 9vw !important;
+        }
+      }
+
+      @media screen and (min-width: 391px) and (max-width: 428px) {
+        .flex.justify-end.mr-4.mb-4.relative.z-50,
+        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          bottom: 31vh !important; /* Moved up from 27vh to 31vh */
+          right: 8vw !important;
+        }
+      }
+
+      /* Landscape orientation adjustments for auto earn button */
+      @media screen and (max-width: 926px) and (orientation: landscape) {
+        .flex.justify-end.mr-4.mb-4.relative.z-50,
+        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          bottom: 39vh !important; /* Moved up from 35vh to 39vh */
+          right: 12vw !important;
+        }
+      }
+
+      /* Very small screens adjustments for auto earn button */
+      @media screen and (max-height: 667px) {
+        .flex.justify-end.mr-4.mb-4.relative.z-50,
+        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          bottom: 34vh !important; /* Moved up from 30vh to 34vh */
+          right: 12vw !important;
+        }
+      }
+
+      /* Large screens adjustments for auto earn button */
+      @media screen and (min-height: 844px) {
+        .flex.justify-end.mr-4.mb-4.relative.z-50,
+        .game-container .flex.justify-end.mr-4.mb-4.relative.z-50 {
+          bottom: 30vh !important; /* Moved up from 26vh to 30vh */
+          right: 7vw !important;
+        }
+      }
+
+      /* Responsive */
+      @media (max-width: 480px) {
+        .phone-container {
+          max-width: 100%;
+          border-radius: 0;
+          top: 0;
+          left: 0;
+          transform: none;
+          position: fixed;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Phone Container -->
+    <div class="phone-container">
+      <!-- Game Container -->
+      <div class="game-container">
+        <!-- Resource Header -->
+        <div class="flex space-x-3 mb-4">
+          <!-- Ruby Counter -->
+          <div
+            class="resource-header background-color-gradient flex-1 rounded-full px-4 py-3 flex items-center space-x-3"
+          >
+            <div class="w-5 h-5 rounded-full flex items-center justify-center">
+              <img
+                src="./images/screen1/icons/ruby-icon.svg"
+                alt="Ruby Icon"
+                class="w-5 h-5"
+              />
+            </div>
+            <span class="gugi-regular text-white font-bold text-lg">0</span>
+          </div>
+
+          <!-- Coin Counter -->
+          <div
+            class="resource-header background-color-gradient flex-1 rounded-full px-4 py-3 flex items-center space-x-3"
+          >
+            <div class="w-5 h-5 rounded-full flex items-center justify-center">
+              <img
+                src="./images/screen1/icons/coin-icon.svg"
+                alt="Coin Icon"
+                class="w-5 h-5"
+                id="coin-target"
+              />
+            </div>
+            <span
+              id="coin-count"
+              class="gugi-regular text-white font-bold text-lg"
+              >0</span
+            >
+          </div>
+        </div>
+
+        <!-- Stats Panel -->
+        <div
+          id="stats-panel"
+          class="background-color-gradient bg-opacity-30 rounded-2xl p-4 mb-4 relative"
+        >
+          <!-- HP Section -->
+          <div class="mb-4 flex items-center justify-between gap-6">
+            <div class="flex flex-col justify-between items-center mb-2 w-full">
+              <div class="flex items-center justify-between w-full mb-2">
+                <span class="gugi-regular text-[#FF6B8B]">HP</span>
+                <span id="hp-per-level" class="gugi-regular text-white"
+                  >100/100</span
+                >
+              </div>
+              <div class="w-full h-3 relative">
+                <div class="hp-progress-container">
+                  <div class="progress-bar"></div>
+                  <div class="progress-icon"></div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="flex flex-col items-center px-2 py-3 rounded-[12px] w-[100px]"
+              style="background-color: #fc376621"
+            >
+              <img
+                src="./images/screen1/icons/coin-icon.svg"
+                alt="Point Icon"
+                class="w-5 h-5"
+                id="coin-target-stats"
+              />
+              <span id="coin-earn" class="gugi-regular text-white font-bold"
+                >0</span
+              >
+            </div>
+          </div>
+          <div
+            style="
+              width: 319px;
+              height: 1.5px;
+              background: radial-gradient(
+                closest-side at 50% 50%,
+                rgba(249, 238, 246, 0.35) 0%,
+                rgba(215, 12, 163, 0) 100%
+              );
+              margin: 16px auto;
+            "
+          ></div>
+          <!-- Level Bars -->
+          <div class="flex space-x-4">
+            <div class="flex-1">
+              <div class="flex justify-between items-center mb-2">
+                <span class="gugi-regular text-[#FF6B8B]">HP lv</span>
+                <span id="hp-level" class="gugi-regular text-white font-bold"
+                  >1/100</span
+                >
+              </div>
+              <div class="relative level-bars w-full">
+                <div class="hp-level-progress-container">
+                  <div class="level-progress-bar"></div>
+                  <div class="level-progress-icon"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex-1">
+              <div class="flex justify-between items-center mb-2">
+                <span class="gugi-regular text-[#FF6B8B]">MT lv</span>
+                <span id="lp-level" class="gugi-regular text-white font-bold"
+                  >1/100</span
+                >
+              </div>
+              <div class="relative level-bars w-full">
+                <div class="lp-level-progress-container">
+                  <div class="level-progress-bar"></div>
+                  <div class="level-progress-icon"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Button and Game 2 Button -->
+        <div class="flex justify-end space-x-4">
+          <!-- Event Button -->
+          <div
+            class="background-color-gradient rounded-xl flex justify-center w-[104px]"
+          >
+            <button class="pt-3 flex flex-col items-center justify-center">
+              <span class="gugi-regular text-white text-xs font-bold"
+                >이벤트</span
+              >
+              <img
+                src="./images/screen1/icons/event-icon.svg"
+                alt="Event Icon"
+                class="w-[65px] h-[65px]"
+              />
+            </button>
+          </div>
+
+          <!-- Game 2 Button -->
+        </div>
+
+        <!-- Main Stage Area -->
+        <div id="main-stage" class="relative h-[290px] z-30">
+          <!-- Character will appear here with highest z-index -->
+        </div>
+      </div>
+
+      <div class="flex justify-end mr-4 mb-4 relative z-50">
+        <div class="flex flex-col items-center space-y-2">
+          <button
+            id="auto-earn-button"
+            class="py-3 flex flex-col items-center justify-center background-color-gradient rounded-xl w-[48px]"
+          >
+            <img
+              src="./images/screen1/icons/auto-earn.svg"
+              alt="Event Icon"
+              class="w-[22px] h-[22px]"
+            />
+          </button>
+          <span class="gugi-regular text-[#FF6B8B] text-xs font-bold"
+            >Auto earn</span
+          >
+        </div>
+      </div>
+
+      <!-- Character overlay to appear above bottom layout -->
+      <div id="character-overlay" class="absolute z-40 pointer-events-none">
+        <!-- Character styling is now handled entirely by CSS -->
+      </div>
+
+      <!-- Add coin container for flying coins -->
+      <div id="coin-container" class="coin-container"></div>
+
+      <!-- Tap area behind bottom layout -->
+      <div
+        class="absolute bottom-0 left-0 right-0 h-[200px] z-5"
+        id="bottom-tap-area"
+        style="pointer-events: auto"
+      ></div>
+
+      <!-- Bottom Layout Image -->
+      <div
+        class="absolute bottom-0 left-0 right-0 flex justify-center items-center pointer-events-none z-10 bottom-layout-image bottom-layout-flash"
+        id="bottom-layout-container"
+      >
+        <img
+          src="./images/screen1/bottom-layout.png"
+          alt="Bottom Layout"
+          class="w-[104%] max-w-md object-contain"
+          style="transform: translateX(-12px)"
+        />
+      </div>
+    </div>
+
+    <script>
+      // Add some interactivity
+      document.addEventListener("DOMContentLoaded", function () {
+        // Character platform click effect
+        const platform = document.querySelector(".platform");
+        const character = document.querySelector(".character");
+
+        platform.addEventListener("click", function () {
+          character.style.transform = "scale(1.1)";
+          setTimeout(() => {
+            character.style.transform = "scale(1)";
+          }, 200);
+
+          // Add coin animation effect
+          const coinValue = document.querySelector(
+            ".coin-value span:last-child"
+          );
+          const currentValue = parseInt(coinValue.textContent);
+          const increment = Math.floor(Math.random() * 100) + 10;
+          coinValue.textContent = (currentValue + increment).toLocaleString();
+        });
+
+        // Navigation items hover effect
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach((item) => {
+          item.addEventListener("click", function () {
+            this.style.transform = "scale(0.9)";
+            setTimeout(() => {
+              this.style.transform = "scale(1)";
+            }, 150);
+          });
+        });
+
+        // Power button effect
+        const powerButton = document.querySelector(".power-button");
+        powerButton.addEventListener("click", function () {
+          this.style.background = "rgba(255, 68, 68, 0.3)";
+          setTimeout(() => {
+            this.style.background = "rgba(0, 0, 0, 0.7)";
+          }, 200);
+        });
+
+        // Auto-update HP bar animation
+        setInterval(() => {
+          const hpFill = document.querySelector(".hp-fill");
+          const currentWidth = parseFloat(hpFill.style.width) || 62.5;
+          const newWidth = Math.min(100, currentWidth + 0.1);
+          hpFill.style.width = newWidth + "%";
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
