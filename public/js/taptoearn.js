@@ -4,6 +4,136 @@
 // Mô tả: Chứa toàn bộ logic game "Tap to Earn" với comment chi tiết, dễ hiểu
 
 // =====================
+// 1. Mobile Device Detection và Debug
+// =====================
+
+// Detect real mobile device
+function detectMobileDevice() {
+  const userAgent = navigator.userAgent;
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      userAgent
+    );
+  const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+  const isAndroid = /Android/i.test(userAgent);
+  const isTelegram = window.Telegram && window.Telegram.WebApp;
+
+  const deviceInfo = {
+    userAgent,
+    isMobile,
+    isIOS,
+    isAndroid,
+    isTelegram,
+    screenWidth: screen.width,
+    screenHeight: screen.height,
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
+    devicePixelRatio: window.devicePixelRatio,
+    orientation: screen.orientation ? screen.orientation.angle : "unknown",
+    viewport: {
+      width: document.documentElement.clientWidth,
+      height: document.documentElement.clientHeight,
+    },
+  };
+
+  console.log("Device Detection:", deviceInfo);
+
+  // Log to screen for debugging on real device
+  if (isMobile) {
+    const debugDiv = document.createElement("div");
+    debugDiv.id = "mobile-debug";
+    debugDiv.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 10px;
+      font-size: 12px;
+      z-index: 9999;
+      max-width: 100vw;
+      word-wrap: break-word;
+      display: none;
+    `;
+    debugDiv.innerHTML = `
+      <div>UA: ${userAgent.substring(0, 50)}...</div>
+      <div>Screen: ${screen.width}x${screen.height}</div>
+      <div>Window: ${window.innerWidth}x${window.innerHeight}</div>
+      <div>DPR: ${window.devicePixelRatio}</div>
+      <div>iOS: ${isIOS}, Android: ${isAndroid}</div>
+      <div>Telegram: ${isTelegram}</div>
+    `;
+    document.body.appendChild(debugDiv);
+
+    // Show debug info for 5 seconds
+    setTimeout(() => {
+      debugDiv.style.display = "block";
+      setTimeout(() => {
+        debugDiv.style.display = "none";
+      }, 5000);
+    }, 1000);
+  }
+
+  return deviceInfo;
+}
+
+// Fix viewport issues on mobile
+function fixMobileViewport() {
+  const deviceInfo = detectMobileDevice();
+
+  if (deviceInfo.isMobile) {
+    // Fix iOS Safari viewport height issue
+    if (deviceInfo.isIOS) {
+      const setVH = () => {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty("--vh", `${vh}px`);
+      };
+
+      setVH();
+      window.addEventListener("resize", setVH);
+      window.addEventListener("orientationchange", () => {
+        setTimeout(setVH, 100);
+      });
+    }
+
+    // Prevent zoom on double tap
+    let lastTouchEnd = 0;
+    document.addEventListener(
+      "touchend",
+      function (event) {
+        const now = new Date().getTime();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      },
+      false
+    );
+
+    // Prevent pull to refresh
+    document.addEventListener(
+      "touchstart",
+      function (e) {
+        if (e.touches.length > 1) {
+          e.preventDefault();
+        }
+      },
+      { passive: false }
+    );
+
+    document.addEventListener(
+      "touchmove",
+      function (e) {
+        if (e.touches.length > 1) {
+          e.preventDefault();
+        }
+      },
+      { passive: false }
+    );
+  }
+}
+
+// =====================
 // 1. Cấu hình các mốc level, HP, coin, v.v.
 // =====================
 
@@ -587,6 +717,14 @@ function recoverHP() {
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Game initialization started");
 
+  // Initialize mobile fixes first
+  try {
+    fixMobileViewport();
+    console.log("Mobile viewport fixes applied");
+  } catch (error) {
+    console.error("Error applying mobile fixes:", error);
+  }
+
   // Ẩn popup level up khi khởi tạo - đảm bảo hoàn toàn ẩn
   const popup = document.getElementById("level-up-popup");
   if (popup) {
@@ -647,20 +785,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   updateUI(initialState);
 
-  // Gắn sự kiện tap cho stats-panel với event
-  // document
-  //   .getElementById("stats-panel")
-  //   .addEventListener("click", function (event) {
-  //     tap(event);
-  //   });
-
-  // Gắn sự kiện tap cho main-stage với event
-  // document
-  //   .getElementById("main-stage")
-  //   .addEventListener("click", function (event) {
-  //     tap(event);
-  //   });
-
   // Hồi phục HP mỗi phút
   setInterval(recoverHP, 60 * 1000);
 
@@ -676,6 +800,75 @@ document.addEventListener("DOMContentLoaded", function () {
       "Popup now truly enabled after delay, isInitialLoad set to false"
     );
   }, 3000);
+
+  // Mobile-specific initialization
+  const deviceInfo = detectMobileDevice();
+  if (deviceInfo.isMobile) {
+    console.log("Mobile device detected, applying mobile-specific settings");
+
+    // Show debug toggle on mobile
+    const debugToggle = document.getElementById("debug-toggle");
+    if (debugToggle) {
+      debugToggle.style.display = "block";
+      debugToggle.addEventListener("click", function () {
+        const debugDiv = document.getElementById("mobile-debug");
+        if (debugDiv) {
+          debugDiv.style.display =
+            debugDiv.style.display === "none" ? "block" : "none";
+        }
+      });
+    }
+
+    // Adjust layout for real mobile devices
+    const phoneContainer = document.querySelector(".phone-container");
+    if (phoneContainer) {
+      phoneContainer.style.maxWidth = "100vw";
+      phoneContainer.style.width = "100vw";
+      phoneContainer.style.height = "100vh";
+      phoneContainer.style.borderRadius = "0";
+      phoneContainer.style.top = "0";
+      phoneContainer.style.left = "0";
+      phoneContainer.style.transform = "none";
+      phoneContainer.style.position = "fixed";
+      console.log("Phone container adjusted for mobile");
+    }
+
+    // Force layout recalculation
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 100);
+
+    // Additional mobile debugging
+    setTimeout(() => {
+      const elements = {
+        phoneContainer: document.querySelector(".phone-container"),
+        autoEarnContainer: document.querySelector(".auto-earn-container"),
+        characterOverlay: document.getElementById("character-overlay"),
+        bottomNav: document.getElementById("bottom-nav"),
+      };
+
+      console.log("Element positions after mobile init:");
+      Object.entries(elements).forEach(([name, element]) => {
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          const styles = window.getComputedStyle(element);
+          console.log(`${name}:`, {
+            rect: {
+              top: rect.top,
+              left: rect.left,
+              width: rect.width,
+              height: rect.height,
+            },
+            position: styles.position,
+            bottom: styles.bottom,
+            zIndex: styles.zIndex,
+          });
+        } else {
+          console.log(`${name}: not found`);
+        }
+      });
+    }, 500);
+  }
 });
 
 // Xử lý riêng cho nút auto earn
@@ -1005,42 +1198,150 @@ window.addEventListener("load", function () {
 // 10. Bottom Layout Flash Effect
 // =====================
 
+// Check CSS support for filters and animations
+function checkCSSSupport() {
+  const testElement = document.createElement("div");
+  const supportsFilter =
+    "filter" in testElement.style || "webkitFilter" in testElement.style;
+  const supportsAnimation =
+    "animation" in testElement.style || "webkitAnimation" in testElement.style;
+  const supportsTransform =
+    "transform" in testElement.style || "webkitTransform" in testElement.style;
+
+  console.log("CSS Support:", {
+    filter: supportsFilter,
+    animation: supportsAnimation,
+    transform: supportsTransform,
+    isMobile: window.innerWidth <= 768,
+    userAgent: navigator.userAgent,
+  });
+
+  return { supportsFilter, supportsAnimation, supportsTransform };
+}
+
 function triggerBottomLayoutFlash() {
+  console.log("triggerBottomLayoutFlash called");
+
   const bottomLayoutContainer = document.getElementById(
     "bottom-layout-container"
   );
   const characterOverlay = document.getElementById("character-overlay");
+  const cssSupport = checkCSSSupport();
 
   if (bottomLayoutContainer) {
+    console.log("Bottom layout container found, triggering flash");
+
     // Remove existing flash class if any
     bottomLayoutContainer.classList.remove("flash-active");
 
     // Force reflow to ensure the class removal takes effect
     void bottomLayoutContainer.offsetHeight;
 
-    // Add flash class to trigger animation
-    bottomLayoutContainer.classList.add("flash-active");
+    // Small delay to ensure class removal is processed
+    requestAnimationFrame(() => {
+      // Add flash class to trigger animation
+      bottomLayoutContainer.classList.add("flash-active");
+      console.log("Flash class added to bottom layout");
 
-    // Remove flash class after animation completes
-    setTimeout(() => {
-      bottomLayoutContainer.classList.remove("flash-active");
-    }, 800); // Match animation duration
+      // For mobile devices or browsers with limited CSS support, add additional fallback
+      if (window.innerWidth <= 768 || !cssSupport.supportsFilter) {
+        console.log("Applying mobile/fallback flash effect");
+
+        // Apply inline styles as fallback
+        const originalStyle = bottomLayoutContainer.style.cssText;
+        bottomLayoutContainer.style.cssText += `
+          transform: scale(1.05) !important;
+          -webkit-transform: scale(1.05) !important;
+          box-shadow: 0 0 30px rgba(255, 255, 255, 0.8) !important;
+          -webkit-box-shadow: 0 0 30px rgba(255, 255, 255, 0.8) !important;
+          transition: all 0.3s ease !important;
+          -webkit-transition: all 0.3s ease !important;
+        `;
+
+        // Reset styles after animation
+        setTimeout(() => {
+          bottomLayoutContainer.style.cssText = originalStyle;
+        }, 400);
+      }
+
+      // Remove flash class after animation completes
+      setTimeout(() => {
+        bottomLayoutContainer.classList.remove("flash-active");
+        console.log("Flash class removed from bottom layout");
+      }, 800); // Match animation duration
+    });
+  } else {
+    console.error("Bottom layout container not found!");
   }
 
   // Trigger character press down effect
   if (characterOverlay) {
+    console.log("Character overlay found, triggering press effect");
+
     // Remove existing press class if any
     characterOverlay.classList.remove("character-press");
 
     // Force reflow to ensure the class removal takes effect
     void characterOverlay.offsetHeight;
 
-    // Add press class to trigger animation
-    characterOverlay.classList.add("character-press");
+    // Small delay to ensure class removal is processed
+    requestAnimationFrame(() => {
+      // Add press class to trigger animation
+      characterOverlay.classList.add("character-press");
+      console.log("Press class added to character");
 
-    // Remove press class after animation completes
-    setTimeout(() => {
-      characterOverlay.classList.remove("character-press");
-    }, 800); // Match animation duration
+      // For mobile devices, add additional transform effect
+      if (window.innerWidth <= 768) {
+        const originalTransform = characterOverlay.style.transform;
+        characterOverlay.style.transform = "translateY(8px) scale(0.98)";
+
+        setTimeout(() => {
+          characterOverlay.style.transform = originalTransform;
+        }, 200);
+      }
+
+      // Remove press class after animation completes
+      setTimeout(() => {
+        characterOverlay.classList.remove("character-press");
+        console.log("Press class removed from character");
+      }, 800); // Match animation duration
+    });
+  } else {
+    console.error("Character overlay not found!");
+  }
+
+  // Additional mobile-specific flash trigger
+  if (window.innerWidth <= 768) {
+    console.log("Mobile device detected, applying additional flash effects");
+
+    // Force a style recalculation on mobile
+    if (bottomLayoutContainer) {
+      const computedStyle = window.getComputedStyle(bottomLayoutContainer);
+      console.log("Current filter:", computedStyle.filter);
+      console.log("Current transform:", computedStyle.transform);
+
+      // Trigger a repaint to ensure the effect is visible
+      bottomLayoutContainer.style.display = "none";
+      void bottomLayoutContainer.offsetHeight;
+      bottomLayoutContainer.style.display = "";
+    }
+  }
+
+  // iOS Safari specific handling
+  if (/iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream) {
+    console.log("iOS device detected, applying iOS-specific optimizations");
+
+    if (bottomLayoutContainer) {
+      // Force hardware acceleration
+      bottomLayoutContainer.style.webkitTransform = "translateZ(0)";
+      bottomLayoutContainer.style.webkitBackfaceVisibility = "hidden";
+      bottomLayoutContainer.style.webkitPerspective = "1000px";
+
+      setTimeout(() => {
+        bottomLayoutContainer.style.webkitTransform = "";
+        bottomLayoutContainer.style.webkitBackfaceVisibility = "";
+        bottomLayoutContainer.style.webkitPerspective = "";
+      }, 1000);
+    }
   }
 }
