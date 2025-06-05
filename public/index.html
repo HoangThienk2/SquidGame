@@ -491,7 +491,7 @@
       <div class="absolute bottom-[-20px] left-[-12px] p-[10px]">
         <div class="relative flex flex-col justify-between items-center">
           <div
-            class="absolute top-[-170px] left-0 right-0 flex justify-center character-container"
+            class="absolute top-[-160px] left-0 right-0 flex justify-center character-container"
           >
             <img
               id="younghee"
@@ -889,11 +889,15 @@
 
         // Check for 3-finger tap on touch devices
         let finalMultiplier = multiplier;
+        let hpMultiplier = 1; // New: separate multiplier for HP loss
         if (event && event.touches && event.touches.length === 3) {
           finalMultiplier = multiplier * 3; // 3x coins for 3-finger tap
+          hpMultiplier = 3; // 3x HP loss for 3-finger tap
           console.log(
-            "3-finger tap detected! Multiplier increased to:",
-            finalMultiplier
+            "3-finger tap detected! Coin multiplier:",
+            finalMultiplier,
+            "HP multiplier:",
+            hpMultiplier
           );
 
           // Add special visual feedback for 3-finger tap
@@ -928,22 +932,34 @@
           triggerCharacterPress();
         }
 
-        // Decrease HP and calculate coins
+        // Decrease HP with multiplier for 3-finger tap
         const oldHP = state.hp;
-        state.hp -= 4;
-        console.log("HP changed from", oldHP, "to", state.hp);
+        const hpLoss = 4 * hpMultiplier; // Base HP loss (4) * multiplier
+        state.hp -= hpLoss;
+        console.log(
+          "HP changed from",
+          oldHP,
+          "to",
+          state.hp,
+          "(-" + hpLoss + " HP)"
+        );
 
+        // Calculate coins with proper multiplier
         let tapCoin;
         if (finalMultiplier === 0.25) {
           tapCoin = Math.floor(
             (getTapCoin(state.level) * getUpgradeMultiplier(state.level)) / 4
           );
         } else {
-          tapCoin = Math.round(
-            getTapCoin(state.level) *
-              getUpgradeMultiplier(state.level) *
-              finalMultiplier
-          );
+          // For 3-finger tap: base coin * upgrade multiplier * 3
+          // For normal tap: base coin * upgrade multiplier * 1
+          const baseCoin =
+            getTapCoin(state.level) * getUpgradeMultiplier(state.level);
+          if (event && event.touches && event.touches.length === 3) {
+            tapCoin = Math.round(baseCoin * 3); // Exactly 3x for 3-finger tap
+          } else {
+            tapCoin = Math.round(baseCoin * finalMultiplier);
+          }
         }
 
         // Add coins to coinEarn (which shows in total-coins box during tapping)
