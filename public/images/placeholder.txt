@@ -1,6 +1,0 @@
-This directory should contain the following images:
-1. younghee.png - The YoungHee doll from Squid Game
-2. player.png - A Squid Game player character
-3. circle.png - Circle mask icon
-4. triangle.png - Triangle mask icon
-5. square.png - Square mask icon 
