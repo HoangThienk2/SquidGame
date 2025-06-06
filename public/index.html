@@ -132,11 +132,11 @@
       /* Light Effect Animation */
       .light-effect {
         position: absolute;
-        bottom: -150px;
+        bottom: -100px;
         left: 50%;
         transform: translateX(-50%);
-        width: 600px;
-        height: 600px;
+        width: 700px;
+        height: 700px;
         background-image: url("./image/light.png");
         background-size: contain;
         background-repeat: no-repeat;
@@ -144,12 +144,8 @@
         opacity: 0;
         z-index: 5; /* Below sole but above background */
         pointer-events: none;
-        transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        transition: opacity 0.15s ease-out;
         filter: brightness(1.2) contrast(1.1);
-      }
-
-      .light-effect.pressed {
-        transform: translateX(-50%) translateY(8px);
       }
 
       .light-effect.show {
@@ -1042,7 +1038,7 @@
         const sparkleContainer = document.createElement("div");
         sparkleContainer.style.cssText = `
           position: absolute;
-          bottom: -150px;
+          bottom: -50px;
           left: 50%;
           transform: translateX(-50%);
           width: 600px;
@@ -1116,10 +1112,9 @@
         characterContainer.classList.add("pressed");
         soleElement.classList.add("pressed");
 
-        // Show light effect
+        // Show light effect (without pressed movement)
         if (lightEffect) {
           lightEffect.classList.add("show");
-          lightEffect.classList.add("pressed");
           if (isSpecial) {
             lightEffect.classList.add("special");
           }
@@ -1138,7 +1133,6 @@
             // Hide light effect
             if (lightEffect) {
               lightEffect.classList.remove("show");
-              lightEffect.classList.remove("pressed");
               if (isSpecial) {
                 lightEffect.classList.remove("special");
               }
