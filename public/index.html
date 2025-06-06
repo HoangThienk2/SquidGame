@@ -362,6 +362,43 @@
         }
       }
 
+      /* Debug Display for Mobile */
+      .debug-display {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.9);
+        color: #00ff00;
+        font-family: monospace;
+        font-size: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 10001;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #00ff00;
+        display: none;
+      }
+
+      .debug-display.show {
+        display: block;
+      }
+
+      .debug-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: rgba(255, 0, 0, 0.8);
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        z-index: 10002;
+        cursor: pointer;
+      }
+
       /* Auto Earn Button Styles */
       #auto-earn-button {
         transition: all 0.3s ease;
@@ -638,10 +675,66 @@
       </div>
     </div>
 
+    <!-- Mobile Debug Display -->
+    <button id="debug-toggle" class="debug-toggle">Debug</button>
+    <div id="debug-display" class="debug-display">
+      <div id="debug-content"></div>
+    </div>
+
     <script>
       // =====================
       // 1. Game Configuration - 100 Levels
       // =====================
+
+      // Mobile Debug System
+      let debugLogs = [];
+      let isDebugVisible = false;
+      const maxDebugLogs = 50;
+
+      function addDebugLog(message) {
+        const timestamp = new Date().toLocaleTimeString();
+        debugLogs.push(`[${timestamp}] ${message}`);
+        if (debugLogs.length > maxDebugLogs) {
+          debugLogs.shift(); // Remove oldest log
+        }
+        updateDebugDisplay();
+      }
+
+      function updateDebugDisplay() {
+        const debugContent = document.getElementById("debug-content");
+        if (debugContent) {
+          debugContent.innerHTML = debugLogs.join("<br>");
+          // Auto scroll to bottom
+          const debugDisplay = document.getElementById("debug-display");
+          if (debugDisplay) {
+            debugDisplay.scrollTop = debugDisplay.scrollHeight;
+          }
+        }
+      }
+
+      function toggleDebugDisplay() {
+        const debugDisplay = document.getElementById("debug-display");
+        const debugToggle = document.getElementById("debug-toggle");
+
+        isDebugVisible = !isDebugVisible;
+
+        if (isDebugVisible) {
+          debugDisplay.classList.add("show");
+          debugToggle.textContent = "Hide";
+          debugToggle.style.background = "rgba(0, 255, 0, 0.8)";
+        } else {
+          debugDisplay.classList.remove("show");
+          debugToggle.textContent = "Debug";
+          debugToggle.style.background = "rgba(255, 0, 0, 0.8)";
+        }
+      }
+
+      // Override console.log for mobile debugging
+      const originalConsoleLog = console.log;
+      console.log = function (...args) {
+        originalConsoleLog.apply(console, args);
+        addDebugLog(args.join(" "));
+      };
 
       // Level up requirements (same as index.html)
       const LEVEL_UP_REQUIREMENTS = [
@@ -1135,37 +1228,62 @@
         const baseHPLoss = 4; // Base HP loss per tap
         const hpLoss = Math.round(baseHPLoss * hpMultiplier); // Should be 4 for normal, 12 for 3-finger
 
+        // PROTECTION: Check if this is a duplicate HP change
+        const currentTime = Date.now();
+        if (
+          is3FingerTap &&
+          currentTime - lastHPChangeTime < 1000 && // Within 1 second
+          lastHPValue === oldHP
+        ) {
+          // Same starting HP
+          console.log("🛡️ DUPLICATE 3-FINGER TAP DETECTED - BLOCKING HP LOSS");
+          console.log("Last HP change time:", lastHPChangeTime);
+          console.log("Current time:", currentTime);
+          console.log("Time diff:", currentTime - lastHPChangeTime);
+          console.log("Last HP value:", lastHPValue);
+          console.log("Current HP value:", oldHP);
+          return; // Exit early to prevent duplicate processing
+        }
+
+        // Update tracking variables
+        lastHPChangeTime = currentTime;
+        lastHPValue = oldHP;
+
         // Validate HP loss calculation
         const expectedHPLoss = is3FingerTap ? 12 : 4; // Back to 12 HP loss
+
+        // FORCE CORRECT HP LOSS - especially for 3-finger taps
+        let actualHPLoss;
+        if (is3FingerTap) {
+          // Force exactly 12 HP loss for 3-finger tap
+          actualHPLoss = 12;
+          console.log("🔒 FORCING 3-finger tap HP loss to exactly 12");
+        } else {
+          // Use calculated value for normal taps
+          actualHPLoss = hpLoss;
+        }
+
         if (hpLoss !== expectedHPLoss) {
           console.error(
             "HP loss calculation error! Expected:",
             expectedHPLoss,
             "Got:",
-            hpLoss
-          );
-          // Force correct value
-          const correctedHPLoss = expectedHPLoss;
-          state.hp -= correctedHPLoss;
-          console.log(
-            "HP changed from",
-            oldHP,
-            "to",
-            state.hp,
-            "(-" + correctedHPLoss + " HP - CORRECTED)",
-            is3FingerTap ? "(3-finger tap)" : "(normal tap)"
-          );
-        } else {
-          state.hp -= hpLoss;
-          console.log(
-            "HP changed from",
-            oldHP,
-            "to",
-            state.hp,
-            "(-" + hpLoss + " HP)",
-            is3FingerTap ? "(3-finger tap)" : "(normal tap)"
+            hpLoss,
+            "Using forced value:",
+            actualHPLoss
           );
         }
+
+        // Apply the HP loss
+        state.hp -= actualHPLoss;
+        console.log(
+          "HP changed from",
+          oldHP,
+          "to",
+          state.hp,
+          "(-" + actualHPLoss + " HP)",
+          is3FingerTap ? "(3-finger tap - FORCED)" : "(normal tap)"
+        );
 
         // Calculate coins with proper multiplier - FIXED CALCULATION
         let tapCoin;
@@ -1204,7 +1322,7 @@
         console.log("Base coin per tap:", getTapCoin(state.level));
         console.log("Upgrade multiplier:", getUpgradeMultiplier(state.level));
         console.log("Final coin earned:", tapCoin);
-        console.log("HP lost:", hpLoss);
+        console.log("HP lost:", actualHPLoss);
         console.log("Total coinEarn:", state.coinEarn);
         console.log("==================");
 
@@ -1476,6 +1594,10 @@
       // Add flag to track if 3-finger tap is being processed
       let isProcessing3FingerTap = false;
 
+      // Track last HP change to prevent duplicates
+      let lastHPChangeTime = 0;
+      let lastHPValue = 0;
+
       function debouncedTap(event, multiplier = 1) {
         const currentTime = Date.now();
 
@@ -1551,6 +1673,11 @@
         // Initialize game
         let initialState = loadGameState();
         updateUI(initialState);
+
+        // Initialize debug toggle
+        document
+          .getElementById("debug-toggle")
+          .addEventListener("click", toggleDebugDisplay);
 
         // Add tap event listeners for the main container only
         const mainContainer = document.querySelector(".w-\\[375px\\]");
