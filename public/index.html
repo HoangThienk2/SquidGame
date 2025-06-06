@@ -1057,6 +1057,9 @@
       // =====================
 
       function tap(event, multiplier = 1) {
+        // Generate unique ID for this tap call
+        const tapId = Date.now() + Math.random().toString(36).substr(2, 9);
+        console.log("🎯 TAP FUNCTION CALLED - ID:", tapId);
         console.log("Tap function called!", event, multiplier);
         let state = loadGameState();
         console.log("Current state:", state);
@@ -1246,7 +1249,7 @@
 
         saveGameState(state);
         updateUI(state);
-        console.log("Tap completed, state saved");
+        console.log("Tap completed, state saved - ID:", tapId);
       }
 
       // =====================
@@ -1468,7 +1471,10 @@
 
       // Separate tracking for multi-touch to avoid debounce interference
       let lastMultiTouchTime = 0;
-      const MULTI_TOUCH_DEBOUNCE_MS = 200; // Separate debounce for multi-touch
+      const MULTI_TOUCH_DEBOUNCE_MS = 500; // Increased from 200ms to 500ms to prevent duplicates
+
+      // Add flag to track if 3-finger tap is being processed
+      let isProcessing3FingerTap = false;
 
       function debouncedTap(event, multiplier = 1) {
         const currentTime = Date.now();
@@ -1477,27 +1483,67 @@
         const isMultiTouch =
           event && event.touches && event.touches.length >= 3;
 
+        console.log("=== DEBOUNCED TAP CALLED ===");
+        console.log("Current time:", currentTime);
+        console.log("Is multi-touch:", isMultiTouch);
+        console.log("Touch count:", event?.touches?.length || "N/A");
+
         if (isMultiTouch) {
           // Use separate debounce for multi-touch
-          if (currentTime - lastMultiTouchTime < MULTI_TOUCH_DEBOUNCE_MS) {
-            console.log("Multi-touch tap ignored due to debounce");
+          console.log("Last multi-touch time:", lastMultiTouchTime);
+          console.log(
+            "Time since last multi-touch:",
+            currentTime - lastMultiTouchTime
+          );
+          console.log("Is processing 3-finger tap:", isProcessing3FingerTap);
+
+          if (isProcessing3FingerTap) {
+            console.log(
+              "❌ Multi-touch tap IGNORED - already processing 3-finger tap"
+            );
             return;
           }
+
+          if (currentTime - lastMultiTouchTime < MULTI_TOUCH_DEBOUNCE_MS) {
+            console.log("❌ Multi-touch tap IGNORED due to debounce");
+            return;
+          }
+
+          // Set processing flag
+          isProcessing3FingerTap = true;
           lastMultiTouchTime = currentTime;
+          console.log(
+            "✅ Multi-touch tap ACCEPTED, updating lastMultiTouchTime to:",
+            lastMultiTouchTime
+          );
           console.log(
             "Multi-touch detected with",
             event.touches.length,
             "fingers"
           );
+
+          // Clear processing flag after a delay
+          setTimeout(() => {
+            isProcessing3FingerTap = false;
+            console.log("🔄 3-finger tap processing flag cleared");
+          }, 300);
         } else {
           // Use normal debounce for single touch
+          console.log("Last single tap time:", lastTapTime);
+          console.log("Time since last single tap:", currentTime - lastTapTime);
+
           if (currentTime - lastTapTime < TAP_DEBOUNCE_MS) {
-            console.log("Single tap ignored due to debounce");
+            console.log("❌ Single tap IGNORED due to debounce");
             return;
           }
           lastTapTime = currentTime;
+          console.log(
+            "✅ Single tap ACCEPTED, updating lastTapTime to:",
+            lastTapTime
+          );
         }
 
+        console.log("🎯 Calling tap function...");
         tap(event, multiplier);
       }
 
