@@ -1077,14 +1077,12 @@
           console.log("Touch count detected:", touchCount);
 
           if (touchCount >= 3) {
-            finalMultiplier = multiplier * 3; // 3x coins for 3-finger tap
-            hpMultiplier = 3; // 3x HP loss for 3-finger tap
+            // Don't modify finalMultiplier here - handle it in coin calculation
+            hpMultiplier = 3; // 3x HP loss for 3-finger tap (12 HP)
             is3FingerTap = true;
             console.log(
               "🔥 3-FINGER TAP CONFIRMED! Touch count:",
               touchCount,
-              "Coin multiplier:",
-              finalMultiplier,
               "HP multiplier:",
               hpMultiplier
             );
@@ -1107,7 +1105,7 @@
           );
           if (totalCoinsBox) {
             // Create multiple coins for 3-finger tap
-            const coinCount = is3FingerTap ? 3 : 1;
+            const coinCount = is3FingerTap ? 3 : 1; // Back to 3 coins
             for (let i = 0; i < coinCount; i++) {
               setTimeout(() => {
                 createFlyingCoin(
@@ -1132,10 +1130,10 @@
         // Decrease HP with proper calculation
         const oldHP = state.hp;
         const baseHPLoss = 4; // Base HP loss per tap
-        const hpLoss = baseHPLoss * hpMultiplier; // Should be 4 for normal, 12 for 3-finger
+        const hpLoss = Math.round(baseHPLoss * hpMultiplier); // Should be 4 for normal, 12 for 3-finger
 
         // Validate HP loss calculation
-        const expectedHPLoss = is3FingerTap ? 12 : 4;
+        const expectedHPLoss = is3FingerTap ? 12 : 4; // Back to 12 HP loss
         if (hpLoss !== expectedHPLoss) {
           console.error(
             "HP loss calculation error! Expected:",
@@ -1166,27 +1164,46 @@
           );
         }
 
-        // Calculate coins with proper multiplier
+        // Calculate coins with proper multiplier - FIXED CALCULATION
         let tapCoin;
+        const baseCoin =
+          getTapCoin(state.level) * getUpgradeMultiplier(state.level);
+
         if (finalMultiplier === 0.25) {
-          tapCoin = Math.floor(
-            (getTapCoin(state.level) * getUpgradeMultiplier(state.level)) / 4
+          // Auto-earn case
+          tapCoin = Math.floor(baseCoin / 4);
+        } else if (is3FingerTap) {
+          // 3-finger tap: exactly 3x the base coin (back to 3x)
+          tapCoin = Math.round(baseCoin * 3);
+          console.log(
+            "3-finger tap coin calculation:",
+            baseCoin,
+            "* 3 =",
+            tapCoin
           );
         } else {
-          // For 3-finger tap: base coin * upgrade multiplier * 3
-          // For normal tap: base coin * upgrade multiplier * 1
-          const baseCoin =
-            getTapCoin(state.level) * getUpgradeMultiplier(state.level);
-          if (is3FingerTap) {
-            tapCoin = Math.round(baseCoin * 3); // Exactly 3x for 3-finger tap
-          } else {
-            tapCoin = Math.round(baseCoin * finalMultiplier);
-          }
+          // Normal tap: base coin * finalMultiplier
+          tapCoin = Math.round(baseCoin * finalMultiplier);
+          console.log(
+            "Normal tap coin calculation:",
+            baseCoin,
+            "*",
+            finalMultiplier,
+            "=",
+            tapCoin
+          );
         }
 
         // Add coins to coinEarn (which shows in total-coins box during tapping)
         state.coinEarn += tapCoin;
-        console.log("Coin earned:", tapCoin, "Total coinEarn:", state.coinEarn);
+        console.log("=== TAP SUMMARY ===");
+        console.log("Tap type:", is3FingerTap ? "3-FINGER TAP" : "NORMAL TAP");
+        console.log("Base coin per tap:", getTapCoin(state.level));
+        console.log("Upgrade multiplier:", getUpgradeMultiplier(state.level));
+        console.log("Final coin earned:", tapCoin);
+        console.log("HP lost:", hpLoss);
+        console.log("Total coinEarn:", state.coinEarn);
+        console.log("==================");
 
         // Handle HP reaching 0
         if (state.hp <= 0) {
@@ -1553,59 +1570,6 @@
             // Only prevent default for single touch to avoid interfering with multi-touch detection
             if (event.touches.length === 1) {
               event.preventDefault();
-            }
-          });
-
-          // Add a dedicated multi-touch gesture detector
-          let multiTouchStartTime = 0;
-          let multiTouchProcessed = false;
-
-          mainContainer.addEventListener(
-            "touchstart",
-            function (event) {
-              if (event.touches.length >= 3) {
-                multiTouchStartTime = Date.now();
-                multiTouchProcessed = false;
-                console.log(
-                  "Multi-touch gesture started with",
-                  event.touches.length,
-                  "fingers"
-                );
-
-                // Process immediately for better responsiveness
-                if (!multiTouchProcessed) {
-                  multiTouchProcessed = true;
-                  console.log("Processing 3-finger tap immediately");
-
-                  // Create a synthetic event for the tap function
-                  const syntheticEvent = {
-                    touches: event.touches,
-                    clientX: event.touches[0].clientX,
-                    clientY: event.touches[0].clientY,
-                    preventDefault: () => {},
-                    stopPropagation: () => {},
-                  };
-
-                  // Call tap directly to avoid debounce issues
-                  setTimeout(() => {
-                    tap(syntheticEvent, 1);
-                  }, 50); // Small delay to ensure touch registration
-                }
-              }
-            },
-            { passive: false }
-          );
-
-          // Add gesture end detection
-          mainContainer.addEventListener("touchend", function (event) {
-            if (multiTouchStartTime > 0 && event.touches.length < 3) {
-              const gestureDuration = Date.now() - multiTouchStartTime;
-              console.log(
-                "Multi-touch gesture ended, duration:",
-                gestureDuration + "ms"
-              );
-              multiTouchStartTime = 0;
-              multiTouchProcessed = false;
             }
           });
         }
