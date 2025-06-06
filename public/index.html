@@ -112,61 +112,197 @@
 
       /* Character and Sole Press Animation */
       .character-container {
-        transition: transform 0.1s ease-out;
+        transition: transform 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         z-index: 50; /* Ensure character is above sole */
       }
 
       .character-container.pressed {
-        transform: translateY(3px);
+        transform: translateY(6px);
       }
 
       #sole {
-        transition: transform 0.1s ease-out;
+        transition: transform 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         z-index: 10; /* Lower than character */
       }
 
       #sole.pressed {
-        transform: translateY(2px);
+        transform: translateY(8px);
+      }
+
+      /* Light Effect Animation */
+      .light-effect {
+        position: absolute;
+        bottom: -150px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 600px;
+        height: 600px;
+        background-image: url("./image/light.png");
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        opacity: 0;
+        z-index: 5; /* Below sole but above background */
+        pointer-events: none;
+        transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        filter: brightness(1.2) contrast(1.1);
+      }
+
+      .light-effect.pressed {
+        transform: translateX(-50%) translateY(8px);
+      }
+
+      .light-effect.show {
+        opacity: 0.9;
+        animation: lightPulse 0.4s ease-out;
+        filter: brightness(1.5) contrast(1.3)
+          drop-shadow(0 0 30px rgba(255, 255, 255, 0.6));
+      }
+
+      @keyframes lightPulse {
+        0% {
+          transform: translateX(-50%) scale(0.6) rotate(-5deg);
+          opacity: 0;
+          filter: brightness(0.8) contrast(1) hue-rotate(0deg);
+        }
+        25% {
+          transform: translateX(-50%) scale(1.1) rotate(2deg);
+          opacity: 0.7;
+          filter: brightness(1.8) contrast(1.4) hue-rotate(15deg);
+        }
+        50% {
+          transform: translateX(-50%) scale(1.3) rotate(-1deg);
+          opacity: 1;
+          filter: brightness(2) contrast(1.5) hue-rotate(30deg);
+        }
+        75% {
+          transform: translateX(-50%) scale(1.1) rotate(1deg);
+          opacity: 0.9;
+          filter: brightness(1.6) contrast(1.3) hue-rotate(15deg);
+        }
+        100% {
+          transform: translateX(-50%) scale(1) rotate(0deg);
+          opacity: 0.9;
+          filter: brightness(1.5) contrast(1.3) hue-rotate(0deg);
+        }
+      }
+
+      /* Special 3-finger light effect */
+      .light-effect.special {
+        animation: lightPulseSpecial 0.6s ease-out;
+      }
+
+      @keyframes lightPulseSpecial {
+        0% {
+          transform: translateX(-50%) scale(0.5) rotate(-10deg);
+          opacity: 0;
+          filter: brightness(1) contrast(1) hue-rotate(0deg) saturate(1);
+        }
+        15% {
+          transform: translateX(-50%) scale(1.4) rotate(5deg);
+          opacity: 0.8;
+          filter: brightness(2.2) contrast(1.6) hue-rotate(60deg) saturate(1.5);
+        }
+        30% {
+          transform: translateX(-50%) scale(1.8) rotate(-3deg);
+          opacity: 1;
+          filter: brightness(2.8) contrast(1.8) hue-rotate(120deg) saturate(2);
+        }
+        50% {
+          transform: translateX(-50%) scale(2.1) rotate(2deg);
+          opacity: 1;
+          filter: brightness(3.2) contrast(2) hue-rotate(180deg) saturate(2.5);
+        }
+        70% {
+          transform: translateX(-50%) scale(1.6) rotate(-1deg);
+          opacity: 0.9;
+          filter: brightness(2.5) contrast(1.7) hue-rotate(240deg) saturate(2);
+        }
+        85% {
+          transform: translateX(-50%) scale(1.2) rotate(1deg);
+          opacity: 0.8;
+          filter: brightness(2) contrast(1.5) hue-rotate(300deg) saturate(1.5);
+        }
+        100% {
+          transform: translateX(-50%) scale(1) rotate(0deg);
+          opacity: 0.9;
+          filter: brightness(1.8) contrast(1.4) hue-rotate(360deg) saturate(1.2);
+        }
+      }
+
+      /* Add pulsing glow effect */
+      .light-effect.show::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120%;
+        height: 120%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.3) 0%,
+          rgba(255, 255, 255, 0.1) 40%,
+          transparent 70%
+        );
+        border-radius: 50%;
+        animation: glowPulse 0.4s ease-out;
+        pointer-events: none;
+      }
+
+      @keyframes glowPulse {
+        0% {
+          transform: translate(-50%, -50%) scale(0.5);
+          opacity: 0;
+        }
+        50% {
+          transform: translate(-50%, -50%) scale(1.2);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 0.3;
+        }
       }
 
       /* Coin Flying Animation */
       @keyframes coinFly {
         0% {
-          transform: translate(0, 0) scale(0.5) rotate(0deg);
+          transform: translate(0, 0) scale(0.8) rotate(0deg);
           opacity: 0;
         }
         10% {
-          transform: translate(0, -20px) scale(1.2) rotate(45deg);
+          transform: translate(0, -30px) scale(1.8) rotate(45deg);
           opacity: 1;
         }
         50% {
           transform: translate(
               calc(var(--tx) * 0.5),
-              calc(var(--ty) * 0.5 - 50px)
+              calc(var(--ty) * 0.5 - 80px)
             )
-            scale(1) rotate(180deg);
-          opacity: 0.8;
+            scale(1.5) rotate(180deg);
+          opacity: 0.9;
         }
         80% {
           transform: translate(calc(var(--tx) * 0.8), calc(var(--ty) * 0.8))
-            scale(0.9) rotate(270deg);
-          opacity: 0.6;
+            scale(1.2) rotate(270deg);
+          opacity: 0.7;
         }
         100% {
-          transform: translate(var(--tx), var(--ty)) scale(0.7) rotate(360deg);
+          transform: translate(var(--tx), var(--ty)) scale(1) rotate(360deg);
           opacity: 0;
         }
       }
 
       .flying-coin {
         position: fixed;
-        width: 20px;
-        height: 20px;
+        width: 35px;
+        height: 35px;
         background: url("./image/money.svg") no-repeat center;
         background-size: contain;
         pointer-events: none;
         z-index: 9999;
-        animation: coinFly 1s ease-out forwards;
+        animation: coinFly 2.5s ease-out forwards;
       }
 
       /* Level Up Popup Styles */
@@ -542,7 +678,9 @@
               alt=""
             />
           </div>
-          <div class="">
+          <div class="relative">
+            <!-- Light effect element -->
+            <div id="light-effect" class="light-effect"></div>
             <img id="sole" class="tap-area" src="./image/sole1.png" alt="" />
           </div>
         </div>
@@ -893,26 +1031,133 @@
           if (coin.parentNode) {
             coin.parentNode.removeChild(coin);
           }
-        }, 1000);
+        }, 2500);
       }
 
       // =====================
       // 5. Character Animation Functions
       // =====================
 
-      function triggerCharacterPress() {
+      function createSparkles() {
+        const sparkleContainer = document.createElement("div");
+        sparkleContainer.style.cssText = `
+          position: absolute;
+          bottom: -150px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 600px;
+          height: 600px;
+          pointer-events: none;
+          z-index: 6;
+        `;
+
+        // Create multiple sparkle particles
+        for (let i = 0; i < 12; i++) {
+          const sparkle = document.createElement("div");
+          const size = Math.random() * 8 + 4;
+          const delay = Math.random() * 0.3;
+          const duration = Math.random() * 0.8 + 0.6;
+          const x = (Math.random() - 0.5) * 400;
+          const y = (Math.random() - 0.5) * 400;
+
+          sparkle.style.cssText = `
+            position: absolute;
+            width: ${size}px;
+            height: ${size}px;
+            background: radial-gradient(circle, #ffffff 0%, #ffeb3b 50%, transparent 100%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: sparkleFloat ${duration}s ease-out ${delay}s forwards;
+            opacity: 0;
+          `;
+
+          sparkle.style.setProperty("--x", x + "px");
+          sparkle.style.setProperty("--y", y + "px");
+
+          sparkleContainer.appendChild(sparkle);
+        }
+
+        // Add sparkle animation
+        const style = document.createElement("style");
+        style.textContent = `
+          @keyframes sparkleFloat {
+            0% {
+              transform: translate(-50%, -50%) scale(0) rotate(0deg);
+              opacity: 0;
+            }
+            20% {
+              transform: translate(calc(-50% + var(--x) * 0.2), calc(-50% + var(--y) * 0.2)) scale(1) rotate(90deg);
+              opacity: 1;
+            }
+            80% {
+              transform: translate(calc(-50% + var(--x) * 0.8), calc(-50% + var(--y) * 0.8)) scale(0.8) rotate(270deg);
+              opacity: 0.8;
+            }
+            100% {
+              transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(0) rotate(360deg);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+
+        return { container: sparkleContainer, style };
+      }
+
+      function triggerCharacterPress(isSpecial = false) {
         const characterContainer = document.querySelector(
           ".character-container"
         );
         const soleElement = document.getElementById("sole");
+        const lightEffect = document.getElementById("light-effect");
 
         characterContainer.classList.add("pressed");
         soleElement.classList.add("pressed");
 
-        setTimeout(() => {
-          characterContainer.classList.remove("pressed");
-          soleElement.classList.remove("pressed");
-        }, 100);
+        // Show light effect
+        if (lightEffect) {
+          lightEffect.classList.add("show");
+          lightEffect.classList.add("pressed");
+          if (isSpecial) {
+            lightEffect.classList.add("special");
+          }
+        }
+
+        // Create sparkles effect
+        const sparkleData = createSparkles();
+        const soleContainer = soleElement.parentElement;
+        soleContainer.appendChild(sparkleData.container);
+
+        setTimeout(
+          () => {
+            characterContainer.classList.remove("pressed");
+            soleElement.classList.remove("pressed");
+
+            // Hide light effect
+            if (lightEffect) {
+              lightEffect.classList.remove("show");
+              lightEffect.classList.remove("pressed");
+              if (isSpecial) {
+                lightEffect.classList.remove("special");
+              }
+            }
+
+            // Clean up sparkles
+            setTimeout(() => {
+              if (sparkleData.container.parentNode) {
+                sparkleData.container.parentNode.removeChild(
+                  sparkleData.container
+                );
+              }
+              if (sparkleData.style.parentNode) {
+                sparkleData.style.parentNode.removeChild(sparkleData.style);
+              }
+            }, 1000);
+          },
+          isSpecial ? 600 : 400
+        );
       }
 
       // =====================
@@ -973,7 +1218,9 @@
           }
 
           // Trigger character press animation
-          triggerCharacterPress();
+          if (!is3FingerTap) {
+            triggerCharacterPress();
+          }
         }
 
         // Decrease HP with proper calculation
@@ -1102,6 +1349,9 @@
 
         // Show 3x multiplier text
         show3xMultiplierText();
+
+        // Trigger special character press with light effect
+        triggerCharacterPress(true);
       }
 
       function show3xMultiplierText() {
