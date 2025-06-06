@@ -1194,6 +1194,41 @@
           console.log("No event data available");
         }
 
+        // PROTECTION: Check if this is a duplicate HP change - ENHANCED
+        const currentTime = Date.now();
+
+        // For 3-finger taps, use stricter duplicate detection
+        if (is3FingerTap) {
+          // Check multiple conditions for duplicate detection
+          const timeSinceLastHPChange = currentTime - lastHPChangeTime;
+          const isSameHP = lastHPValue === oldHP;
+          const tooSoon = timeSinceLastHPChange < 1500; // Increased from 1000ms to 1500ms
+
+          console.log("🛡️ 3-FINGER TAP DUPLICATE CHECK:");
+          console.log("Time since last HP change:", timeSinceLastHPChange);
+          console.log(
+            "Is same HP value:",
+            isSameHP,
+            "(",
+            lastHPValue,
+            "vs",
+            oldHP,
+            ")"
+          );
+          console.log("Too soon?", tooSoon);
+
+          if (tooSoon && isSameHP) {
+            console.log("🛡️ DUPLICATE 3-FINGER TAP DETECTED - BLOCKING");
+            return; // Exit early to prevent duplicate processing
+          }
+        }
+
+        // Update tracking variables BEFORE processing
+        lastHPChangeTime = currentTime;
+        lastHPValue = oldHP;
+
+        console.log("✅ TAP PROCESSING APPROVED - ID:", tapId);
+
         // Create flying coin effect - target the total-coins box
         if (event) {
           const totalCoinsBox = document.querySelector(
@@ -1227,27 +1262,6 @@
         const oldHP = state.hp;
         const baseHPLoss = 4; // Base HP loss per tap
         const hpLoss = Math.round(baseHPLoss * hpMultiplier); // Should be 4 for normal, 12 for 3-finger
-
-        // PROTECTION: Check if this is a duplicate HP change
-        const currentTime = Date.now();
-        if (
-          is3FingerTap &&
-          currentTime - lastHPChangeTime < 1000 && // Within 1 second
-          lastHPValue === oldHP
-        ) {
-          // Same starting HP
-          console.log("🛡️ DUPLICATE 3-FINGER TAP DETECTED - BLOCKING HP LOSS");
-          console.log("Last HP change time:", lastHPChangeTime);
-          console.log("Current time:", currentTime);
-          console.log("Time diff:", currentTime - lastHPChangeTime);
-          console.log("Last HP value:", lastHPValue);
-          console.log("Current HP value:", oldHP);
-          return; // Exit early to prevent duplicate processing
-        }
-
-        // Update tracking variables
-        lastHPChangeTime = currentTime;
-        lastHPValue = oldHP;
 
         // Validate HP loss calculation
         const expectedHPLoss = is3FingerTap ? 12 : 4; // Back to 12 HP loss
@@ -1290,12 +1304,24 @@
         const baseCoin =
           getTapCoin(state.level) * getUpgradeMultiplier(state.level);
 
+        console.log("=== COIN CALCULATION DEBUG ===");
+        console.log("Level:", state.level);
+        console.log("getTapCoin(level):", getTapCoin(state.level));
+        console.log(
+          "getUpgradeMultiplier(level):",
+          getUpgradeMultiplier(state.level)
+        );
+        console.log("baseCoin:", baseCoin);
+        console.log("is3FingerTap:", is3FingerTap);
+        console.log("finalMultiplier:", finalMultiplier);
+
         if (finalMultiplier === 0.25) {
           // Auto-earn case
           tapCoin = Math.floor(baseCoin / 4);
+          console.log("Auto-earn calculation:", baseCoin, "/ 4 =", tapCoin);
         } else if (is3FingerTap) {
-          // 3-finger tap: exactly 3x the base coin (back to 3x)
-          tapCoin = Math.round(baseCoin * 3);
+          // 3-finger tap: exactly 3x the base coin - FIXED CALCULATION
+          tapCoin = Math.floor(baseCoin * 3);
           console.log(
             "3-finger tap coin calculation:",
             baseCoin,
@@ -1304,7 +1330,7 @@
           );
         } else {
           // Normal tap: base coin * finalMultiplier
-          tapCoin = Math.round(baseCoin * finalMultiplier);
+          tapCoin = Math.floor(baseCoin * finalMultiplier);
           console.log(
             "Normal tap coin calculation:",
             baseCoin,
@@ -1314,6 +1340,9 @@
             tapCoin
           );
         }
+
+        console.log("Final tapCoin value:", tapCoin);
+        console.log("=== END COIN CALCULATION ===");
 
         // Add coins to coinEarn (which shows in total-coins box during tapping)
         state.coinEarn += tapCoin;
@@ -1589,17 +1618,24 @@
 
       // Separate tracking for multi-touch to avoid debounce interference
       let lastMultiTouchTime = 0;
-      const MULTI_TOUCH_DEBOUNCE_MS = 500; // Increased from 200ms to 500ms to prevent duplicates
+      const MULTI_TOUCH_DEBOUNCE_MS = 800; // Increased from 500ms to 800ms to prevent duplicates
 
       // Add flag to track if 3-finger tap is being processed
       let isProcessing3FingerTap = false;
 
-      // Track last HP change to prevent duplicates
+      // Track last HP change to prevent duplicates - ENHANCED
       let lastHPChangeTime = 0;
       let lastHPValue = 0;
+      let lastTapProcessTime = 0; // New: track when tap was last processed
 
       function debouncedTap(event, multiplier = 1) {
         const currentTime = Date.now();
+
+        // ENHANCED DUPLICATE PROTECTION
+        if (currentTime - lastTapProcessTime < 100) {
+          console.log("❌ TAP IGNORED - Too soon after last tap processing");
+          return;
+        }
 
         // Check if this is a multi-touch event (3+ fingers)
         const isMultiTouch =
@@ -1631,9 +1667,10 @@
             return;
           }
 
-          // Set processing flag
+          // Set processing flag IMMEDIATELY
           isProcessing3FingerTap = true;
           lastMultiTouchTime = currentTime;
+          lastTapProcessTime = currentTime; // Update tap process time
           console.log(
             "✅ Multi-touch tap ACCEPTED, updating lastMultiTouchTime to:",
             lastMultiTouchTime
@@ -1644,11 +1681,11 @@
             "fingers"
           );
 
-          // Clear processing flag after a delay
+          // Clear processing flag after a longer delay
           setTimeout(() => {
             isProcessing3FingerTap = false;
             console.log("🔄 3-finger tap processing flag cleared");
-          }, 300);
+          }, 600); // Increased from 300ms to 600ms
         } else {
           // Use normal debounce for single touch
           console.log("Last single tap time:", lastTapTime);
@@ -1659,6 +1696,7 @@
             return;
           }
           lastTapTime = currentTime;
+          lastTapProcessTime = currentTime; // Update tap process time
           console.log(
             "✅ Single tap ACCEPTED, updating lastTapTime to:",
             lastTapTime
