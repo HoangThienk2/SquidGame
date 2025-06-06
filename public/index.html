@@ -587,6 +587,12 @@
         >
           Auto earn
         </p>
+        <p
+          class="font-normal text-[10px] leading-[16px] tracking-[0%] text-center align-middle text-[#FF6B8B] opacity-70 mt-1"
+          style="max-width: 80px"
+        >
+          💡 Try 3-finger tap for 3x coins!
+        </p>
       </div>
 
       <div
@@ -1060,24 +1066,38 @@
           return;
         }
 
-        // Check for 3-finger tap on touch devices
+        // Check for 3-finger tap on touch devices - IMPROVED DETECTION
         let finalMultiplier = multiplier;
         let hpMultiplier = 1; // Separate multiplier for HP loss
         let is3FingerTap = false;
 
-        if (event && event.touches && event.touches.length === 3) {
-          finalMultiplier = multiplier * 3; // 3x coins for 3-finger tap
-          hpMultiplier = 3; // 3x HP loss for 3-finger tap
-          is3FingerTap = true;
-          console.log(
-            "3-finger tap detected! Coin multiplier:",
-            finalMultiplier,
-            "HP multiplier:",
-            hpMultiplier
-          );
+        // Enhanced 3-finger detection with multiple checks
+        if (event && event.touches) {
+          const touchCount = event.touches.length;
+          console.log("Touch count detected:", touchCount);
 
-          // Add special visual feedback for 3-finger tap
-          triggerSpecial3FingerEffect();
+          if (touchCount >= 3) {
+            finalMultiplier = multiplier * 3; // 3x coins for 3-finger tap
+            hpMultiplier = 3; // 3x HP loss for 3-finger tap
+            is3FingerTap = true;
+            console.log(
+              "🔥 3-FINGER TAP CONFIRMED! Touch count:",
+              touchCount,
+              "Coin multiplier:",
+              finalMultiplier,
+              "HP multiplier:",
+              hpMultiplier
+            );
+
+            // Add special visual feedback for 3-finger tap
+            triggerSpecial3FingerEffect();
+          } else {
+            console.log("Normal tap detected with", touchCount, "finger(s)");
+          }
+        } else if (event && !event.touches) {
+          console.log("Mouse click detected (no touch data)");
+        } else {
+          console.log("No event data available");
         }
 
         // Create flying coin effect - target the total-coins box
@@ -1243,32 +1263,79 @@
       function show3xMultiplierText() {
         // Create floating 3x text
         const multiplierText = document.createElement("div");
-        multiplierText.textContent = "3X COINS!";
+        multiplierText.textContent = "🔥 3X COINS! 🔥";
         multiplierText.style.cssText = `
           position: fixed;
-          top: 50%;
+          top: 30%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: 24px;
+          font-size: 28px;
           font-weight: bold;
           color: #FFD700;
-          text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px #FFD700;
           z-index: 9999;
           pointer-events: none;
-          animation: bounce3x 1s ease-out forwards;
+          animation: bounce3x 1.5s ease-out forwards;
+          font-family: 'Gugi', sans-serif;
+          border: 2px solid #FFD700;
+          background: rgba(0,0,0,0.8);
+          padding: 10px 20px;
+          border-radius: 15px;
         `;
 
         // Add bounce animation
         const style = document.createElement("style");
         style.textContent = `
           @keyframes bounce3x {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1) translateY(-30px); opacity: 0; }
+            0% { 
+              transform: translate(-50%, -50%) scale(0.3) rotate(-10deg); 
+              opacity: 0; 
+            }
+            30% { 
+              transform: translate(-50%, -50%) scale(1.4) rotate(5deg); 
+              opacity: 1; 
+            }
+            60% { 
+              transform: translate(-50%, -50%) scale(0.9) rotate(-2deg); 
+              opacity: 1; 
+            }
+            80% { 
+              transform: translate(-50%, -50%) scale(1.1) rotate(1deg); 
+              opacity: 1; 
+            }
+            100% { 
+              transform: translate(-50%, -50%) scale(1) translateY(-50px) rotate(0deg); 
+              opacity: 0; 
+            }
           }
         `;
         document.head.appendChild(style);
         document.body.appendChild(multiplierText);
+
+        // Add screen flash effect
+        const flashOverlay = document.createElement("div");
+        flashOverlay.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, transparent 70%);
+          z-index: 9998;
+          pointer-events: none;
+          animation: flashEffect 0.5s ease-out forwards;
+        `;
+
+        const flashStyle = document.createElement("style");
+        flashStyle.textContent = `
+          @keyframes flashEffect {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+          }
+        `;
+        document.head.appendChild(flashStyle);
+        document.body.appendChild(flashOverlay);
 
         // Remove after animation
         setTimeout(() => {
@@ -1278,7 +1345,13 @@
           if (style.parentNode) {
             style.parentNode.removeChild(style);
           }
-        }, 1000);
+          if (flashOverlay.parentNode) {
+            flashOverlay.parentNode.removeChild(flashOverlay);
+          }
+          if (flashStyle.parentNode) {
+            flashStyle.parentNode.removeChild(flashStyle);
+          }
+        }, 1500);
       }
 
       // =====================
@@ -1374,15 +1447,40 @@
 
       // Add debounce mechanism to prevent multiple taps
       let lastTapTime = 0;
-      const TAP_DEBOUNCE_MS = 100; // 100ms debounce
+      const TAP_DEBOUNCE_MS = 50; // Reduced from 100ms to 50ms for better responsiveness
+
+      // Separate tracking for multi-touch to avoid debounce interference
+      let lastMultiTouchTime = 0;
+      const MULTI_TOUCH_DEBOUNCE_MS = 200; // Separate debounce for multi-touch
 
       function debouncedTap(event, multiplier = 1) {
         const currentTime = Date.now();
-        if (currentTime - lastTapTime < TAP_DEBOUNCE_MS) {
-          console.log("Tap ignored due to debounce");
-          return;
+
+        // Check if this is a multi-touch event (3+ fingers)
+        const isMultiTouch =
+          event && event.touches && event.touches.length >= 3;
+
+        if (isMultiTouch) {
+          // Use separate debounce for multi-touch
+          if (currentTime - lastMultiTouchTime < MULTI_TOUCH_DEBOUNCE_MS) {
+            console.log("Multi-touch tap ignored due to debounce");
+            return;
+          }
+          lastMultiTouchTime = currentTime;
+          console.log(
+            "Multi-touch detected with",
+            event.touches.length,
+            "fingers"
+          );
+        } else {
+          // Use normal debounce for single touch
+          if (currentTime - lastTapTime < TAP_DEBOUNCE_MS) {
+            console.log("Single tap ignored due to debounce");
+            return;
+          }
+          lastTapTime = currentTime;
         }
-        lastTapTime = currentTime;
+
         tap(event, multiplier);
       }
 
@@ -1394,7 +1492,7 @@
         // Add tap event listeners for the main container only
         const mainContainer = document.querySelector(".w-\\[375px\\]");
         if (mainContainer) {
-          // Handle click events
+          // Handle click events (for desktop/mouse)
           mainContainer.addEventListener("click", function (event) {
             // Don't tap if clicking on buttons or UI elements
             if (
@@ -1409,7 +1507,7 @@
             debouncedTap(event);
           });
 
-          // Handle touch events (for mobile)
+          // Handle touch events (for mobile) - IMPROVED FOR MULTI-TOUCH
           mainContainer.addEventListener("touchstart", function (event) {
             // Don't tap if touching buttons or UI elements
             if (
@@ -1419,18 +1517,96 @@
             ) {
               return;
             }
-            event.preventDefault();
+
+            // Log touch information for debugging
+            console.log("Touch detected:", event.touches.length, "fingers");
+
+            // For multi-touch, don't prevent default immediately to allow proper detection
+            if (event.touches.length >= 3) {
+              console.log("3+ finger touch detected, processing...");
+              // Allow some time for touch registration before preventing default
+              setTimeout(() => {
+                event.preventDefault();
+              }, 10);
+            } else {
+              event.preventDefault();
+            }
+
             event.stopPropagation();
             debouncedTap(event);
           });
 
-          // Prevent default touch behaviors that might interfere
+          // Add touchend handler to catch any missed multi-touch events
           mainContainer.addEventListener("touchend", function (event) {
+            // Check if we had multiple touches that just ended
+            if (event.changedTouches && event.changedTouches.length >= 2) {
+              console.log(
+                "Multi-touch ended, checking for missed 3-finger tap"
+              );
+              // This might catch cases where touchstart missed the multi-touch
+            }
             event.preventDefault();
           });
 
+          // Reduce interference from touchmove
           mainContainer.addEventListener("touchmove", function (event) {
-            event.preventDefault();
+            // Only prevent default for single touch to avoid interfering with multi-touch detection
+            if (event.touches.length === 1) {
+              event.preventDefault();
+            }
+          });
+
+          // Add a dedicated multi-touch gesture detector
+          let multiTouchStartTime = 0;
+          let multiTouchProcessed = false;
+
+          mainContainer.addEventListener(
+            "touchstart",
+            function (event) {
+              if (event.touches.length >= 3) {
+                multiTouchStartTime = Date.now();
+                multiTouchProcessed = false;
+                console.log(
+                  "Multi-touch gesture started with",
+                  event.touches.length,
+                  "fingers"
+                );
+
+                // Process immediately for better responsiveness
+                if (!multiTouchProcessed) {
+                  multiTouchProcessed = true;
+                  console.log("Processing 3-finger tap immediately");
+
+                  // Create a synthetic event for the tap function
+                  const syntheticEvent = {
+                    touches: event.touches,
+                    clientX: event.touches[0].clientX,
+                    clientY: event.touches[0].clientY,
+                    preventDefault: () => {},
+                    stopPropagation: () => {},
+                  };
+
+                  // Call tap directly to avoid debounce issues
+                  setTimeout(() => {
+                    tap(syntheticEvent, 1);
+                  }, 50); // Small delay to ensure touch registration
+                }
+              }
+            },
+            { passive: false }
+          );
+
+          // Add gesture end detection
+          mainContainer.addEventListener("touchend", function (event) {
+            if (multiTouchStartTime > 0 && event.touches.length < 3) {
+              const gestureDuration = Date.now() - multiTouchStartTime;
+              console.log(
+                "Multi-touch gesture ended, duration:",
+                gestureDuration + "ms"
+              );
+              multiTouchStartTime = 0;
+              multiTouchProcessed = false;
+            }
           });
         }
 
