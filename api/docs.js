@@ -7,8 +7,7 @@ const options = {
     info: {
       title: "Squid Game API",
       version: "1.0.0",
-      description:
-        "API để quản lý dữ liệu game Squid Game dựa trên Telegram User ID",
+      description: "API for managing Squid Game data based on Telegram User ID",
       contact: {
         name: "Squid Game Team",
         email: "support@squidgame.com",
@@ -37,37 +36,166 @@ const options = {
             level: {
               type: "integer",
               minimum: 1,
-              description: "Cấp độ người chơi",
+              description: "Player level",
               example: 5,
             },
             hp: {
               type: "integer",
               minimum: 0,
-              description: "Máu hiện tại",
+              description: "Current health points",
               example: 85,
             },
             maxHP: {
               type: "integer",
-              description: "Máu tối đa",
+              description: "Maximum health points",
               example: 100,
             },
             ruby: {
               type: "integer",
               minimum: 0,
-              description: "Số ruby (coinCount)",
+              description: "Ruby count (coinCount)",
               example: 1250,
             },
             coins: {
               type: "integer",
               minimum: 0,
-              description: "Coins trong session hiện tại",
+              description: "Coins in current session",
               example: 340,
             },
             totalCoins: {
               type: "integer",
               minimum: 0,
-              description: "Tổng coins đã kiếm được",
+              description: "Total coins earned",
               example: 1590,
+            },
+            lastRecover: {
+              type: "integer",
+              description: "Last HP recovery timestamp",
+              example: 1640995200000,
+            },
+            lastZeroHP: {
+              type: "integer",
+              description: "Last time HP reached zero timestamp",
+              example: 1640995200000,
+            },
+            createdAt: {
+              type: "string",
+              format: "date-time",
+              description: "Account creation date",
+            },
+            updatedAt: {
+              type: "string",
+              format: "date-time",
+              description: "Last update date",
+            },
+          },
+        },
+        UserUpdate: {
+          type: "object",
+          properties: {
+            level: {
+              type: "integer",
+              minimum: 1,
+              description: "Player level",
+            },
+            hp: {
+              type: "integer",
+              minimum: 0,
+              description: "Current health points",
+            },
+            ruby: {
+              type: "integer",
+              minimum: 0,
+              description: "Ruby count",
+            },
+            coins: {
+              type: "integer",
+              minimum: 0,
+              description: "Coins in current session",
+            },
+            totalCoins: {
+              type: "integer",
+              minimum: 0,
+              description: "Total coins earned",
+            },
+            lastRecover: {
+              type: "integer",
+              description: "Last HP recovery timestamp",
+            },
+            lastZeroHP: {
+              type: "integer",
+              description: "Last time HP reached zero timestamp",
+            },
+          },
+        },
+        GameSync: {
+          type: "object",
+          properties: {
+            level: {
+              type: "integer",
+              description: "Current player level",
+            },
+            hp: {
+              type: "integer",
+              description: "Current health points",
+            },
+            coinCount: {
+              type: "integer",
+              description: "Current coin count",
+            },
+            coinEarn: {
+              type: "integer",
+              description: "Coins earned in session",
+            },
+            lastRecover: {
+              type: "integer",
+              description: "Last recovery timestamp",
+            },
+            lastZeroHP: {
+              type: "integer",
+              description: "Last zero HP timestamp",
+            },
+          },
+        },
+        LeaderboardEntry: {
+          type: "object",
+          properties: {
+            telegramUserId: {
+              type: "string",
+              description: "Player Telegram ID",
+            },
+            level: {
+              type: "integer",
+              description: "Player level",
+            },
+            totalCoins: {
+              type: "integer",
+              description: "Total coins earned",
+            },
+            rank: {
+              type: "integer",
+              description: "Player rank",
+            },
+          },
+        },
+        Stats: {
+          type: "object",
+          properties: {
+            totalPlayers: {
+              type: "integer",
+              description: "Total number of players",
+            },
+            totalCoins: {
+              type: "integer",
+              description: "Total coins in game",
+            },
+            averageLevel: {
+              type: "number",
+              description: "Average player level",
+            },
+            topLevel: {
+              type: "integer",
+              description: "Highest level achieved",
             },
           },
         },
@@ -76,15 +204,33 @@ const options = {
           properties: {
             success: {
               type: "boolean",
-              description: "Trạng thái thành công",
+              description: "Success status",
             },
             message: {
               type: "string",
-              description: "Thông báo",
+              description: "Response message",
             },
             data: {
               type: "object",
-              description: "Dữ liệu trả về",
+              description: "Response data",
+            },
+          },
+        },
+        Error: {
+          type: "object",
+          properties: {
+            success: {
+              type: "boolean",
+              example: false,
+              description: "Error status",
+            },
+            message: {
+              type: "string",
+              description: "Error message",
+            },
+            error: {
+              type: "string",
+              description: "Error details",
             },
           },
         },
@@ -93,7 +239,8 @@ const options = {
     paths: {
       "/api/user/{telegramUserId}": {
         get: {
-          summary: "Lấy thông tin người chơi",
+          summary: "Get player information",
+          description: "Retrieve player data by Telegram User ID",
           tags: ["User Management"],
           parameters: [
             {
@@ -109,7 +256,7 @@ const options = {
           ],
           responses: {
             200: {
-              description: "Thành công",
+              description: "Success",
               content: {
                 "application/json": {
                   schema: {
@@ -127,10 +274,31 @@ const options = {
                 },
               },
             },
+            404: {
+              description: "User not found",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
+            },
           },
         },
         post: {
-          summary: "Cập nhật thông tin người chơi",
+          summary: "Update player information",
+          description: "Update player data by Telegram User ID",
           tags: ["User Management"],
           parameters: [
             {
@@ -140,18 +308,58 @@ const options = {
               schema: {
                 type: "string",
               },
+              description: "Telegram User ID",
+              example: "123456789",
             },
           ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/UserUpdate",
+                },
+              },
+            },
+          },
           responses: {
             200: {
-              description: "Cập nhật thành công",
+              description: "Update successful",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ApiResponse",
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Invalid request data",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
             },
           },
         },
       },
       "/api/sync/{telegramUserId}": {
         post: {
-          summary: "Đồng bộ trạng thái game",
+          summary: "Sync game state",
+          description: "Synchronize game state from client to server",
           tags: ["Game Sync"],
           parameters: [
             {
@@ -161,33 +369,185 @@ const options = {
               schema: {
                 type: "string",
               },
+              description: "Telegram User ID",
+              example: "123456789",
             },
           ],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/GameSync",
+                },
+              },
+            },
+          },
           responses: {
             200: {
-              description: "Đồng bộ thành công",
+              description: "Sync successful",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ApiResponse",
+                  },
+                },
+              },
+            },
+            400: {
+              description: "Invalid sync data",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
             },
           },
         },
       },
       "/api/leaderboard": {
         get: {
-          summary: "Lấy bảng xếp hạng",
+          summary: "Get leaderboard",
+          description: "Retrieve top players leaderboard",
           tags: ["Leaderboard"],
+          parameters: [
+            {
+              in: "query",
+              name: "limit",
+              schema: {
+                type: "integer",
+                minimum: 1,
+                maximum: 100,
+                default: 10,
+              },
+              description: "Number of top players to return",
+            },
+          ],
           responses: {
             200: {
-              description: "Thành công",
+              description: "Success",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        example: true,
+                      },
+                      data: {
+                        type: "array",
+                        items: {
+                          $ref: "#/components/schemas/LeaderboardEntry",
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
             },
           },
         },
       },
       "/api/stats": {
         get: {
-          summary: "Lấy thống kê game",
+          summary: "Get game statistics",
+          description: "Retrieve overall game statistics",
           tags: ["Statistics"],
           responses: {
             200: {
-              description: "Thành công",
+              description: "Success",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        example: true,
+                      },
+                      data: {
+                        $ref: "#/components/schemas/Stats",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Server error",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      "/api/db-status": {
+        get: {
+          summary: "Check database status",
+          description: "Check if database connection is working",
+          tags: ["System"],
+          responses: {
+            200: {
+              description: "Database is connected",
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "object",
+                    properties: {
+                      success: {
+                        type: "boolean",
+                        example: true,
+                      },
+                      message: {
+                        type: "string",
+                        example: "Database connected successfully",
+                      },
+                      timestamp: {
+                        type: "string",
+                        format: "date-time",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            500: {
+              description: "Database connection failed",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/Error",
+                  },
+                },
+              },
             },
           },
         },
@@ -215,6 +575,8 @@ module.exports = (req, res) => {
   <style>
     .swagger-ui .topbar { display: none; }
     .swagger-ui .info .title { color: #FF6B6B; }
+    .swagger-ui .info .description { color: #666; }
+    .swagger-ui .scheme-container { background: #fafafa; padding: 10px; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -227,7 +589,8 @@ module.exports = (req, res) => {
       presets: [
         SwaggerUIBundle.presets.apis,
         SwaggerUIBundle.presets.standalone
-      ]
+      ],
+      layout: "StandaloneLayout"
     });
   </script>
 </body>
