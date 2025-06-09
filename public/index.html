@@ -3,11 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Squid Game - Click to Win</title>
+    <title>Squid Game - Yeonghee</title>
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="./images/thumbnail.svg" />
-    <link rel="shortcut icon" href="./images/thumbnail.svg" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦑</text></svg>"
+    />
 
     <!-- Meta Tags -->
     <meta
@@ -21,24 +23,43 @@
     <meta name="author" content="Squid Game" />
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="Squid Game - Click to Win" />
+    <meta property="og:title" content=" Squid Game - Yeonghee Game" />
     <meta
       property="og:description"
-      content="Play the exciting Squid Game clicking game! Click to earn coins and level up in this thrilling game experience."
+      content="Play as Yeonghee in the ultimate Squid Game challenge! Tap to survive and collect coins."
     />
-    <meta property="og:image" content="./images/thumbnail.svg" />
-    <meta property="og:url" content="" />
+    <meta
+      property="og:image"
+      content="https://squid-game-m29i-123.vercel.app/images/thumbnail.png"
+    />
+    <meta property="og:image:width" content="475" />
+    <meta property="og:image:height" content="220" />
+    <meta property="og:url" content="https://squid-game-m29i-123.vercel.app/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Squid Game" />
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Squid Game - Click to Win" />
+    <meta name="twitter:title" content=" Squid Game - Yeonghee Game" />
     <meta
       name="twitter:description"
-      content="Play the exciting Squid Game clicking game! Click to earn coins and level up in this thrilling game experience."
+      content="Play as Yeonghee in the ultimate Squid Game challenge!"
     />
-    <meta name="twitter:image" content="./images/thumbnail.svg" />
+    <meta
+      name="twitter:image"
+      content="https://squid-game-m29i-123.vercel.app/images/thumbnail.png"
+    />
+
+    <!-- Telegram Mini App Meta Tags -->
+    <meta
+      name="telegram:image"
+      content="https://squid-game-m29i-123.vercel.app/images/thumbnail.png"
+    />
+    <meta name="telegram:title" content=" Squid Game - Yeonghee" />
+    <meta
+      name="telegram:description"
+      content="Tap to play Squid Game as Yeonghee!"
+    />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -732,6 +753,93 @@
 
     <script>
       // =====================
+      // 0. Telegram Integration & API Sync
+      // =====================
+
+      // Get Telegram user ID from URL parameters or Telegram WebApp
+      let telegramUserId = null;
+
+      function getTelegramUserId() {
+        // Try to get from URL parameters first
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdFromUrl = urlParams.get("userId");
+
+        if (userIdFromUrl) {
+          telegramUserId = userIdFromUrl;
+          console.log("📱 Telegram User ID from URL:", telegramUserId);
+          return telegramUserId;
+        }
+
+        // Try to get from Telegram WebApp API
+        if (window.Telegram && window.Telegram.WebApp) {
+          const webApp = window.Telegram.WebApp;
+          if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
+            telegramUserId = webApp.initDataUnsafe.user.id.toString();
+            console.log("📱 Telegram User ID from WebApp:", telegramUserId);
+            return telegramUserId;
+          }
+        }
+
+        // Fallback: generate a temporary ID for testing
+        telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
+        console.log("📱 Using demo Telegram User ID:", telegramUserId);
+        return telegramUserId;
+      }
+
+      // API functions for syncing with server
+      async function syncGameStateToServer(gameState) {
+        if (!telegramUserId) return;
+
+        try {
+          const response = await fetch(`/api/sync/${telegramUserId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(gameState),
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            console.log("✅ Game state synced to server:", result);
+          } else {
+            console.error("❌ Failed to sync game state:", response.statusText);
+          }
+        } catch (error) {
+          console.error("❌ Error syncing game state:", error);
+        }
+      }
+
+      async function loadGameStateFromServer() {
+        if (!telegramUserId) return null;
+
+        try {
+          const response = await fetch(`/api/user/${telegramUserId}`);
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+              console.log("📥 Game state loaded from server:", result.data);
+
+              // Convert server data format to client format
+              return {
+                level: result.data.level,
+                hp: result.data.hp,
+                coinCount: result.data.ruby,
+                coinEarn: result.data.coins,
+                lastRecover: result.data.lastRecover,
+                lastZeroHP: result.data.lastZeroHP,
+              };
+            }
+          }
+        } catch (error) {
+          console.error("❌ Error loading game state from server:", error);
+        }
+
+        return null;
+      }
+
+      // =====================
       // 1. Game Configuration - 100 Levels
       // =====================
 
@@ -968,6 +1076,28 @@
 
       function saveGameState(state) {
         localStorage.setItem("game_interface_state", JSON.stringify(state));
+
+        // Auto-sync to server when game state changes
+        if (telegramUserId) {
+          syncGameStateToServer(state);
+        }
+      }
+
+      // Enhanced load function that tries server first, then localStorage
+      async function loadGameStateEnhanced() {
+        // Try to load from server first
+        const serverState = await loadGameStateFromServer();
+        if (serverState) {
+          // Save to localStorage for offline access
+          localStorage.setItem(
+            "game_interface_state",
+            JSON.stringify(serverState)
+          );
+          return serverState;
+        }
+
+        // Fallback to localStorage
+        return loadGameState();
       }
 
       // =====================
@@ -1828,12 +1958,22 @@
       }
 
       document.addEventListener("DOMContentLoaded", function () {
-        // Initialize game
-        let initialState = loadGameState();
-        updateUI(initialState);
+        // Initialize Telegram integration
+        getTelegramUserId();
 
-        // Initialize coin target indicator
-        updateCoinTargetIndicator();
+        // Initialize game with enhanced loading (server + localStorage)
+        loadGameStateEnhanced().then((initialState) => {
+          updateUI(initialState);
+
+          // Initialize coin target indicator
+          updateCoinTargetIndicator();
+
+          console.log(
+            "🎮 Game Interface Initialized with state:",
+            initialState
+          );
+          console.log("📱 Telegram User ID:", telegramUserId);
+        });
 
         // Initialize debug toggle
         document
