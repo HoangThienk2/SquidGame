@@ -989,35 +989,53 @@ app.get("/update-commands", async (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, async () => {
-  // Try to connect to MongoDB
-  console.log("🔄 Attempting to connect to MongoDB...");
-  const connected = await db.connect();
+// Start server (only if not imported as module)
+if (require.main === module) {
+  app.listen(PORT, async () => {
+    // Try to connect to MongoDB
+    console.log("🔄 Attempting to connect to MongoDB...");
+    const connected = await db.connect();
 
-  if (!connected) {
-    console.log("⚠️  Running in fallback mode (in-memory storage)");
-  }
+    if (!connected) {
+      console.log("⚠️  Running in fallback mode (in-memory storage)");
+    }
 
-  console.log(`Server running on port ${PORT}`);
-  console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-  console.log(`Direct links:`);
-  console.log(
-    `- Yeonghee: https://t.me/squidgametap_bot?startapp=yeonghee (opens: ${
-      process.env.API_BASE_URL || "https://squid-game-m29i-123.vercel.app"
-    }/)`
-  );
-  console.log(
-    `- Cheolsu: https://t.me/squidgametap_bot?startapp=cheolsu (opens: https://squid-game2.vercel.app/)`
-  );
-  console.log(`\nAPI Endpoints:`);
-  console.log(`- GET /api/user/:telegramUserId - Get user game data`);
-  console.log(`- POST /api/user/:telegramUserId - Update user game data`);
-  console.log(`- POST /api/sync/:telegramUserId - Sync game state from client`);
-  console.log(`- GET /api/leaderboard - Get leaderboard`);
-  console.log(`- GET /api/stats - Get game statistics`);
-  console.log(`- GET /api/db-status - Check database status`);
-  console.log(
-    `\nDatabase: ${db.isConnected ? "✅ MongoDB" : "⚠️  In-Memory (fallback)"}`
-  );
-});
+    console.log(`Server running on port ${PORT}`);
+    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
+    console.log(`Direct links:`);
+    console.log(
+      `- Yeonghee: https://t.me/squidgametap_bot?startapp=yeonghee (opens: ${
+        process.env.API_BASE_URL || "https://squid-game-m29i-123.vercel.app"
+      }/)`
+    );
+    console.log(
+      `- Cheolsu: https://t.me/squidgametap_bot?startapp=cheolsu (opens: https://squid-game2.vercel.app/)`
+    );
+    console.log(`\nAPI Endpoints:`);
+    console.log(`- GET /api/user/:telegramUserId - Get user game data`);
+    console.log(`- POST /api/user/:telegramUserId - Update user game data`);
+    console.log(
+      `- POST /api/sync/:telegramUserId - Sync game state from client`
+    );
+    console.log(`- GET /api/leaderboard - Get leaderboard`);
+    console.log(`- GET /api/stats - Get game statistics`);
+    console.log(`- GET /api/db-status - Check database status`);
+    console.log(
+      `\nDatabase: ${
+        db.isConnected ? "✅ MongoDB" : "⚠️  In-Memory (fallback)"
+      }`
+    );
+  });
+} else {
+  // Initialize database connection for Vercel
+  db.connect().then((connected) => {
+    if (!connected) {
+      console.log("⚠️  Running in fallback mode (in-memory storage)");
+    } else {
+      console.log("✅ MongoDB connected for Vercel deployment");
+    }
+  });
+}
+
+// Export for Vercel serverless functions
+module.exports = app;

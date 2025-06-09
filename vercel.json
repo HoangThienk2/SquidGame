@@ -2,17 +2,79 @@
   "version": 2,
   "builds": [
     {
+      "src": "server.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "public/**/*",
       "use": "@vercel/static"
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/public/$1"
+      "src": "/api/(.*)",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/webhook",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/api-docs",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/thumbnail",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/generate-thumbnail",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/setup-webhook",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/update-commands",
+      "dest": "/server.js"
+    },
+    {
+      "src": "/yeonghee",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/cheolsu",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/public/$1"
     }
   ],
+  "env": {
+    "TELEGRAM_BOT_TOKEN": "7734367102:AAEg7tQ7W7EPnwZoflk3wuAALK7ew03A7Rg",
+    "API_BASE_URL": "https://squid-game-m29i-123.vercel.app",
+    "MONGODB_URI": "mongodb+srv://rjotnotinh16969:dIenZ6qT62BE5PTl@squidgame.0qujv8p.mongodb.net/squidgame?retryWrites=true&w=majority&appName=Squidgame"
+  },
   "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
     {
       "source": "/(.*)",
       "headers": [
