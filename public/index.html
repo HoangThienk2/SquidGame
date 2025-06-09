@@ -302,7 +302,7 @@
       }
 
       .level-bars {
-        background-color: #16a34a;
+        background-color: #facc15;
         height: 12px;
       }
 
@@ -956,8 +956,28 @@
           "lp-level-display"
         ).textContent = `${state.level}/100`;
 
-        // Calculate level progress based on level/100
-        const levelProgress = Math.min(100, (state.level / 100) * 100);
+        // Calculate level progress based on current coins vs level up requirement
+        const currentLevelRequirement = getLevelUpRequirement(state.level);
+        let levelProgress = 0;
+
+        if (currentLevelRequirement > 0) {
+          // Calculate progress based on current coins vs requirement for current level
+          const totalCoinsForCurrentLevel = getTotalCoinsForLevel(state.level);
+          const totalCoinsAvailable = state.coinCount + state.coinEarn;
+          const coinsTowardsCurrentLevel =
+            totalCoinsAvailable - totalCoinsForCurrentLevel;
+
+          levelProgress = Math.min(
+            100,
+            Math.max(
+              0,
+              (coinsTowardsCurrentLevel / currentLevelRequirement) * 100
+            )
+          );
+        } else {
+          // If no requirement (max level or special level), show 100%
+          levelProgress = 100;
+        }
 
         // Update level progress bars - fix the IDs
         const hpLevelBar = document.getElementById("hp-level-bar");
@@ -1224,15 +1244,22 @@
 
         console.log("✅ TAP PROCESSING APPROVED - ID:", tapId);
 
-        // Create flying coin effect - target the total-coins box
+        // Create flying coin effect - target the HP and MT level progress bars
         if (event) {
-          const totalCoinsBox = document.querySelector(
-            ".w-\\[63px\\].h-\\[52px\\]"
+          // Get the HP level and MT level progress containers
+          const hpLevelContainer = document.querySelector(
+            ".hp-level-progress-container"
           );
-          if (totalCoinsBox) {
-            // Create multiple coins for 3-finger tap
-            const coinCount = is3FingerTap ? 3 : 1; // Back to 3 coins
-            for (let i = 0; i < coinCount; i++) {
+          const mtLevelContainer = document.querySelector(
+            ".lp-level-progress-container"
+          );
+
+          if (hpLevelContainer && mtLevelContainer) {
+            // For each tap, create coins flying to both HP and MT level bars
+            const baseCoins = is3FingerTap ? 3 : 1; // Number of coins per target
+
+            // Create coins flying to HP level bar
+            for (let i = 0; i < baseCoins; i++) {
               setTimeout(() => {
                 createFlyingCoin(
                   event.clientX ||
@@ -1241,9 +1268,24 @@
                   event.clientY ||
                     event.touches?.[0]?.clientY ||
                     window.innerHeight / 2,
-                  totalCoinsBox
+                  hpLevelContainer
                 );
-              }, i * 100); // Stagger the coins
+              }, i * 50); // Stagger HP coins
+            }
+
+            // Create coins flying to MT level bar
+            for (let i = 0; i < baseCoins; i++) {
+              setTimeout(() => {
+                createFlyingCoin(
+                  event.clientX ||
+                    event.touches?.[0]?.clientX ||
+                    window.innerWidth / 2,
+                  event.clientY ||
+                    event.touches?.[0]?.clientY ||
+                    window.innerHeight / 2,
+                  mtLevelContainer
+                );
+              }, i * 50 + 25); // Stagger MT coins with slight offset
             }
           }
 
