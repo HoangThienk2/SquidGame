@@ -3,6 +3,7 @@ const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 const { Database } = require("./database");
 const { swaggerUi, specs } = require("./swagger");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
@@ -19,6 +20,14 @@ const db = new Database();
 
 // In-memory fallback database (if MongoDB fails)
 const gameDatabase = new Map();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
+// Swagger Documentation
+app.use("/api-docs", require("./api/docs"));
 
 // Helper function to get or create user data (with fallback)
 async function getUserData(telegramUserId) {
