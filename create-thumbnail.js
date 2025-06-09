@@ -68,7 +68,6 @@ function createThumbnail() {
     path.join(__dirname, "thumbnail-generator.html"),
     htmlContent
   );
-  console.log("✅ Thumbnail generator created: thumbnail-generator.html");
   console.log(
     "📝 Open this file in browser to generate and download thumbnail.png"
   );
