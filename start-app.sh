@@ -25,7 +25,7 @@ fi
 if [ ! -f ".env" ]; then
     echo "⚠️  Warning: .env file not found. Please create one with your Telegram Bot Token."
     echo "Example .env content:"
-    echo "TELEGRAM_BOT_TOKEN=your_bot_token_here"
+    echo "TELEGRAM_BOT_TOKEN=7734367102:AAEg7tQ7W7EPnwZoflk3wuAALK7ew03A7Rg"
     echo "PORT=3000"
     echo "API_BASE_URL=https://your-domain.com"
 fi

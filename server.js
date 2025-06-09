@@ -7,7 +7,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Initialize Telegram Bot without polling (use webhook for production)
-const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
+const bot = new TelegramBot(
+  process.env.TELEGRAM_BOT_TOKEN ||
+    "7734367102:AAEg7tQ7W7EPnwZoflk3wuAALK7ew03A7Rg"
+);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
