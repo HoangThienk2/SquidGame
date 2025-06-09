@@ -134,9 +134,9 @@
         position: absolute;
         bottom: -145px;
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-49.5%);
         width: 840px;
-        height: 840px;
+        height: 820px;
         background-image: url("./image/light.png");
         background-size: contain;
         background-repeat: no-repeat;
@@ -334,6 +334,25 @@
         background: rgba(215, 12, 163, 0.42);
         border-radius: 4px;
         overflow: hidden;
+      }
+
+      /* Target indicator for coin flights */
+      .coin-target-indicator {
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        border: 1px solid rgba(255, 215, 0, 0.4);
+        animation: targetPulse 2s infinite;
+      }
+
+      @keyframes targetPulse {
+        0% {
+          box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        }
+        50% {
+          box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+        }
+        100% {
+          box-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+        }
       }
 
       /* Level Progress Icon */
@@ -1010,6 +1029,34 @@
       // 4. Flying Coin Animation
       // =====================
 
+      // Track which target to use for alternating coin flights
+      let coinTargetToggle = true; // true = HP, false = MT
+
+      function updateCoinTargetIndicator() {
+        // Remove indicator from both containers
+        const hpContainer = document.querySelector(
+          ".hp-level-progress-container"
+        );
+        const mtContainer = document.querySelector(
+          ".lp-level-progress-container"
+        );
+
+        if (hpContainer) hpContainer.classList.remove("coin-target-indicator");
+        if (mtContainer) mtContainer.classList.remove("coin-target-indicator");
+
+        // Add indicator to the next target
+        const nextTarget = coinTargetToggle ? hpContainer : mtContainer;
+        if (nextTarget) {
+          nextTarget.classList.add("coin-target-indicator");
+        }
+
+        console.log(
+          `🎯 Next coins will target: ${
+            coinTargetToggle ? "HP" : "MT"
+          } progress bar`
+        );
+      }
+
       function createFlyingCoin(startX, startY, targetElement) {
         const coin = document.createElement("div");
         coin.className = "flying-coin";
@@ -1244,7 +1291,7 @@
 
         console.log("✅ TAP PROCESSING APPROVED - ID:", tapId);
 
-        // Create flying coin effect - target the HP and MT level progress bars
+        // Create flying coin effect - alternating between HP and MT level progress bars
         if (event) {
           // Get the HP level and MT level progress containers
           const hpLevelContainer = document.querySelector(
@@ -1255,10 +1302,26 @@
           );
 
           if (hpLevelContainer && mtLevelContainer) {
-            // For each tap, create coins flying to both HP and MT level bars
-            const baseCoins = is3FingerTap ? 3 : 1; // Number of coins per target
+            // Determine target based on toggle state
+            const targetContainer = coinTargetToggle
+              ? hpLevelContainer
+              : mtLevelContainer;
+            const targetName = coinTargetToggle ? "HP" : "MT";
 
-            // Create coins flying to HP level bar
+            // Toggle for next tap
+            coinTargetToggle = !coinTargetToggle;
+
+            // Update visual indicator for next tap
+            updateCoinTargetIndicator();
+
+            console.log(
+              `🎯 Flying coins targeting: ${targetName} progress bar`
+            );
+
+            // Number of coins based on tap type
+            const baseCoins = is3FingerTap ? 3 : 1;
+
+            // Create coins flying to the selected target
             for (let i = 0; i < baseCoins; i++) {
               setTimeout(() => {
                 createFlyingCoin(
@@ -1268,24 +1331,9 @@
                   event.clientY ||
                     event.touches?.[0]?.clientY ||
                     window.innerHeight / 2,
-                  hpLevelContainer
+                  targetContainer
                 );
-              }, i * 50); // Stagger HP coins
-            }
-
-            // Create coins flying to MT level bar
-            for (let i = 0; i < baseCoins; i++) {
-              setTimeout(() => {
-                createFlyingCoin(
-                  event.clientX ||
-                    event.touches?.[0]?.clientX ||
-                    window.innerWidth / 2,
-                  event.clientY ||
-                    event.touches?.[0]?.clientY ||
-                    window.innerHeight / 2,
-                  mtLevelContainer
-                );
-              }, i * 50 + 25); // Stagger MT coins with slight offset
+              }, i * 100); // Stagger coins with 100ms delay
             }
           }
 
@@ -1747,6 +1795,9 @@
         // Initialize game
         let initialState = loadGameState();
         updateUI(initialState);
+
+        // Initialize coin target indicator
+        updateCoinTargetIndicator();
 
         // Initialize debug toggle
         document
