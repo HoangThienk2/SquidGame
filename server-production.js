@@ -7,10 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Initialize Telegram Bot without polling (use webhook for production)
-const bot = new TelegramBot(
-  process.env.TELEGRAM_BOT_TOKEN ||
-    "7734367102:AAEg7tQ7W7EPnwZoflk3wuAALK7ew03A7Rg"
-);
+const bot = new TelegramBot(process.env.TELEGRAM_BOT_TOKEN);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -36,65 +33,25 @@ app.post("/webhook", (req, res) => {
   res.sendStatus(200);
 });
 
-// Bot commands with character selection
+// Bot commands with character selection - FIXED CONFIGURATION
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   const baseUrl =
     process.env.API_BASE_URL || "https://squid-game-m29i-123.vercel.app";
 
-  // Check for startapp parameter
-  const startParam = msg.text.split(" ")[1]; // Get parameter after /start
-
-  if (startParam === "yeonghee") {
-    // Direct link to Yeonghee game
-    const options = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "🎮 Play Yeonghee Game",
-              web_app: { url: `${baseUrl}/` },
-            },
-          ],
-        ],
-      },
-    };
-    bot.sendMessage(chatId, "🦑 Welcome to Yeonghee Game!", options);
-    return;
-  }
-
-  if (startParam === "cheolsu") {
-    // Direct link to Cheolsu game
-    const options = {
-      reply_markup: {
-        inline_keyboard: [
-          [
-            {
-              text: "🎮 Play Cheolsu Game",
-              web_app: { url: "https://squid-game2.vercel.app/" },
-            },
-          ],
-        ],
-      },
-    };
-    bot.sendMessage(chatId, "🦑 Welcome to Cheolsu Game!", options);
-    return;
-  }
-
-  // Default menu when no specific character is requested
   const options = {
     reply_markup: {
       inline_keyboard: [
         [
           {
             text: "👩 Play as Yeonghee",
-            web_app: { url: `${baseUrl}/` },
+            web_app: { url: `${baseUrl}/` }, // Opens main domain
           },
         ],
         [
           {
             text: "👨 Play as Cheolsu",
-            web_app: { url: "https://squid-game2.vercel.app/" },
+            web_app: { url: "https://squid-game2.vercel.app/" }, // Opens different domain
           },
         ],
       ],
