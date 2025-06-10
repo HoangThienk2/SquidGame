@@ -1044,7 +1044,6 @@ if (require.main === module) {
 
     console.log(`Server running on port ${PORT}`);
     console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-    console.log(`Direct links:`);
     console.log(
       `- Yeonghee: https://t.me/squidgametap_bot?startapp=yeonghee (opens: ${
         process.env.API_BASE_URL || "https://squid-game-m29i-123.vercel.app"
