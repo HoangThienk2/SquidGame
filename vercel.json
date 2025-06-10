@@ -3,10 +3,11 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxLambdaSize": "50mb"
-      }
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -15,15 +16,11 @@
       "dest": "/server.js"
     },
     {
-      "src": "/api-docs",
-      "dest": "/server.js"
-    },
-    {
       "src": "/webhook",
       "dest": "/server.js"
     },
     {
-      "src": "/health",
+      "src": "/api-docs",
       "dest": "/server.js"
     },
     {
@@ -43,19 +40,49 @@
       "dest": "/server.js"
     },
     {
+      "src": "/yeonghee",
+      "dest": "/public/index.html"
+    },
+    {
+      "src": "/cheolsu",
+      "dest": "/public/index.html"
+    },
+    {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/public/$1"
     }
   ],
-  "functions": {
-    "server.js": {
-      "maxDuration": 30
+
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
     }
-  },
-  "git": {
-    "deploymentEnabled": {
-      "dev": true,
-      "main": true
-    }
-  }
+  ]
 }
