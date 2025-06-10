@@ -18,7 +18,7 @@ const options = {
     },
     servers: [
       {
-        url: "https://squid-game-m29i-123.vercel.app",
+        url: "https://squid-game-hoangthienk2s-projects.vercel.app",
         description: "Production server",
       },
       {
@@ -239,44 +239,31 @@ const options = {
       },
     },
   },
-  apis: ["./server.js", "./api/*.js"], // Path to the API docs
+  apis: ["./server.js"], // Path to the API docs
 };
 
 const specs = swaggerJsdoc(options);
 
-// Swagger UI options - Fixed configuration
+// Swagger UI options for better serverless compatibility
 const swaggerOptions = {
-  customCss: `
-    .swagger-ui .topbar { display: none }
-    .swagger-ui .info { margin: 50px 0 }
-    .swagger-ui .info .title { color: #FF6B8B }
-  `,
-  customSiteTitle: "Squid Game API Documentation",
-  customfavIcon:
-    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦑</text></svg>",
+  explorer: false,
   swaggerOptions: {
-    layout: "BaseLayout",
-    deepLinking: true,
-    displayOperationId: false,
-    defaultModelsExpandDepth: 1,
-    defaultModelExpandDepth: 1,
-    defaultModelRendering: "example",
-    displayRequestDuration: false,
-    docExpansion: "list",
+    persistAuthorization: false,
+    displayRequestDuration: true,
+    docExpansion: "none",
     filter: false,
-    maxDisplayedTags: null,
     showExtensions: false,
     showCommonExtensions: false,
-    useUnsafeMarkdown: false,
+    tryItOutEnabled: true,
   },
 };
 
-// Setup Swagger UI with proper error handling
+// Serve Swagger UI
 router.use("/", swaggerUi.serve);
 router.get("/", swaggerUi.setup(specs, swaggerOptions));
 
-// Serve the OpenAPI spec as JSON
-router.get("/swagger.json", (req, res) => {
+// Alternative JSON endpoint
+router.get("/json", (req, res) => {
   res.setHeader("Content-Type", "application/json");
   res.send(specs);
 });

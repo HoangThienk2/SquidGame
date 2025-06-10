@@ -26,7 +26,81 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Swagger Documentation - Use the router from api/docs.js
-app.use("/api-docs", require("./api/docs"));
+try {
+  app.use("/api-docs", require("./api/docs"));
+} catch (error) {
+  console.error("❌ Swagger UI setup failed:", error);
+  // Fallback simple API documentation
+  app.get("/api-docs", (req, res) => {
+    res.setHeader("Content-Type", "text/html");
+    res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Squid Game API Documentation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .endpoint { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .method { font-weight: bold; color: #fff; padding: 5px 10px; border-radius: 3px; }
+        .get { background: #61affe; }
+        .post { background: #49cc90; }
+        .path { font-family: monospace; font-size: 16px; margin: 10px 0; }
+        .description { color: #666; }
+    </style>
+</head>
+<body>
+    <h1>🦑 Squid Game API Documentation</h1>
+    <p>API for managing Squid Game data based on Telegram User ID</p>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <div class="path">/api/user/{telegramUserId}</div>
+        <div class="description">Get user game data by Telegram User ID</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method post">POST</span>
+        <div class="path">/api/user/{telegramUserId}</div>
+        <div class="description">Update user game data</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method post">POST</span>
+        <div class="path">/api/sync/{telegramUserId}</div>
+        <div class="description">Sync game state from client</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <div class="path">/api/leaderboard</div>
+        <div class="description">Get top players leaderboard</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <div class="path">/api/stats</div>
+        <div class="description">Get game statistics</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <div class="path">/api/db-status</div>
+        <div class="description">Check database connection status</div>
+    </div>
+    
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <div class="path">/health</div>
+        <div class="description">Health check endpoint</div>
+    </div>
+    
+    <p><strong>Base URL:</strong> https://squid-game-hoangthienk2s-projects.vercel.app</p>
+    <p><strong>Example:</strong> <a href="/api/user/123456789">/api/user/123456789</a></p>
+</body>
+</html>
+    `);
+  });
+}
 
 // Alternative route for API docs (redirect /api/docs to /api-docs)
 app.get("/api/docs", (req, res) => {
@@ -1080,9 +1154,12 @@ if (require.main === module) {
       }
     } catch (error) {
       console.error("❌ Serverless initialization error:", error);
-      // Continue with fallback mode
+      // Continue with fallback mode - don't crash
     }
-  })();
+  })().catch((error) => {
+    console.error("❌ Critical serverless error:", error);
+    // Ensure we don't crash the serverless function
+  });
 }
 
 // Export for Vercel serverless functions

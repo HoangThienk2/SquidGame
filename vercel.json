@@ -39,8 +39,17 @@
       "dest": "/server.js"
     },
     {
+<<<<<<< HEAD
       "src": "/update-commands",
       "dest": "/server.js"
+=======
+      "source": "/update-commands",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/server.js"
+>>>>>>> main
     }
   ],
   "functions": {
