@@ -1,0 +1,79 @@
+# COPY VÀ PASTE CÁC LỆNH NÀY THEO THỨ TỰ:
+
+# 1. Upload file (chạy trên máy local):
+scp squid-game-deploy.tar.gz ubuntu@211.239.114.79:~/
+
+# 2. Kết nối server (chạy trên máy local):
+ssh ubuntu@211.239.114.79
+
+# 3. Sau khi đã vào server, chạy từng lệnh này:
+
+# Giải nén
+tar -xzf squid-game-deploy.tar.gz
+
+# Cài đặt tự động
+chmod +x server-setup.sh && ./server-setup.sh
+
+# HOẶC nếu script tự động không hoạt động, chạy thủ công:
+
+sudo apt update -y
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+sudo npm install -g pm2
+sudo apt install -y nginx
+sudo mkdir -p /var/www/squid-game
+sudo chown -R ubuntu:ubuntu /var/www/squid-game
+cp -r * /var/www/squid-game/
+cd /var/www/squid-game
+npm install --production
+
+cat > ecosystem.config.js << 'EOF'
+module.exports = {
+  apps: [{
+    name: 'squid-game',
+    script: 'server-production.js',
+    instances: 1,
+    autorestart: true,
+    watch: false,
+    max_memory_restart: '1G',
+    env: {
+      NODE_ENV: 'production',
+      PORT: 3000
+    }
+  }]
+};
+EOF
+
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
+
+sudo tee /etc/nginx/sites-available/squid-game << 'EOF'
+server {
+    listen 80;
+    server_name _;
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+EOF
+
+sudo ln -sf /etc/nginx/sites-available/squid-game /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t
+sudo systemctl restart nginx
+sudo systemctl enable nginx
+sudo ufw allow 22
+sudo ufw allow 80
+sudo ufw allow 3000
+echo "y" | sudo ufw enable
+
+# XONG! Game sẽ có tại: http://211.239.114.79 
