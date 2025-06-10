@@ -25,9 +25,102 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Swagger Documentation - Use the router from api/docs.js
+// Swagger Documentation - Direct setup for better Vercel compatibility
 try {
-  app.use("/api-docs", require("./api/docs"));
+  const swaggerJsdoc = require("swagger-jsdoc");
+  const swaggerUi = require("swagger-ui-express");
+
+  const swaggerOptions = {
+    definition: {
+      openapi: "3.0.0",
+      info: {
+        title: "Squid Game API",
+        version: "1.0.0",
+        description:
+          "API for managing Squid Game data based on Telegram User ID",
+      },
+      servers: [
+        {
+          url: "https://squid-game-hoangthienk2s-projects.vercel.app",
+          description: "Production server",
+        },
+        {
+          url: "http://localhost:3000",
+          description: "Development server",
+        },
+      ],
+    },
+    apis: ["./server.js"], // Look for API documentation in this file
+  };
+
+  const specs = swaggerJsdoc(swaggerOptions);
+
+  // Custom Swagger UI options for Vercel compatibility
+  const swaggerUiOptions = {
+    customCss: ".swagger-ui .topbar { display: none }",
+    customSiteTitle: "Squid Game API Documentation",
+    swaggerOptions: {
+      url: "/api-docs/json",
+    },
+  };
+
+  // Serve Swagger JSON
+  app.get("/api-docs/json", (req, res) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(specs);
+  });
+
+  // Serve Swagger UI with CDN
+  app.get("/api-docs", (req, res) => {
+    res.setHeader("Content-Type", "text/html");
+    res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Squid Game API Documentation</title>
+  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
+  <style>
+    html {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+    body {
+      margin:0;
+      background: #fafafa;
+    }
+    .swagger-ui .topbar { display: none }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function() {
+      const ui = SwaggerUIBundle({
+        url: '/api-docs/json',
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      });
+    };
+  </script>
+</body>
+</html>
+    `);
+  });
 } catch (error) {
   console.error("❌ Swagger UI setup failed:", error);
   // Fallback simple API documentation
@@ -101,18 +194,6 @@ try {
     `);
   });
 }
-
-// Alternative route for API docs (redirect /api/docs to /api-docs)
-app.get("/api/docs", (req, res) => {
-  res.redirect("/api-docs");
-});
-app.use("/api/docs", (req, res, next) => {
-  if (req.path === "/") {
-    res.redirect("/api-docs");
-  } else {
-    next();
-  }
-});
 
 // Helper function to get or create user data (with fallback)
 async function getUserData(telegramUserId) {
@@ -359,7 +440,7 @@ app.post("/webhook", (req, res) => {
  * /api/user/{telegramUserId}:
  *   get:
  *     summary: Get user information
- *     description: Get all game information of a player by Telegram User ID
+ *     description: Retrieve player's game data by Telegram User ID
  *     tags: [User Management]
  *     parameters:
  *       - in: path
@@ -371,7 +452,7 @@ app.post("/webhook", (req, res) => {
  *         example: "123456789"
  *     responses:
  *       200:
- *         description: Success
+ *         description: User data retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -381,19 +462,67 @@ app.post("/webhook", (req, res) => {
  *                   type: boolean
  *                   example: true
  *                 data:
- *                   $ref: '#/components/schemas/User'
+ *                   type: object
+ *                   properties:
+ *                     telegramUserId:
+ *                       type: string
+ *                       example: "123456789"
+ *                     level:
+ *                       type: integer
+ *                       example: 5
+ *                     hp:
+ *                       type: integer
+ *                       example: 85
+ *                     maxHP:
+ *                       type: integer
+ *                       example: 100
+ *                     ruby:
+ *                       type: integer
+ *                       example: 1250
+ *                     coins:
+ *                       type: integer
+ *                       example: 340
+ *                     totalCoins:
+ *                       type: integer
+ *                       example: 1590
+ *                     lastRecover:
+ *                       type: integer
+ *                       example: 1703123456789
+ *                     lastZeroHP:
+ *                       type: integer
+ *                       example: null
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
  *       400:
- *         description: Missing Telegram User ID
+ *         description: Invalid request
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Telegram user ID is required"
  *       500:
  *         description: Server error
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Internal server error"
  */
 app.get("/api/user/:telegramUserId", async (req, res) => {
   try {

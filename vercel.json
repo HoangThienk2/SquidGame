@@ -10,46 +10,58 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
+      "source": "/api/(.*)",
+      "destination": "/server.js"
     },
     {
-      "src": "/webhook",
-      "dest": "/server.js"
+      "source": "/webhook",
+      "destination": "/server.js"
     },
     {
-      "src": "/api-docs",
-      "dest": "/server.js"
+      "source": "/api-docs/json",
+      "destination": "/server.js"
     },
     {
-      "src": "/thumbnail",
-      "dest": "/server.js"
+      "source": "/api-docs/(.*)",
+      "destination": "/server.js"
     },
     {
-      "src": "/generate-thumbnail",
-      "dest": "/server.js"
+      "source": "/api-docs",
+      "destination": "/server.js"
     },
     {
-      "src": "/setup-webhook",
-      "dest": "/server.js"
+      "source": "/thumbnail",
+      "destination": "/server.js"
     },
     {
-      "src": "/update-commands",
-      "dest": "/server.js"
+      "source": "/generate-thumbnail",
+      "destination": "/server.js"
     },
     {
-      "src": "/yeonghee",
-      "dest": "/public/index.html"
+      "source": "/setup-webhook",
+      "destination": "/server.js"
     },
     {
-      "src": "/cheolsu",
-      "dest": "/public/index.html"
+      "source": "/update-commands",
+      "destination": "/server.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/public/$1"
+      "source": "/yeonghee",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/cheolsu",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/public/$1"
     }
   ],
 
