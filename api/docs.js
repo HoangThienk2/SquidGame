@@ -1,5 +1,8 @@
+const express = require("express");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
+
+const router = express.Router();
 
 const options = {
   definition: {
@@ -204,7 +207,7 @@ const options = {
           properties: {
             success: {
               type: "boolean",
-              description: "Success status",
+              description: "Request success status",
             },
             message: {
               type: "string",
@@ -222,7 +225,6 @@ const options = {
             success: {
               type: "boolean",
               example: false,
-              description: "Error status",
             },
             message: {
               type: "string",
@@ -236,367 +238,47 @@ const options = {
         },
       },
     },
-    paths: {
-      "/api/user/{telegramUserId}": {
-        get: {
-          summary: "Get player information",
-          description: "Retrieve player data by Telegram User ID",
-          tags: ["User Management"],
-          parameters: [
-            {
-              in: "path",
-              name: "telegramUserId",
-              required: true,
-              schema: {
-                type: "string",
-              },
-              description: "Telegram User ID",
-              example: "123456789",
-            },
-          ],
-          responses: {
-            200: {
-              description: "Success",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      success: {
-                        type: "boolean",
-                        example: true,
-                      },
-                      data: {
-                        $ref: "#/components/schemas/User",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            404: {
-              description: "User not found",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-            500: {
-              description: "Server error",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-          },
-        },
-        post: {
-          summary: "Update player information",
-          description: "Update player data by Telegram User ID",
-          tags: ["User Management"],
-          parameters: [
-            {
-              in: "path",
-              name: "telegramUserId",
-              required: true,
-              schema: {
-                type: "string",
-              },
-              description: "Telegram User ID",
-              example: "123456789",
-            },
-          ],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: {
-                  $ref: "#/components/schemas/UserUpdate",
-                },
-              },
-            },
-          },
-          responses: {
-            200: {
-              description: "Update successful",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/ApiResponse",
-                  },
-                },
-              },
-            },
-            400: {
-              description: "Invalid request data",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-            500: {
-              description: "Server error",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/api/sync/{telegramUserId}": {
-        post: {
-          summary: "Sync game state",
-          description: "Synchronize game state from client to server",
-          tags: ["Game Sync"],
-          parameters: [
-            {
-              in: "path",
-              name: "telegramUserId",
-              required: true,
-              schema: {
-                type: "string",
-              },
-              description: "Telegram User ID",
-              example: "123456789",
-            },
-          ],
-          requestBody: {
-            required: true,
-            content: {
-              "application/json": {
-                schema: {
-                  $ref: "#/components/schemas/GameSync",
-                },
-              },
-            },
-          },
-          responses: {
-            200: {
-              description: "Sync successful",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/ApiResponse",
-                  },
-                },
-              },
-            },
-            400: {
-              description: "Invalid sync data",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-            500: {
-              description: "Server error",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/api/leaderboard": {
-        get: {
-          summary: "Get leaderboard",
-          description: "Retrieve top players leaderboard",
-          tags: ["Leaderboard"],
-          parameters: [
-            {
-              in: "query",
-              name: "limit",
-              schema: {
-                type: "integer",
-                minimum: 1,
-                maximum: 100,
-                default: 10,
-              },
-              description: "Number of top players to return",
-            },
-          ],
-          responses: {
-            200: {
-              description: "Success",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      success: {
-                        type: "boolean",
-                        example: true,
-                      },
-                      data: {
-                        type: "array",
-                        items: {
-                          $ref: "#/components/schemas/LeaderboardEntry",
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            500: {
-              description: "Server error",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/api/stats": {
-        get: {
-          summary: "Get game statistics",
-          description: "Retrieve overall game statistics",
-          tags: ["Statistics"],
-          responses: {
-            200: {
-              description: "Success",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      success: {
-                        type: "boolean",
-                        example: true,
-                      },
-                      data: {
-                        $ref: "#/components/schemas/Stats",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            500: {
-              description: "Server error",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-      "/api/db-status": {
-        get: {
-          summary: "Check database status",
-          description: "Check if database connection is working",
-          tags: ["System"],
-          responses: {
-            200: {
-              description: "Database is connected",
-              content: {
-                "application/json": {
-                  schema: {
-                    type: "object",
-                    properties: {
-                      success: {
-                        type: "boolean",
-                        example: true,
-                      },
-                      message: {
-                        type: "string",
-                        example: "Database connected successfully",
-                      },
-                      timestamp: {
-                        type: "string",
-                        format: "date-time",
-                      },
-                    },
-                  },
-                },
-              },
-            },
-            500: {
-              description: "Database connection failed",
-              content: {
-                "application/json": {
-                  schema: {
-                    $ref: "#/components/schemas/Error",
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    },
   },
-  apis: [],
+  apis: ["./server.js", "./api/*.js"], // Path to the API docs
 };
 
 const specs = swaggerJsdoc(options);
 
-module.exports = (req, res) => {
-  if (req.url === "/api/docs") {
-    // Return Swagger JSON
-    res.setHeader("Content-Type", "application/json");
-    res.status(200).json(specs);
-  } else {
-    // Return Swagger UI HTML
-    const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>🦑 Squid Game API Documentation</title>
-  <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
-  <style>
-    .swagger-ui .topbar { display: none; }
-    .swagger-ui .info .title { color: #FF6B6B; }
-    .swagger-ui .info .description { color: #666; }
-    .swagger-ui .scheme-container { background: #fafafa; padding: 10px; border-radius: 4px; }
-  </style>
-</head>
-<body>
-  <div id="swagger-ui"></div>
-  <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
-  <script>
-    SwaggerUIBundle({
-      url: '/api/docs',
-      dom_id: '#swagger-ui',
-      presets: [
-        SwaggerUIBundle.presets.apis,
-        SwaggerUIBundle.presets.standalone
-      ],
-      layout: "StandaloneLayout"
-    });
-  </script>
-</body>
-</html>`;
-
-    res.setHeader("Content-Type", "text/html");
-    res.status(200).send(html);
-  }
+// Swagger UI options - Fixed configuration
+const swaggerOptions = {
+  customCss: `
+    .swagger-ui .topbar { display: none }
+    .swagger-ui .info { margin: 50px 0 }
+    .swagger-ui .info .title { color: #FF6B8B }
+  `,
+  customSiteTitle: "Squid Game API Documentation",
+  customfavIcon:
+    "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦑</text></svg>",
+  swaggerOptions: {
+    layout: "BaseLayout",
+    deepLinking: true,
+    displayOperationId: false,
+    defaultModelsExpandDepth: 1,
+    defaultModelExpandDepth: 1,
+    defaultModelRendering: "example",
+    displayRequestDuration: false,
+    docExpansion: "list",
+    filter: false,
+    maxDisplayedTags: null,
+    showExtensions: false,
+    showCommonExtensions: false,
+    useUnsafeMarkdown: false,
+  },
 };
+
+// Setup Swagger UI with proper error handling
+router.use("/", swaggerUi.serve);
+router.get("/", swaggerUi.setup(specs, swaggerOptions));
+
+// Serve the OpenAPI spec as JSON
+router.get("/swagger.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(specs);
+});
+
+module.exports = router;

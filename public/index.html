@@ -441,28 +441,7 @@
         }
       }
 
-      /* Debug Display for Mobile */
-      .debug-display {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.9);
-        color: #00ff00;
-        font-family: monospace;
-        font-size: 10px;
-        padding: 10px;
-        border-radius: 5px;
-        z-index: 10001;
-        max-height: 200px;
-        overflow-y: auto;
-        border: 1px solid #00ff00;
-        display: none;
-      }
-
-      .debug-display.show {
-        display: block;
-      }
+      
 
       /* Auto Earn Button Styles */
       #auto-earn-button {
@@ -758,55 +737,8 @@
       </div>
     </div>
 
-    <!-- Mobile Debug Display -->
-    <button
-      id="debug-toggle"
-      class="debug-toggle"
-      style="
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 10002;
-        padding: 5px 10px;
-        background: rgba(255, 0, 0, 0.8);
-        color: white;
-        border: none;
-        border-radius: 3px;
-        font-size: 12px;
-      "
-    >
-      Debug
-    </button>
-    <div id="debug-display" class="debug-display">
-      <div
-        style="
-          padding: 10px;
-          border-bottom: 1px solid #333;
-          margin-bottom: 10px;
-        "
-      >
-        <div style="color: #ffd93d; font-weight: bold; margin-bottom: 5px">
-          👤 User Info:
-        </div>
-        <div id="user-info" style="font-size: 12px; color: #fff">
-          Loading...
-        </div>
-        <button
-          id="reset-user-btn"
-          style="
-            margin-top: 5px;
-            padding: 5px 10px;
-            background: #ff4444;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            font-size: 11px;
-          "
-        >
-          Reset Demo ID
-        </button>
+      
       </div>
-      <div id="debug-content"></div>
     </div>
 
     <!-- Level Up Popup -->
@@ -943,56 +875,6 @@
       // =====================
       // 1. Game Configuration - 100 Levels
       // =====================
-
-      // Mobile Debug System
-      let debugLogs = [];
-      let isDebugVisible = false;
-      const maxDebugLogs = 50;
-
-      function addDebugLog(message) {
-        const timestamp = new Date().toLocaleTimeString();
-        debugLogs.push(`[${timestamp}] ${message}`);
-        if (debugLogs.length > maxDebugLogs) {
-          debugLogs.shift(); // Remove oldest log
-        }
-        updateDebugDisplay();
-      }
-
-      function updateDebugDisplay() {
-        const debugContent = document.getElementById("debug-content");
-        if (debugContent) {
-          debugContent.innerHTML = debugLogs.join("<br>");
-          // Auto scroll to bottom
-          const debugDisplay = document.getElementById("debug-display");
-          if (debugDisplay) {
-            debugDisplay.scrollTop = debugDisplay.scrollHeight;
-          }
-        }
-      }
-
-      function toggleDebugDisplay() {
-        const debugDisplay = document.getElementById("debug-display");
-        const debugToggle = document.getElementById("debug-toggle");
-
-        isDebugVisible = !isDebugVisible;
-
-        if (isDebugVisible) {
-          debugDisplay.classList.add("show");
-          debugToggle.textContent = "Hide";
-          debugToggle.style.background = "rgba(0, 255, 0, 0.8)";
-        } else {
-          debugDisplay.classList.remove("show");
-          debugToggle.textContent = "Debug";
-          debugToggle.style.background = "rgba(255, 0, 0, 0.8)";
-        }
-      }
-
-      // Override console.log for mobile debugging
-      const originalConsoleLog = console.log;
-      console.log = function (...args) {
-        originalConsoleLog.apply(console, args);
-        addDebugLog(args.join(" "));
-      };
 
       // Level up requirements (same as index.html)
       const LEVEL_UP_REQUIREMENTS = [
@@ -2107,44 +1989,6 @@
           console.log("📱 Telegram User ID:", telegramUserId);
         });
 
-        // Initialize debug toggle
-        document
-          .getElementById("debug-toggle")
-          .addEventListener("click", toggleDebugDisplay);
-
-        // Initialize user info display and reset button
-        function updateUserInfo() {
-          const userInfoElement = document.getElementById("user-info");
-          const gameState = loadGameState();
-          const userInfo = `
-            <div>🆔 User ID: ${telegramUserId}</div>
-            <div>📊 Level: ${gameState.level}</div>
-            <div>❤️ HP: ${gameState.hp}/${getLevelHP(gameState.level)}</div>
-            <div>🪙 Coins: ${gameState.coinCount.toLocaleString()}</div>
-            <div>💎 Total: ${gameState.coinEarn.toLocaleString()}</div>
-          `;
-          userInfoElement.innerHTML = userInfo;
-        }
-
-        // Reset user ID button
-        document
-          .getElementById("reset-user-btn")
-          .addEventListener("click", function () {
-            if (
-              confirm(
-                "Are you sure you want to reset your demo ID? This will generate a new user ID."
-              )
-            ) {
-              localStorage.removeItem("telegram_user_id");
-              localStorage.removeItem("game_interface_state");
-              alert("Demo ID reset! The page will reload with a new ID.");
-              location.reload();
-            }
-          });
-
-        // Update user info initially and every 5 seconds
-        updateUserInfo();
-        setInterval(updateUserInfo, 5000);
 
         // Add tap event listeners for the main container only
         const mainContainer = document.querySelector(".w-\\[375px\\]");
