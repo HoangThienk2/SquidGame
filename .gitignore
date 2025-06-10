@@ -38,4 +38,3 @@ yarn-error.log*
 
 # Local development server
 .cache/ 
-.vercel
