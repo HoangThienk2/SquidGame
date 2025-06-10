@@ -530,6 +530,41 @@
         z-index: 10001;
         animation: floatUp 2s ease-out forwards;
       }
+
+      /* Bottom Navigation Active State */
+      .nav-item {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        padding: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        min-height: 48px;
+      }
+
+      .nav-item.active {
+        background: rgba(255, 107, 139, 0.2);
+        box-shadow: 0 0 15px rgba(255, 107, 139, 0.4);
+        border: 1px solid rgba(255, 107, 139, 0.3);
+      }
+
+      .nav-item.active img {
+        filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 107, 139, 0.8));
+        transform: scale(1.2);
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 107, 139, 0.1);
+        transform: scale(1.05);
+      }
+
+      .nav-item img {
+        width: 24px;
+        height: 24px;
+        transition: all 0.3s ease;
+      }
     </style>
   </head>
 
@@ -699,6 +734,25 @@
         </div>
       </div>
       <div
+        id="bottom-navigation"
+        class="absolute bottom-[-110px] gradient-bg card-bg w-[360px] h-[72px] rounded-full p-[24px] flex justify-center items-center"
+      >
+        <ul class="flex justify-between items-center gap-[24px] w-full">
+          <li class="nav-item active" id="nav-earn">
+            <img src="./image/earn.svg" alt="" />
+          </li>
+          <li class="nav-item" id="nav-exchange">
+            <img src="./image/exchange.svg" alt="" />
+          </li>
+          <li class="nav-item" id="nav-boost">
+            <img src="./image/boost.svg" alt="" />
+          </li>
+          <li class="nav-item" id="nav-point">
+            <img src="./image/point.svg" alt="" />
+          </li>
+        </ul>
+      </div>
+      <div
         class="absolute bottom-[-20px] right-[16px] flex flex-col items-center justify-center"
       >
         <button
@@ -712,25 +766,6 @@
         >
           Auto earn
         </p>
-      </div>
-
-      <div
-        class="absolute bottom-[-110px] gradient-bg card-bg w-[343px] h-[64px] rounded-full p-[20px]"
-      >
-        <ul class="flex justify-between items-center gap-[16px]">
-          <li class="w-[24px] h-[24px]">
-            <img src="./image/earn.svg" alt="" />
-          </li>
-          <li class="w-[24px] h-[24px]">
-            <img src="./image/exchange.svg" alt="" />
-          </li>
-          <li class="w-[24px] h-[24px]">
-            <img src="./image/boost.svg" alt="" />
-          </li>
-          <li class="w-[24px] h-[24px]">
-            <img src="./image/point.svg" alt="" />
-          </li>
-        </ul>
       </div>
     </div>
 
@@ -1979,6 +2014,9 @@
           // Initialize coin target indicator
           updateCoinTargetIndicator();
 
+          // Initialize bottom navigation
+          initializeBottomNavigation();
+
           console.log(
             "🎮 Game Interface Initialized with state:",
             initialState
@@ -2000,6 +2038,20 @@
             ) {
               return;
             }
+
+            // Check if click is in bottom navigation area or below
+            const bottomNavElement = document.getElementById('bottom-navigation');
+            if (bottomNavElement) {
+              const bottomNavRect = bottomNavElement.getBoundingClientRect();
+              const clickY = event.clientY;
+              
+              // If click is at or below the bottom navigation, don't tap
+              if (clickY >= bottomNavRect.top) {
+                console.log("❌ Click blocked - in bottom navigation area");
+                return;
+              }
+            }
+
             event.preventDefault();
             event.stopPropagation();
             debouncedTap(event);
@@ -2014,6 +2066,19 @@
               event.target.closest("button")
             ) {
               return;
+            }
+
+            // Check if touch is in bottom navigation area or below
+            const bottomNavElement = document.getElementById('bottom-navigation');
+            if (bottomNavElement && event.touches && event.touches.length > 0) {
+              const bottomNavRect = bottomNavElement.getBoundingClientRect();
+              const touchY = event.touches[0].clientY;
+              
+              // If touch is at or below the bottom navigation, don't tap
+              if (touchY >= bottomNavRect.top) {
+                console.log("❌ Touch blocked - in bottom navigation area");
+                return;
+              }
             }
 
             // Log touch information for debugging
@@ -2224,6 +2289,64 @@
           console.warn("⚠️ Error syncing game state:", error);
         }
       }
+
+      // =====================
+      // 11. Bottom Navigation Functions
+      // =====================
+
+      function setActiveNavItem(activeId) {
+        // Remove active class from all nav items
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+          item.classList.remove('active');
+        });
+
+        // Add active class to the specified item
+        const activeItem = document.getElementById(activeId);
+        if (activeItem) {
+          activeItem.classList.add('active');
+          console.log(`🎯 Navigation active: ${activeId}`);
+        }
+      }
+
+      function initializeBottomNavigation() {
+        // Set earn as active by default
+        setActiveNavItem('nav-earn');
+
+        // Add click handlers for navigation items
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+          item.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Handle navigation based on item
+            switch(item.id) {
+              case 'nav-earn':
+                console.log('📈 Earn tab selected');
+                // Already on earn page, no action needed
+                setActiveNavItem('nav-earn');
+                break;
+              case 'nav-exchange':
+                console.log('🔄 Exchange tab selected - redirecting...');
+                window.location.href = 'exchange.html';
+                break;
+              case 'nav-boost':
+                console.log('🚀 Boost tab selected');
+                window.location.href = 'boost.html';
+                break;
+              case 'nav-point':
+                console.log('🎯 Point tab selected');
+                window.location.href = 'point.html';
+                break;
+            }
+          });
+        });
+      }
+
+      // =====================
+      // 10. Event Listeners
+      // =====================
     </script>
   </body>
 </html>
