@@ -2,7 +2,6 @@ const express = require("express");
 const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 const { Database } = require("./database");
-const { swaggerUi, specs } = require("./swagger");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -26,8 +25,20 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Swagger Documentation
+// Swagger Documentation - Use the router from api/docs.js
 app.use("/api-docs", require("./api/docs"));
+
+// Alternative route for API docs (redirect /api/docs to /api-docs)
+app.get("/api/docs", (req, res) => {
+  res.redirect("/api-docs");
+});
+app.use("/api/docs", (req, res, next) => {
+  if (req.path === "/") {
+    res.redirect("/api-docs");
+  } else {
+    next();
+  }
+});
 
 // Helper function to get or create user data (with fallback)
 async function getUserData(telegramUserId) {
@@ -245,16 +256,6 @@ app.get("/generate-thumbnail", (req, res) => {
   `);
 });
 
-// Swagger Documentation
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(specs, {
-    customCss: ".swagger-ui .topbar { display: none }",
-    customSiteTitle: "Squid Game API Documentation",
-  })
-);
-
 // Character-specific routes
 app.get("/yeonghee", (req, res) => {
   res.sendFile(path.join(__dirname, "public/index.html"));
@@ -283,8 +284,8 @@ app.post("/webhook", (req, res) => {
  * @swagger
  * /api/user/{telegramUserId}:
  *   get:
- *     summary: Lấy thông tin người chơi
- *     description: Lấy tất cả thông tin game của người chơi theo Telegram User ID
+ *     summary: Get user information
+ *     description: Get all game information of a player by Telegram User ID
  *     tags: [User Management]
  *     parameters:
  *       - in: path
@@ -296,7 +297,7 @@ app.post("/webhook", (req, res) => {
  *         example: "123456789"
  *     responses:
  *       200:
- *         description: Thành công
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
@@ -308,13 +309,13 @@ app.post("/webhook", (req, res) => {
  *                 data:
  *                   $ref: '#/components/schemas/User'
  *       400:
- *         description: Thiếu Telegram User ID
+ *         description: Missing Telegram User ID
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       500:
- *         description: Lỗi server
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -361,8 +362,8 @@ app.get("/api/user/:telegramUserId", async (req, res) => {
  * @swagger
  * /api/user/{telegramUserId}:
  *   post:
- *     summary: Cập nhật thông tin người chơi
- *     description: Cập nhật dữ liệu game của người chơi
+ *     summary: Update user information
+ *     description: Update player's game data
  *     tags: [User Management]
  *     parameters:
  *       - in: path
@@ -386,7 +387,7 @@ app.get("/api/user/:telegramUserId", async (req, res) => {
  *             totalCoins: 1650
  *     responses:
  *       200:
- *         description: Cập nhật thành công
+ *         description: Update successful
  *         content:
  *           application/json:
  *             schema:
@@ -401,13 +402,13 @@ app.get("/api/user/:telegramUserId", async (req, res) => {
  *                 data:
  *                   $ref: '#/components/schemas/User'
  *       400:
- *         description: Dữ liệu không hợp lệ
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       500:
- *         description: Lỗi server
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -471,8 +472,8 @@ app.post("/api/user/:telegramUserId", async (req, res) => {
  * @swagger
  * /api/sync/{telegramUserId}:
  *   post:
- *     summary: Đồng bộ trạng thái game
- *     description: Tự động đồng bộ trạng thái game từ client
+ *     summary: Sync game state
+ *     description: Automatically sync game state from client
  *     tags: [Game Sync]
  *     parameters:
  *       - in: path
@@ -497,7 +498,7 @@ app.post("/api/user/:telegramUserId", async (req, res) => {
  *             lastZeroHP: null
  *     responses:
  *       200:
- *         description: Đồng bộ thành công
+ *         description: Sync successful
  *         content:
  *           application/json:
  *             schema:
@@ -527,13 +528,13 @@ app.post("/api/user/:telegramUserId", async (req, res) => {
  *                     syncedAt:
  *                       type: string
  *       400:
- *         description: Dữ liệu không hợp lệ
+ *         description: Invalid data
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       500:
- *         description: Lỗi server
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -589,8 +590,8 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
  * @swagger
  * /api/leaderboard:
  *   get:
- *     summary: Lấy bảng xếp hạng
- *     description: Lấy danh sách top người chơi theo các tiêu chí khác nhau
+ *     summary: Get leaderboard
+ *     description: Get top players list by different criteria
  *     tags: [Leaderboard]
  *     parameters:
  *       - in: query
@@ -600,7 +601,7 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
  *           minimum: 1
  *           maximum: 100
  *           default: 10
- *         description: Số lượng người chơi trả về
+ *         description: Number of players to return
  *         example: 10
  *       - in: query
  *         name: sortBy
@@ -608,11 +609,11 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
  *           type: string
  *           enum: [level, totalCoins, ruby]
  *           default: level
- *         description: Tiêu chí sắp xếp
+ *         description: Sorting criteria
  *         example: level
  *     responses:
  *       200:
- *         description: Thành công
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
@@ -635,7 +636,7 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
  *                       type: integer
  *                       example: 150
  *       500:
- *         description: Lỗi server
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -704,12 +705,12 @@ app.get("/api/leaderboard", async (req, res) => {
  * @swagger
  * /api/stats:
  *   get:
- *     summary: Lấy thống kê game
- *     description: Lấy thống kê tổng quan về game và người chơi
+ *     summary: Get game statistics
+ *     description: Get overall game and player statistics
  *     tags: [Statistics]
  *     responses:
  *       200:
- *         description: Thành công
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
@@ -721,7 +722,7 @@ app.get("/api/leaderboard", async (req, res) => {
  *                 data:
  *                   $ref: '#/components/schemas/Stats'
  *       500:
- *         description: Lỗi server
+ *         description: Server error
  *         content:
  *           application/json:
  *             schema:
@@ -781,12 +782,12 @@ app.get("/api/stats", async (req, res) => {
  * @swagger
  * /api/db-status:
  *   get:
- *     summary: Kiểm tra trạng thái database
- *     description: Kiểm tra kết nối MongoDB và trạng thái fallback
+ *     summary: Check database status
+ *     description: Check MongoDB connection and fallback status
  *     tags: [System]
  *     responses:
  *       200:
- *         description: Thành công
+ *         description: Success
  *         content:
  *           application/json:
  *             schema:
@@ -800,15 +801,15 @@ app.get("/api/stats", async (req, res) => {
  *                   properties:
  *                     mongoConnected:
  *                       type: boolean
- *                       description: MongoDB có kết nối không
+ *                       description: Whether MongoDB is connected
  *                       example: true
  *                     fallbackMode:
  *                       type: boolean
- *                       description: Có đang dùng fallback mode không
+ *                       description: Whether using fallback mode
  *                       example: false
  *                     inMemoryUsers:
  *                       type: integer
- *                       description: Số user trong in-memory storage
+ *                       description: Number of users in in-memory storage
  *                       example: 0
  */
 app.get("/api/db-status", (req, res) => {
