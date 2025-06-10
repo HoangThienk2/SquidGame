@@ -39,8 +39,8 @@
       "dest": "/server.js"
     },
     {
-      "source": "/update-commands",
-      "destination": "/server.js"
+      "src": "/update-commands",
+      "dest": "/server.js"
     }
   ],
   "functions": {
