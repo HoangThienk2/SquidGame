@@ -38,6 +38,10 @@
     {
       "source": "/update-commands",
       "destination": "/server.js"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/server.js"
     }
   ],
   "functions": {
