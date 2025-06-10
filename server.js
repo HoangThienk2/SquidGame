@@ -999,6 +999,38 @@ app.get("/update-commands", async (req, res) => {
   }
 });
 
+// Health check endpoint for Vercel
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+    database: db.isConnected ? "connected" : "fallback",
+  });
+});
+
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error("Server Error:", error);
+  res.status(500).json({
+    success: false,
+    error: "Internal server error",
+    message:
+      process.env.NODE_ENV === "development"
+        ? error.message
+        : "Something went wrong",
+  });
+});
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: "Not found",
+    message: `Route ${req.method} ${req.path} not found`,
+  });
+});
+
 // Start server (only if not imported as module)
 if (require.main === module) {
   app.listen(PORT, async () => {
@@ -1037,14 +1069,21 @@ if (require.main === module) {
     );
   });
 } else {
-  // Initialize database connection for Vercel
-  db.connect().then((connected) => {
-    if (!connected) {
-      console.log("⚠️  Running in fallback mode (in-memory storage)");
-    } else {
-      console.log("✅ MongoDB connected for Vercel deployment");
+  // Initialize database connection for Vercel serverless
+  (async () => {
+    try {
+      console.log("🔄 Initializing serverless function...");
+      const connected = await db.connect();
+      if (!connected) {
+        console.log("⚠️  Running in fallback mode (in-memory storage)");
+      } else {
+        console.log("✅ MongoDB connected for Vercel deployment");
+      }
+    } catch (error) {
+      console.error("❌ Serverless initialization error:", error);
+      // Continue with fallback mode
     }
-  });
+  })();
 }
 
 // Export for Vercel serverless functions

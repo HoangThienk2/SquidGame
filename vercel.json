@@ -4,31 +4,23 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "api/docs.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "public/**/*",
-      "use": "@vercel/static"
     }
   ],
   "rewrites": [
-    {
-      "source": "/api-docs",
-      "destination": "/api/docs.js"
-    },
-    {
-      "source": "/api/docs",
-      "destination": "/api/docs.js"
-    },
     {
       "source": "/api/(.*)",
       "destination": "/server.js"
     },
     {
+      "source": "/api-docs/(.*)",
+      "destination": "/server.js"
+    },
+    {
       "source": "/webhook",
+      "destination": "/server.js"
+    },
+    {
+      "source": "/health",
       "destination": "/server.js"
     },
     {
@@ -46,23 +38,11 @@
     {
       "source": "/update-commands",
       "destination": "/server.js"
-    },
-    {
-      "source": "/yeonghee",
-      "destination": "/public/index.html"
-    },
-    {
-      "source": "/cheolsu",
-      "destination": "/public/index.html"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/public/$1"
     }
   ],
-  "env": {
-    "TELEGRAM_BOT_TOKEN": "7734367102:AAEg7tQ7W7EPnwZoflk3wuAALK7ew03A7Rg",
-    "API_BASE_URL": "https://squid-game-m29i-123.vercel.app",
-    "MONGODB_URI": "mongodb+srv://rjotnotinh16969:dIenZ6qT62BE5PTl@squidgame.0qujv8p.mongodb.net/squidgame?retryWrites=true&w=majority&appName=Squidgame"
+  "functions": {
+    "server.js": {
+      "maxDuration": 30
+    }
   }
 }
