@@ -67,12 +67,27 @@ class Database {
   // Kết nối MongoDB
   async connect(mongoUri = null) {
     try {
+      // Skip if already connected
+      if (this.isConnected && mongoose.connection.readyState === 1) {
+        return true;
+      }
+
       const uri =
         mongoUri ||
         process.env.MONGODB_URI ||
         "mongodb://localhost:27017/squidgame";
 
-      await mongoose.connect(uri);
+      // Configure mongoose for serverless
+      mongoose.set("strictQuery", false);
+
+      const options = {
+        maxPoolSize: 10,
+        serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 45000,
+        bufferCommands: false,
+      };
+
+      await mongoose.connect(uri, options);
 
       this.isConnected = true;
       console.log("✅ MongoDB connected successfully");
