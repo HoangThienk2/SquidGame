@@ -3,66 +3,400 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Squid Game - Exchange</title>
-
-    <!-- Favicon -->
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦑</text></svg>"
-    />
-
-    <!-- Telegram WebApp Script -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-
+    <title>Exchange - Squid Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Gugi&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <style>
+      .shadow-top-left {
+        box-shadow: -6px -6px 12px rgba(0, 0, 0, 0.4);
+      }
+
+      .shadow-top-left-blue {
+        box-shadow: 4px 0px 8px rgba(34, 34, 46, 0.3);
+      }
+      .gradient-bg {
+        background: linear-gradient(
+          360deg,
+          rgba(211, 47, 181, 0) 3.4%,
+          #250a1f 98.64%
+        );
+      }
+
+      .card-bg {
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          #450832 0%,
+          #2e032c 100%
+        );
+        border: 1px solid rgba(215, 12, 163, 0.3);
+        box-shadow: inset 0px 1px 4px 0px rgba(70, 13, 55, 0.69);
+      }
+      /* Bottom Navigation Active State */
+      .nav-item {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        padding: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        min-height: 48px;
+      }
+
+      .nav-item.active {
+        background: rgba(255, 107, 139, 0.2);
+        box-shadow: 0 0 15px rgba(255, 107, 139, 0.4);
+        border: 1px solid rgba(255, 107, 139, 0.3);
+      }
+
+      .nav-item.active img {
+        filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 107, 139, 0.8));
+        transform: scale(1.2);
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 107, 139, 0.1);
+        transform: scale(1.05);
+      }
+
+      .nav-item img {
+        width: 24px;
+        height: 24px;
+        transition: all 0.3s ease;
+      }
+    </style>
   </head>
-
-  <body class="bg-gray-900 min-h-screen">
-    <div class="p-[16px]">
-      <div class="flex gap-[20px]">
-        <div class="flex items-center space-x-4">
-          <!-- Avatar -->
-        <div class="flex flex-col gap-[2px] items-center justify-center">
-            <div
-            class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-xl font-bold text-white"
+  <body class="bg-gray-900  font-sans">
+    <!-- User Info -->
+    <div
+      class="max-w-[375px] mx-auto mt-6 p-2 rounded-2xl bg-[#17171F] shadow-lg relative"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-3">
+          <div
+            class="w-11 h-11 rounded-full bg-gradient-to-br from-green-400 to-yellow-400 flex items-center justify-center text-2xl font-bold text-white"
           >
-            <img src="image/bg.png" alt="" class="w-full h-full rounded-full object-cover">
+            H
           </div>
-          <span class="text-lg font-semibold text-[#F2F2F2]">Telemarketing</span>
+          <span class="text-white font-semibold">Hongil</span>
         </div>
-
-
-
-        <div class="flex flex-col gap-[16px] items-center justify-center">
-          <div class="flex  gap-[2px] items-center justify-center">
-            <div class="flex gap-[15px]">
-                <div class="flex items-center justify-between bg-black rounded-xl px-3 py-1 w-20">
-                    <img src="image/ruby.svg" alt="" class="w-6 h-6 rounded-full object-cover ">
-                    <span class="text-xs font-semibold text-[#F2F2F2]">123</span>
-                </div>
-                <div class="flex items-center justify-between bg-black rounded-xl px-3 py-1 w-20">
-                    <img src="image/point.png" alt="" class="w-6 h-6 rounded-full object-cover ">
-                    <span class="text-xs font-semibold text-[#F2F2F2]">123</span>
-                </div>
+        <div class="flex flex-col gap-1">
+          <div class="flex gap-2">
+            <div
+              class="flex px-2 py-1 bg-[#0E0E18] rounded-full items-center gap-2"
+            >
+              <span
+                class="w-3 h-3 rounded-full bg-yellow-400 inline-block"
+              ></span>
+              <span class="text-yellow-300 font-bold">123,456</span>
             </div>
-               
+            <div
+              class="flex px-2 py-1 bg-[#0E0E18] rounded-full items-center gap-2"
+            >
+              <span
+                class="w-3 h-3 rounded-full bg-gray-200 inline-block"
+              ></span>
+              <span class="text-gray-200 font-bold">123,456</span>
+            </div>
           </div>
-          <div class="flex items-center justify-between bg-red-600 rounded-xl px-3 py-1 w-full">
-            <img src="image/earn.svg" alt="" class="w-6 h-6 rounded-full object-cover ">
-            <span class="text-xs font-semibold text-[#F2F2F2]">thien</span>
+          <div class="w-full px-2 py-1 bg-[#0E0E18] rounded-full">
+            <div class="text-pink-400 font-bold">
+              HP <span class="text-white">123,456</span>
+            </div>
           </div>
         </div>
       </div>
+
+      <div class="rounded-2xl relative bg-[#22222E] p-[16px]">
+        <!-- Tab Buttons -->
+        <div class="absolute top-0 right-0 left-0 flex mb-6">
+          <button
+            id="btn-point-cycon"
+            class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all"
+          >
+            <span class="text-gray-200">Point</span>
+            <svg
+              class="w-3 h-3 inline mx-1"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span class="text-white font-semibold">Cycon</span>
+          </button>
+          <button
+            id="btn-cycon-point"
+            class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-transparent bg-gray-700 text-gray-400 font-semibold shadow-top-left transition-all"
+          >
+            <span class="text-gray-400">Cycon</span>
+            <svg
+              class="w-3 h-3 inline mx-1"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <span class="text-gray-400">Point</span>
+          </button>
+        </div>
+
+        <!-- Exchange Rate -->
+        <div class="text-center mt-[50px] mb-6">
+          <span class="text-3xl font-bold text-white">1,000 P → 1 Cycon</span>
+        </div>
+
+        <!-- Input Fields -->
+        <div class="mb-4">
+          <div class="flex flex-col gap-3">
+            <div class="flex gap-2 items-center">
+              <label class="block text-gray-400 text-lg w-[60px] mb-1"
+                >Point</label
+              >
+              <input
+                type="text"
+                value="222134"
+                readonly
+                class="w-full bg-gray-700 text-white rounded-2xl px-4 py-3 text-lg font-semibold outline-none"
+              />
+            </div>
+            <div class="flex gap-2 items-center">
+              <label class="block text-gray-400 w-[60px] text-lg mb-1"
+                >Cycon</label
+              >
+              <input
+                type="text"
+                value="$112.2"
+                readonly
+                class="w-full bg-gray-700 text-white rounded-2xl px-4 py-3 text-lg font-semibold outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Wallet Address -->
+        <div class="mb-4">
+          <label class="block text-gray-400 text-lg mb-1">내 지갑</label>
+          <div class="flex items-center bg-gray-700 rounded-lg px-3 py-2">
+            <input
+              type="text"
+              value="1njrRcKQtfjiLuQxFYCeMXcth77m5TAYo"
+              readonly
+              class="bg-transparent py-2 text-blue-400 font-mono flex-1 outline-none"
+            />
+            <button class="ml-2 text-blue-400 hover:text-blue-300" title="Copy">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8 16h8M8 12h8m-7 8h6a2 2 0 002-2V6a2 2 0 00-2-2H8a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Confirm Button -->
+        <button
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl text-lg mb-6"
+        >
+          Confirm
+        </button>
+      </div>
+
+      <!-- Transaction History -->
+      <div class="bg-gray-700 rounded-xl p-4 mt-4">
+        <div class="flex items-center justify-end gap-2 mb-3">
+          <span class="text-gray-300 text-sm">10 seconds ago</span>
+          <button class="text-gray-400 hover:text-gray-200">
+            <svg
+              fill="#fff"
+              width="15px"
+              height="15px"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M23,12A11,11,0,1,1,12,1a10.9,10.9,0,0,1,5.882,1.7l1.411-1.411A1,1,0,0,1,21,2V6a1,1,0,0,1-1,1H16a1,1,0,0,1-.707-1.707L16.42,4.166A8.9,8.9,0,0,0,12,3a9,9,0,1,0,9,9,1,1,0,0,1,2,0Z"
+              />
+            </svg>
+          </button>
+        </div>
+        <div class="flex flex-col gap-3">
+          <div class="flex items-center justify-center gap-6">
+            <div class="flex items-center gap-2">
+              <span
+                class="w-8 h-8 rounded-full bg-yellow-400 inline-block"
+              ></span>
+              <div class="flex flex-col">
+                <span class="text-white font-semibold">Cycon</span>
+                <span class="text-gray-300">$11.1</span>
+              </div>
+            </div>
+            <svg
+              class="w-8 h-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <div class="flex items-center gap-2">
+              <span
+                class="w-8 h-8 rounded-full bg-gray-200 inline-block"
+              ></span>
+              <div class="flex flex-col">
+                <span class="text-white font-semibold">Cycon</span>
+                <span class="text-gray-300">$11.1</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center justify-center gap-6">
+            <div class="flex items-center gap-2">
+              <span
+                class="w-8 h-8 rounded-full bg-yellow-400 inline-block"
+              ></span>
+              <div class="flex flex-col">
+              <span class="text-white font-semibold">Point</span>
+              <span class="text-gray-300">221113</span>
+            </div>
+            </div>
+            <svg
+              class="w-8 h-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+            <div class="flex items-center gap-2">
+              <span
+                class="w-8 h-8 rounded-full bg-gray-200 inline-block"
+              ></span>
+              <div class="flex flex-col">
+                <span class="text-white font-semibold">Cycon</span>
+                <span class="text-gray-300">$11.1</span>
+              </div>
+            
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div
+      id="bottom-navigation"
+      class=" gradient-bg card-bg w-[360px] h-[72px] mt-4 rounded-full p-[24px] flex justify-center items-center"
+    >
+      <ul class="flex justify-between items-center gap-[24px] w-full">
+        <li class="nav-item active" id="nav-earn">
+          <img src="./image/earn.svg" alt="" />
+        </li>
+        <li class="nav-item" id="nav-exchange">
+          <img src="./image/exchange.svg" alt="" />
+        </li>
+        <li class="nav-item" id="nav-boost">
+          <img src="./image/boost.svg" alt="" />
+        </li>
+        <li class="nav-item" id="nav-point">
+          <img src="./image/point.svg" alt="" />
+        </li>
+      </ul>
     </div>
+
+
+    </div>
+
+   
+
+    <script>
+      const btnPointCycon = document.getElementById("btn-point-cycon");
+      const btnCyconPoint = document.getElementById("btn-cycon-point");
+
+      function setActiveTab(tab) {
+        if (tab === "point-cycon") {
+          // Active tab style - Point to Cycon
+          btnPointCycon.className =
+            "flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all";
+          btnPointCycon.innerHTML = `
+            <span class="text-gray-200">Point</span>
+            <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="text-white font-semibold">Cycon</span>
+          `;
+
+          // Inactive tab style - Cycon to Point
+          btnCyconPoint.className =
+            "flex-1 px-4 py-2 rounded-r-2xl border-l-2 border-transparent text-gray-400 font-semibold shadow-top-left transition-all";
+          btnCyconPoint.innerHTML = `
+            <span class="text-gray-400">Cycon</span>
+            <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="text-gray-400">Point</span>
+          `;
+        } else {
+          // Inactive tab style - Point to Cycon
+          btnPointCycon.className =
+            "flex-1 px-4 py-2 rounded-l-2xl border-t-2 border-transparent text-gray-400 font-semibold shadow-top-left transition-all";
+          btnPointCycon.innerHTML = `
+            <span class="text-gray-400">Point</span>
+            <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="text-gray-400">Cycon</span>
+          `;
+
+          // Active tab style - Cycon to Point
+          btnCyconPoint.className =
+            "flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-l-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all";
+          btnCyconPoint.innerHTML = `
+            <span class="text-gray-200">Cycon</span>
+            <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            <span class="text-white font-semibold">Point</span>
+          `;
+        }
+      }
+
+      // Event listeners
+      btnPointCycon.addEventListener("click", () =>
+        setActiveTab("point-cycon")
+      );
+      btnCyconPoint.addEventListener("click", () =>
+        setActiveTab("cycon-point")
+      );
+
+      // Initialize with Point→Cycon active
+      setActiveTab("point-cycon");
+    </script>
   </body>
 </html>
