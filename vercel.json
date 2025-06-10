@@ -3,37 +3,40 @@
   "builds": [
     {
       "src": "server.js",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
     }
   ],
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "/server.js"
+      "src": "/api/(.*)",
+      "dest": "/server.js"
     },
     {
-      "source": "/api-docs/(.*)",
-      "destination": "/server.js"
+      "src": "/api-docs",
+      "dest": "/server.js"
     },
     {
-      "source": "/webhook",
-      "destination": "/server.js"
+      "src": "/webhook",
+      "dest": "/server.js"
     },
     {
-      "source": "/health",
-      "destination": "/server.js"
+      "src": "/health",
+      "dest": "/server.js"
     },
     {
-      "source": "/thumbnail",
-      "destination": "/server.js"
+      "src": "/thumbnail",
+      "dest": "/server.js"
     },
     {
-      "source": "/generate-thumbnail",
-      "destination": "/server.js"
+      "src": "/generate-thumbnail",
+      "dest": "/server.js"
     },
     {
-      "source": "/setup-webhook",
-      "destination": "/server.js"
+      "src": "/setup-webhook",
+      "dest": "/server.js"
     },
     {
       "source": "/update-commands",
