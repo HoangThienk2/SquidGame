@@ -1,48 +1,79 @@
 #!/bin/bash
 
-# Quick Squid Game Deployment Script
-echo "🦑 Quick Squid Game Deployment to 211.239.114.79"
-echo "=================================================="
+echo "🚀 Starting quick deployment to Squid Game server..."
 
-# Check if deployment package exists
-if [ ! -f "squid-game-deploy.tar.gz" ]; then
-    echo "📦 Creating deployment package..."
-    ./deploy.sh
+# Kiểm tra xem có thay đổi gì không
+if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
+    echo "⚠️  Warning: You have uncommitted changes"
+    read -p "Continue anyway? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "❌ Deployment cancelled"
+        exit 1
+    fi
 fi
 
-echo ""
-echo "🚀 Now follow these steps:"
-echo ""
-echo "1️⃣  Upload to server:"
-echo "   scp squid-game-deploy.tar.gz ubuntu@211.239.114.79:~/"
-echo ""
-echo "2️⃣  Connect to server:"
-echo "   ssh ubuntu@211.239.114.79"
-echo "   Password: psj 1212qwqw!!"
-echo ""
-echo "3️⃣  On the server, run:"
-echo "   tar -xzf squid-game-deploy.tar.gz"
-echo "   chmod +x server-setup.sh"
-echo "   ./server-setup.sh"
-echo ""
-echo "4️⃣  Your game will be available at:"
-echo "   http://211.239.114.79"
-echo ""
-echo "📋 For detailed instructions, see DEPLOYMENT_GUIDE.md"
-echo ""
+# Nén project
+echo "📦 Compressing project..."
+tar -czf squid-game-updated.tar.gz --exclude='.git' --exclude='node_modules' --exclude='*.tar.gz' --exclude='.env' .
 
-# Try to upload automatically if sshpass is available
-if command -v sshpass &> /dev/null; then
-    echo "🔄 Attempting automatic upload..."
-    if sshpass -p "psj 1212qwqw!!" scp -o StrictHostKeyChecking=no squid-game-deploy.tar.gz ubuntu@211.239.114.79:~/; then
-        echo "✅ Upload successful!"
-        echo ""
-        echo "🔗 Now connect to your server and run the deployment:"
-        echo "   ssh ubuntu@211.239.114.79"
-        echo "   tar -xzf squid-game-deploy.tar.gz && chmod +x server-setup.sh && ./server-setup.sh"
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to compress project"
+    exit 1
+fi
+
+echo "✅ Project compressed successfully ($(ls -lah squid-game-updated.tar.gz | awk '{print $5}'))"
+
+# Upload lên server
+echo "📤 Uploading to server..."
+scp squid-game-updated.tar.gz psj@211.239.114.79:/home/psj/
+
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to upload to server"
+    exit 1
+fi
+
+echo "✅ Upload completed successfully"
+
+# SSH và deploy
+echo "🔧 Deploying on server..."
+ssh psj@211.239.114.79 << 'ENDSSH'
+echo "🔄 Running deployment script..."
+./deploy-full-update.sh
+
+if [ $? -eq 0 ]; then
+    echo "🔄 Restarting application..."
+    pm2 restart squid-game-3002 2>/dev/null || {
+        echo "⚠️  PM2 restart failed, trying manual restart..."
+        pkill -f "node.*3002" 2>/dev/null
+        cd squid-game-3002
+        nohup node server.js > server.log 2>&1 &
+        echo "✅ Application restarted manually"
+    }
+    
+    echo "✅ Checking application status..."
+    sleep 3
+    if netstat -tlnp 2>/dev/null | grep -q ":3002 "; then
+        echo "🎉 Application is running on port 3002!"
     else
-        echo "❌ Automatic upload failed. Please upload manually using the scp command above."
+        echo "⚠️  Application might not be running on port 3002"
     fi
 else
-    echo "💡 Install sshpass for automatic upload: brew install hudochenkov/sshpass/sshpass"
-fi 
+    echo "❌ Deployment failed!"
+    exit 1
+fi
+ENDSSH
+
+if [ $? -eq 0 ]; then
+    echo ""
+    echo "🎉 Deployment completed successfully!"
+    echo "🌐 Your application should be available at: http://211.239.114.79:3002"
+    echo ""
+else
+    echo "❌ Deployment failed on server"
+    exit 1
+fi
+
+# Dọn dẹp file tạm
+rm -f squid-game-updated.tar.gz
+echo "🧹 Cleaned up temporary files" 

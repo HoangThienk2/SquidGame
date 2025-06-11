@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Boost - Squid Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .gradient-bg {
+        background: linear-gradient(
+          360deg,
+          rgba(211, 47, 181, 0) 3.4%,
+          #250a1f 98.64%
+        );
+      }
+
+      .card-bg {
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          #450832 0%,
+          #2e032c 100%
+        );
+        border: 1px solid rgba(215, 12, 163, 0.3);
+        box-shadow: inset 0px 1px 4px 0px rgba(70, 13, 55, 0.69);
+      }
+
+      /* Bottom Navigation Active State */
+      .nav-item {
+        transition: all 0.3s ease;
+        cursor: pointer;
+        padding: 12px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 48px;
+        min-height: 48px;
+      }
+
+      .nav-item.active {
+        background: rgba(255, 107, 139, 0.2);
+        box-shadow: 0 0 15px rgba(255, 107, 139, 0.4);
+        border: 1px solid rgba(255, 107, 139, 0.3);
+      }
+
+      .nav-item.active img {
+        filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 107, 139, 0.8));
+        transform: scale(1.2);
+      }
+
+      .nav-item:hover {
+        background: rgba(255, 107, 139, 0.1);
+        transform: scale(1.05);
+      }
+
+      .nav-item img {
+        width: 24px;
+        height: 24px;
+        transition: all 0.3s ease;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-900 font-sans">
+    <!-- Main Container -->
+    <div
+      class="max-w-[375px] mx-auto mt-6 p-4 rounded-2xl bg-[#17171F] shadow-lg relative min-h-screen"
+    >
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-white mb-2">🚀 Boost</h1>
+        <p class="text-gray-400">Enhance your gaming experience</p>
+      </div>
+
+      <!-- Boost Cards -->
+      <div class="space-y-4 mb-20">
+        <!-- Speed Boost -->
+        <div class="card-bg rounded-xl p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center"
+              >
+                <span class="text-2xl">⚡</span>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold">Speed Boost</h3>
+                <p class="text-gray-400 text-sm">Increase tap speed by 2x</p>
+              </div>
+            </div>
+            <button
+              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+            >
+              Activate
+            </button>
+          </div>
+        </div>
+
+        <!-- Coin Multiplier -->
+        <div class="card-bg rounded-xl p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center"
+              >
+                <span class="text-2xl">💰</span>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold">Coin Multiplier</h3>
+                <p class="text-gray-400 text-sm">Double coin rewards</p>
+              </div>
+            </div>
+            <button
+              class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg"
+            >
+              Activate
+            </button>
+          </div>
+        </div>
+
+        <!-- HP Recovery -->
+        <div class="card-bg rounded-xl p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center"
+              >
+                <span class="text-2xl">❤️</span>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold">HP Recovery</h3>
+                <p class="text-gray-400 text-sm">Restore HP instantly</p>
+              </div>
+            </div>
+            <button
+              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+            >
+              Activate
+            </button>
+          </div>
+        </div>
+
+        <!-- Auto Tap -->
+        <div class="card-bg rounded-xl p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center"
+              >
+                <span class="text-2xl">🤖</span>
+              </div>
+              <div>
+                <h3 class="text-white font-semibold">Auto Tap</h3>
+                <p class="text-gray-400 text-sm">
+                  Automatic tapping for 5 minutes
+                </p>
+              </div>
+            </div>
+            <button
+              class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
+            >
+              Activate
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation -->
+      <div
+        id="bottom-navigation"
+        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 gradient-bg card-bg w-[360px] h-[72px] rounded-full p-[24px] flex justify-center items-center"
+      >
+        <ul class="flex justify-between items-center gap-[24px] w-full">
+          <li class="nav-item" id="nav-earn">
+            <img src="./image/earn.svg" alt="" />
+          </li>
+          <li class="nav-item" id="nav-exchange">
+            <img src="./image/exchange.svg" alt="" />
+          </li>
+          <li class="nav-item active" id="nav-boost">
+            <img src="./image/boost.svg" alt="" />
+          </li>
+          <li class="nav-item" id="nav-point">
+            <img src="./image/point.svg" alt="" />
+          </li>
+          <li class="nav-item" id="nav-point">
+            <img src="./image/help.svg" alt="" />
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      // =====================
+      // Bottom Navigation Functions
+      // =====================
+
+      function setActiveNavItem(activeId) {
+        // Remove active class from all nav items
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach((item) => {
+          item.classList.remove("active");
+        });
+
+        // Add active class to the specified item
+        const activeItem = document.getElementById(activeId);
+        if (activeItem) {
+          activeItem.classList.add("active");
+          console.log(`🎯 Navigation active: ${activeId}`);
+        }
+      }
+
+      function initializeBottomNavigation() {
+        // Set boost as active by default for this page
+        setActiveNavItem("nav-boost");
+
+        // Add click handlers for navigation items
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach((item) => {
+          item.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Handle navigation based on item
+            switch (item.id) {
+              case "nav-earn":
+                console.log("📈 Earn tab selected - redirecting...");
+                window.location.href = "index.html";
+                break;
+              case "nav-exchange":
+                console.log("🔄 Exchange tab selected - redirecting...");
+                window.location.href = "exchange.html";
+                break;
+              case "nav-boost":
+                console.log("🚀 Boost tab selected");
+                // Already on boost page, no action needed
+                setActiveNavItem("nav-boost");
+                break;
+              case "nav-point":
+                console.log("🎯 Point tab selected - redirecting...");
+                window.location.href = "point.html";
+                break;
+            }
+          });
+        });
+      }
+
+      // Initialize bottom navigation when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeBottomNavigation();
+        console.log("🚀 Boost page initialized with active navigation");
+      });
+    </script>
+  </body>
+</html>
