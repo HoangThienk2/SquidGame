@@ -7,78 +7,79 @@
 // 1. Cấu hình các mốc level, HP, coin, v.v.
 // =====================
 
-// Điểm cần để lên cấp (level 1 -> 100)
+// Điểm cần để lên cấp (level 1 -> 100) - NEW SYSTEM
 const LEVEL_UP_REQUIREMENTS = [
-  3200,
-  5200,
-  7500,
-  10100,
-  13000,
-  16200,
-  19600,
-  23300,
-  27400,
-  31700, // 1-10
-  48400,
-  55000,
-  62000,
-  69200,
-  76800,
-  84900,
-  93400,
-  102200,
-  111400,
-  121000, // 11-20
-  163700,
-  176700,
-  190100,
-  204000,
-  218400,
-  233300,
-  248700,
-  264500,
-  280800,
-  297600, // 21-30
-  389700,
-  423400,
-  458200,
-  494200,
-  531400,
-  569700,
-  609200,
-  649800,
-  691500,
-  734400, // 31-40
-  908200,
-  960900,
-  1015100,
-  1070500,
-  1127300,
-  1185400,
-  1244900,
-  1305700,
-  1367900,
-  0, // 41-49, 50 là ruby
-  1710000,
-  1881000,
-  2052000,
-  2223000,
-  0, // 51-54, 55 là ruby
-  2394000,
-  2565000,
-  2736000,
-  2907000,
-  0, // 56-59, 60 là ruby
-  3420000,
-  3762000,
-  4104000,
-  4446000,
-  0, // 61-64, 65 là ruby
-  5130000,
-  5472000,
-  5814000,
-  6156000,
-  0, // 66-69, 70 là ruby
+  6408, // Level 1: 267 taps × 24 = 6,408 points
+  10416, // Level 2: 434 taps × 24 = 10,416 points
+  13872, // Level 3: 578 taps × 24 = 13,872 points
+  15552, // Level 4: 648 taps × 24 = 15,552 points
+  17232, // Level 5: 718 taps × 24 = 17,232 points
+  18912, // Level 6: 788 taps × 24 = 18,912 points
+  20592, // Level 7: 858 taps × 24 = 20,592 points
+  22272, // Level 8: 928 taps × 24 = 22,272 points
+  23952, // Level 9: 998 taps × 24 = 23,952 points
+  25632, // Level 10: 1,068 taps × 24 = 25,632 points
+  31104, // Level 11: 1,296 taps × 24 = 31,104 points
+  33696, // Level 12: 1,404 taps × 24 = 33,696 points
+  36288, // Level 13: 1,512 taps × 24 = 36,288 points
+  38880, // Level 14: 1,620 taps × 24 = 38,880 points
+  41472, // Level 15: 1,728 taps × 24 = 41,472 points
+  44064, // Level 16: 1,836 taps × 24 = 44,064 points
+  46656, // Level 17: 1,944 taps × 24 = 46,656 points
+  49248, // Level 18: 2,052 taps × 24 = 49,248 points
+  51840, // Level 19: 2,160 taps × 24 = 51,840 points
+  54432, // Level 20: 2,268 taps × 24 = 54,432 points
+  65472, // Level 21: 2,728 taps × 24 = 65,472 points
+  68448, // Level 22: 2,852 taps × 24 = 68,448 points
+  71424, // Level 23: 2,976 taps × 24 = 71,424 points
+  74400, // Level 24: 3,100 taps × 24 = 74,400 points
+  77376, // Level 25: 3,224 taps × 24 = 77,376 points
+  80352, // Level 26: 3,348 taps × 24 = 80,352 points
+  83328, // Level 27: 3,472 taps × 24 = 83,328 points
+  86304, // Level 28: 3,596 taps × 24 = 86,304 points
+  89280, // Level 29: 3,720 taps × 24 = 89,280 points
+  92256, // Level 30: 3,844 taps × 24 = 92,256 points
+  110880, // Level 31: 4,620 taps × 24 = 110,880 points
+  117600, // Level 32: 4,900 taps × 24 = 117,600 points
+  124320, // Level 33: 5,180 taps × 24 = 124,320 points
+  131040, // Level 34: 5,460 taps × 24 = 131,040 points
+  137760, // Level 35: 5,740 taps × 24 = 137,760 points
+  144480, // Level 36: 6,020 taps × 24 = 144,480 points
+  151200, // Level 37: 6,300 taps × 24 = 151,200 points
+  157920, // Level 38: 6,580 taps × 24 = 157,920 points
+  164640, // Level 39: 6,860 taps × 24 = 164,640 points
+  171360, // Level 40: 7,140 taps × 24 = 171,360 points
+  198432, // Level 41: 8,268 taps × 24 = 198,432 points
+  206016, // Level 42: 8,584 taps × 24 = 206,016 points
+  213600, // Level 43: 8,900 taps × 24 = 213,600 points
+  221184, // Level 44: 9,216 taps × 24 = 221,184 points
+  228768, // Level 45: 9,532 taps × 24 = 228,768 points
+  236352, // Level 46: 9,848 taps × 24 = 236,352 points
+  243936, // Level 47: 10,164 taps × 24 = 243,936 points
+  251520, // Level 48: 10,480 taps × 24 = 251,520 points
+  259104, // Level 49: 10,796 taps × 24 = 259,104 points
+  0, // Level 50: Ruby level
+  329472, // Level 51: 13,728 taps × 24 = 329,472 points
+  338400, // Level 52: 14,100 taps × 24 = 338,400 points
+  347328, // Level 53: 14,472 taps × 24 = 347,328 points
+  356256, // Level 54: 14,844 taps × 24 = 356,256 points
+  365184, // Level 55: 15,216 taps × 24 = 365,184 points
+  374112, // Level 56: 15,588 taps × 24 = 374,112 points
+  383040, // Level 57: 15,960 taps × 24 = 383,040 points
+  391968, // Level 58: 16,332 taps × 24 = 391,968 points
+  400896, // Level 59: 16,704 taps × 24 = 400,896 points
+  409824, // Level 60: 17,076 taps × 24 = 409,824 points
+  487296, // Level 61: 20,304 taps × 24 = 487,296 points
+  502848, // Level 62: 20,952 taps × 24 = 502,848 points
+  518400, // Level 63: 21,600 taps × 24 = 518,400 points
+  533952, // Level 64: 22,248 taps × 24 = 533,952 points
+  549504, // Level 65: 22,896 taps × 24 = 549,504 points
+  565056, // Level 66: 23,544 taps × 24 = 565,056 points
+  580608, // Level 67: 24,192 taps × 24 = 580,608 points
+  596160, // Level 68: 24,840 taps × 24 = 596,160 points
+  611712, // Level 69: 25,488 taps × 24 = 611,712 points
+  627264, // Level 70: 26,136 taps × 24 = 627,264 points
+  // Continue with existing values for levels 71-100 (keeping original structure)
   6498000,
   7147000,
   7797600,
@@ -110,50 +111,147 @@ const LEVEL_UP_REQUIREMENTS = [
   0, // 96-98, 99 là ruby
 ];
 
-// Số coin mỗi lần tap theo từng mốc level
+// Daily point limits for each level (max points that can be earned per day)
+const DAILY_POINT_LIMITS = [
+  23040, // Level 1: 960 taps × 24 = 23,040 points
+  34560, // Level 2: 1,440 taps × 24 = 34,560 points
+  46080, // Level 3: 1,920 taps × 24 = 46,080 points
+  57600, // Level 4: 2,400 taps × 24 = 57,600 points
+  69120, // Level 5: 2,880 taps × 24 = 69,120 points
+  80640, // Level 6: 3,360 taps × 24 = 80,640 points
+  92160, // Level 7: 3,840 taps × 24 = 92,160 points
+  103680, // Level 8: 4,320 taps × 24 = 103,680 points
+  115200, // Level 9: 4,800 taps × 24 = 115,200 points
+  126720, // Level 10: 5,280 taps × 24 = 126,720 points
+  155520, // Level 11: 6,480 taps × 24 = 155,520 points
+  168480, // Level 12: 7,020 taps × 24 = 168,480 points
+  181440, // Level 13: 7,560 taps × 24 = 181,440 points
+  194400, // Level 14: 8,100 taps × 24 = 194,400 points
+  207360, // Level 15: 8,640 taps × 24 = 207,360 points
+  220320, // Level 16: 9,180 taps × 24 = 220,320 points
+  233280, // Level 17: 9,720 taps × 24 = 233,280 points
+  246240, // Level 18: 10,260 taps × 24 = 246,240 points
+  259200, // Level 19: 10,800 taps × 24 = 259,200 points
+  272160, // Level 20: 11,340 taps × 24 = 272,160 points
+  327360, // Level 21: 13,640 taps × 24 = 327,360 points
+  342240, // Level 22: 14,260 taps × 24 = 342,240 points
+  357120, // Level 23: 14,880 taps × 24 = 357,120 points
+  372000, // Level 24: 15,500 taps × 24 = 372,000 points
+  386880, // Level 25: 16,120 taps × 24 = 386,880 points
+  401760, // Level 26: 16,740 taps × 24 = 401,760 points
+  416640, // Level 27: 17,360 taps × 24 = 416,640 points
+  431520, // Level 28: 17,980 taps × 24 = 431,520 points
+  446400, // Level 29: 18,600 taps × 24 = 446,400 points
+  461280, // Level 30: 19,220 taps × 24 = 461,280 points
+  554400, // Level 31: 23,100 taps × 24 = 554,400 points
+  588000, // Level 32: 24,500 taps × 24 = 588,000 points
+  621600, // Level 33: 25,900 taps × 24 = 621,600 points
+  655200, // Level 34: 27,300 taps × 24 = 655,200 points
+  688800, // Level 35: 28,700 taps × 24 = 688,800 points
+  722400, // Level 36: 30,100 taps × 24 = 722,400 points
+  756000, // Level 37: 31,500 taps × 24 = 756,000 points
+  789600, // Level 38: 32,900 taps × 24 = 789,600 points
+  823200, // Level 39: 34,300 taps × 24 = 823,200 points
+  856800, // Level 40: 35,700 taps × 24 = 856,800 points
+  992160, // Level 41: 41,340 taps × 24 = 992,160 points
+  1029600, // Level 42: 42,900 taps × 24 = 1,029,600 points
+  1067040, // Level 43: 44,460 taps × 24 = 1,067,040 points
+  1104480, // Level 44: 46,020 taps × 24 = 1,104,480 points
+  1141920, // Level 45: 47,580 taps × 24 = 1,141,920 points
+  1179360, // Level 46: 49,140 taps × 24 = 1,179,360 points
+  1216800, // Level 47: 50,700 taps × 24 = 1,216,800 points
+  1254240, // Level 48: 52,260 taps × 24 = 1,254,240 points
+  1291680, // Level 49: 53,820 taps × 24 = 1,291,680 points
+  0, // Level 50: Ruby level
+  1646880, // Level 51: 68,620 taps × 24 = 1,646,880 points
+  1692000, // Level 52: 70,500 taps × 24 = 1,692,000 points
+  1737120, // Level 53: 72,380 taps × 24 = 1,737,120 points
+  1782240, // Level 54: 74,260 taps × 24 = 1,782,240 points
+  1827360, // Level 55: 76,140 taps × 24 = 1,827,360 points
+  1872480, // Level 56: 78,020 taps × 24 = 1,872,480 points
+  1917600, // Level 57: 79,900 taps × 24 = 1,917,600 points
+  1962720, // Level 58: 81,780 taps × 24 = 1,962,720 points
+  2007840, // Level 59: 83,660 taps × 24 = 2,007,840 points
+  2052960, // Level 60: 85,540 taps × 24 = 2,052,960 points
+  2436480, // Level 61: 101,520 taps × 24 = 2,436,480 points
+  2514240, // Level 62: 104,760 taps × 24 = 2,514,240 points
+  2592000, // Level 63: 108,000 taps × 24 = 2,592,000 points
+  2669760, // Level 64: 111,240 taps × 24 = 2,669,760 points
+  2747520, // Level 65: 114,480 taps × 24 = 2,747,520 points
+  2825280, // Level 66: 117,720 taps × 24 = 2,825,280 points
+  2903040, // Level 67: 120,960 taps × 24 = 2,903,040 points
+  2980800, // Level 68: 124,200 taps × 24 = 2,980,800 points
+  3058560, // Level 69: 127,440 taps × 24 = 3,058,560 points
+  3136320, // Level 70: 130,680 taps × 24 = 3,136,320 points
+  // Continue with higher values for levels 71-100
+  3500000,
+  3600000,
+  3700000,
+  3800000,
+  0, // 71-75
+  4000000,
+  4100000,
+  4200000,
+  4300000,
+  0, // 76-80
+  4500000,
+  4600000,
+  4700000,
+  4800000,
+  0, // 81-85
+  5000000,
+  5100000,
+  5200000,
+  5300000,
+  0, // 86-90
+  5500000,
+  5600000,
+  5700000,
+  5800000,
+  0, // 91-95
+  6000000,
+  6100000,
+  6200000,
+  0,
+  0, // 96-100
+];
+
+// Get daily point limit for a level
+function getDailyPointLimit(level) {
+  if (level <= 0 || level > DAILY_POINT_LIMITS.length) return 0;
+  return DAILY_POINT_LIMITS[level - 1] || 0;
+}
+
+// Số coin mỗi lần tap theo từng mốc level - SIMPLIFIED: Always 24 coins per tap
 const TAP_COIN_BY_LEVEL = [
-  { from: 1, to: 10, value: 24 },
-  { from: 11, to: 20, value: 27 },
-  { from: 21, to: 30, value: 31 },
-  { from: 31, to: 40, value: 35 },
-  { from: 41, to: 49, value: 39 },
-  { from: 50, to: 60, value: 47 },
-  { from: 61, to: 70, value: 54 },
-  { from: 71, to: 80, value: 61 },
-  { from: 81, to: 90, value: 70 },
-  { from: 91, to: 100, value: 80 },
+  { from: 1, to: 100, value: 24 }, // All levels give 24 coins per tap
 ];
 
 // =====================
 // 2. Hàm tính toán các giá trị động
 // =====================
 
-// Tính tổng HP cho mỗi level
+// Tính tổng HP cho mỗi level - NEW LOGIC
 function getLevelHP(level) {
-  if (level <= 1) return 100; // Level 1 có 100 HP
-  let hp = 100;
-  for (let lv = 2; lv <= level; lv++) {
-    if (lv <= 30) hp += 50;
-    else if (lv <= 60) hp += 100;
-    else if (lv <= 90) hp += 150;
-    else hp += 200;
-  }
-  return hp;
+  // NEW LOGIC: Return the daily point limit as max HP for the level
+  // This is the denominator - the maximum HP for this level
+  // HP is now stored as actual HP points (e.g., 23040 for level 1)
+  // When leveling up, remaining HP (numerator) stays the same, only max HP (denominator) changes
+  const dailyLimit = getDailyPointLimit(level);
+  if (dailyLimit === 0) return 23040; // Default for ruby levels (Level 1 equivalent)
+  return dailyLimit; // Return actual HP points, not divided by 24
 }
 
-// Tính số coin mỗi lần tap cho level hiện tại
+// Tính số coin mỗi lần tap cho level hiện tại - SIMPLIFIED
 function getTapCoin(level) {
-  if (level <= 1) return 24; // Level 1 có 24 coin mỗi tap
-  for (const range of TAP_COIN_BY_LEVEL) {
-    if (level >= range.from && level <= range.to) return range.value;
-  }
-  return 24; // fallback
+  // SIMPLIFIED: Always return 24 coins per tap regardless of level
+  return 24;
 }
 
-// Tính % MT nâng cấp (upgrade multiplier)
+// Tính % MT nâng cấp (upgrade multiplier) - SIMPLIFIED
 function getUpgradeMultiplier(level) {
-  if (level <= 1) return 1; // Level 1 có multiplier = 1
-  return 1 + (level - 1) * 0.05; // 100% + 5% mỗi cấp
+  // SIMPLIFIED: No upgrade multiplier, always 1
+  return 1;
 }
 
 // Lấy điểm cần để lên cấp cho level hiện tại
@@ -269,7 +367,7 @@ function updateUI(state) {
   const lpLevelElement = document.getElementById("lp-level");
 
   if (hpLevelElement) {
-    hpLevelElement.textContent = `${state.level}/100`;
+    hpLevelElement.textContent = `${state.level}`;
     console.log("HP Level element updated to:", hpLevelElement.textContent);
   } else {
     console.error("HP Level element not found!");
@@ -355,30 +453,34 @@ function tap(event, multiplier = 1) {
     triggerBottomLayoutFlash();
   }
 
-  // Giảm HP và tính coin với multiplier
+  // NEW HP LOGIC: Always deduct 24 HP for normal taps, 72 HP for 3-finger taps
   const oldHP = state.hp;
-  state.hp -= 4;
-  console.log("HP changed from", oldHP, "to", state.hp);
-
-  // Tính coin nhận được với multiplier
+  let actualHPLoss;
   let tapCoin;
-  if (multiplier === 0.25) {
-    // Nếu là auto earn (multiplier = 0.25), tính chính xác 1/4 số điểm
-    tapCoin = Math.floor(
-      (getTapCoin(state.level) * getUpgradeMultiplier(state.level)) / 4
-    );
+
+  if (multiplier === 3) {
+    // 3-finger tap: 72 HP loss, 72 coins
+    actualHPLoss = 72;
+    tapCoin = 72;
+    console.log("3-finger tap detected - HP loss: 72, Coins: 72");
+  } else if (multiplier === 0.25) {
+    // Auto earn: 6 HP loss (24/4), 6 coins (24/4)
+    actualHPLoss = 6;
+    tapCoin = 6;
+    console.log("Auto earn tap - HP loss: 6, Coins: 6");
   } else {
-    // Các trường hợp khác sử dụng multiplier trực tiếp
-    tapCoin = Math.round(
-      getTapCoin(state.level) * getUpgradeMultiplier(state.level) * multiplier
-    );
+    // Normal tap: 24 HP loss, 24 coins
+    actualHPLoss = 24;
+    tapCoin = 24;
+    console.log("Normal tap - HP loss: 24, Coins: 24");
   }
 
-  // Không cần thêm bonus riêng cho tap 3 ngón vì đã được tính trong multiplier
-  console.log("Coin earned with multiplier", multiplier + ":", tapCoin);
+  state.hp -= actualHPLoss;
+  console.log("HP changed from", oldHP, "to", state.hp);
 
+  console.log("Coin earned:", tapCoin);
   state.coinEarn += tapCoin;
-  console.log("Coin earned:", tapCoin, "Total coinEarn:", state.coinEarn);
+  console.log("Total coinEarn:", state.coinEarn);
 
   // Nếu HP về 0 hoặc âm, xử lý kết thúc lượt
   if (state.hp <= 0) {
@@ -405,18 +507,6 @@ function tap(event, multiplier = 1) {
       if (canLevelUp(currentState.level, currentState.coinCount)) {
         console.log("Level up conditions met!");
         currentState.level++;
-
-        // KHÔNG hồi full HP khi hết máu - chỉ hồi khi còn HP
-        if (currentState.hp > 0) {
-          currentState.hp = getLevelHP(currentState.level);
-          console.log("Level up! HP restored to:", currentState.hp);
-        } else {
-          console.log(
-            "Level up! But HP stays at 0 - must wait 3 minutes to recover"
-          );
-        }
-
-        console.log("Level up! New level:", currentState.level);
 
         // Kiểm tra các mốc level đặc biệt
         if (currentState.level % 10 === 0) {
@@ -455,19 +545,6 @@ function tap(event, multiplier = 1) {
   if (canLevelUp(state.level, state.coinCount)) {
     const oldLevel = state.level;
     state.level++;
-
-    // Chỉ hồi full HP khi lên cấp nếu HP > 0
-    if (state.hp > 0) {
-      state.hp = getLevelHP(state.level);
-      console.log(
-        "Level up! New level:",
-        state.level,
-        "HP restored to:",
-        state.hp
-      );
-    } else {
-      console.log("Level up! New level:", state.level, "But HP stays at 0");
-    }
 
     // Kiểm tra các mốc level đặc biệt
     if (state.level % 10 === 0) {
