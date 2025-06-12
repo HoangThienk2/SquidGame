@@ -227,7 +227,6 @@ class GameStateManager {
     return {
       level: 1,
       hp: this.getLevelHP(1),
-      coinEarn: 0,
       coinCount: 0,
       lastRecover: Date.now(),
       lastZeroHP: null,

@@ -5,7 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Boost - Squid Game</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gugi&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      body {
+        font-family: "Gugi", sans-serif;
+      }
+
       .gradient-bg {
         background: linear-gradient(
           360deg,
@@ -58,108 +68,426 @@
         height: 24px;
         transition: all 0.3s ease;
       }
+
+      /* Scrollable content styles */
+      .scrollable-content {
+        max-height: 400px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: #6b7280 #374151;
+      }
+
+      .scrollable-content::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .scrollable-content::-webkit-scrollbar-track {
+        background: #374151;
+        border-radius: 3px;
+      }
+
+      .scrollable-content::-webkit-scrollbar-thumb {
+        background: #6b7280;
+        border-radius: 3px;
+      }
+
+      .scrollable-content::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+      }
+
+      .scrollable-content {
+        scroll-behavior: smooth;
+      }
+
+      /* Mission container with fade effects */
+      .mission-container {
+        position: relative;
+      }
+
+      .mission-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 10px;
+        background: linear-gradient(
+          to bottom,
+          rgba(46, 3, 44, 1),
+          rgba(46, 3, 44, 0)
+        );
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .mission-container::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 10px;
+        background: linear-gradient(
+          to top,
+          rgba(46, 3, 44, 1),
+          rgba(46, 3, 44, 0)
+        );
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .mission-container.scrollable::before,
+      .mission-container.scrollable::after {
+        opacity: 1;
+      }
+
+      /* Scroll indicator */
+      .scroll-indicator {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(107, 114, 128, 0.8);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .mission-container.scrollable .scroll-indicator {
+        opacity: 1;
+      }
+
+      .scroll-indicator.fade-out {
+        opacity: 0;
+      }
     </style>
   </head>
-  <body class="bg-gray-900 font-sans">
-    <!-- Main Container -->
+  <body class="bg-gray-900 min-h-screen">
+    <!-- Main Container - Fixed dimensions like index.html -->
     <div
-      class="max-w-[375px] mx-auto mt-6 p-4 rounded-2xl bg-[#17171F] shadow-lg relative min-h-screen"
+      class="w-[375px] relative h-[667px] rounded-[20px] mx-auto gradient-bg p-[16px]"
     >
+      <img
+        class="absolute rounded-[20px] top-0 left-0 z-[-1] bottom-0 right-0"
+        src="./image/bg.png"
+        alt=""
+      />
+
       <!-- Header -->
-      <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-white mb-2">🚀 Boost</h1>
-        <p class="text-gray-400">Enhance your gaming experience</p>
+      <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-white mb-2">🚀 Boost</h1>
+        <p class="text-gray-400 text-sm">Enhance your gaming experience</p>
       </div>
 
-      <!-- Boost Cards -->
-      <div class="space-y-4 mb-20">
-        <!-- Speed Boost -->
+      <!-- Content Container -->
+      <div class="flex flex-col gap-4 h-[calc(100%-140px)]">
+        <!-- Boost Cards Section -->
         <div class="card-bg rounded-xl p-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div
-                class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center"
-              >
-                <span class="text-2xl">⚡</span>
-              </div>
-              <div>
-                <h3 class="text-white font-semibold">Speed Boost</h3>
-                <p class="text-gray-400 text-sm">Increase tap speed by 2x</p>
+          <h2 class="text-white font-semibold mb-3 text-lg">Power Boosts</h2>
+          <div class="space-y-3">
+            <!-- Speed Boost -->
+            <div class="bg-gray-800 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center"
+                  >
+                    <span class="text-lg">⚡</span>
+                  </div>
+                  <div>
+                    <h3 class="text-white font-medium text-sm">Speed Boost</h3>
+                    <p class="text-gray-400 text-xs">
+                      Increase tap speed by 2x
+                    </p>
+                  </div>
+                </div>
+                <button
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg text-sm"
+                >
+                  Activate
+                </button>
               </div>
             </div>
-            <button
-              class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
-            >
-              Activate
-            </button>
+
+            <!-- Coin Multiplier -->
+            <div class="bg-gray-800 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center"
+                  >
+                    <span class="text-lg">💰</span>
+                  </div>
+                  <div>
+                    <h3 class="text-white font-medium text-sm">
+                      Coin Multiplier
+                    </h3>
+                    <p class="text-gray-400 text-xs">Double coin rewards</p>
+                  </div>
+                </div>
+                <button
+                  class="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded-lg text-sm"
+                >
+                  Activate
+                </button>
+              </div>
+            </div>
+
+            <!-- HP Recovery -->
+            <div class="bg-gray-800 rounded-lg p-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div
+                    class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center"
+                  >
+                    <span class="text-lg">❤️</span>
+                  </div>
+                  <div>
+                    <h3 class="text-white font-medium text-sm">HP Recovery</h3>
+                    <p class="text-gray-400 text-xs">Restore HP instantly</p>
+                  </div>
+                </div>
+                <button
+                  class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg text-sm"
+                >
+                  Activate
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Coin Multiplier -->
-        <div class="card-bg rounded-xl p-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div
-                class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center"
-              >
-                <span class="text-2xl">💰</span>
+        <!-- Mission Section with Scrollable Content -->
+        <div class="card-bg rounded-xl p-4 flex-1">
+          <h2 class="text-white font-semibold mb-3 text-lg">Daily Missions</h2>
+          <div class="mission-container relative">
+            <div class="scroll-indicator">↕ Scroll</div>
+            <div class="scrollable-content space-y-3">
+              <!-- Mission 1 -->
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-white font-medium text-sm">Tap Master</h3>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full bg-blue-600 text-blue-100"
+                  >
+                    Active
+                  </span>
+                </div>
+                <p class="text-gray-400 text-xs mb-2">Tap 1000 times today</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 bg-gray-700 rounded-full h-2 mr-3">
+                    <div
+                      class="bg-blue-500 h-2 rounded-full"
+                      style="width: 65%"
+                    ></div>
+                  </div>
+                  <span class="text-white text-xs">650/1000</span>
+                </div>
+                <div class="mt-2 text-yellow-400 text-xs">
+                  Reward: 500 coins
+                </div>
               </div>
-              <div>
-                <h3 class="text-white font-semibold">Coin Multiplier</h3>
-                <p class="text-gray-400 text-sm">Double coin rewards</p>
-              </div>
-            </div>
-            <button
-              class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg"
-            >
-              Activate
-            </button>
-          </div>
-        </div>
 
-        <!-- HP Recovery -->
-        <div class="card-bg rounded-xl p-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div
-                class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center"
-              >
-                <span class="text-2xl">❤️</span>
+              <!-- Mission 2 -->
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-white font-medium text-sm">Level Up</h3>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full bg-green-600 text-green-100"
+                  >
+                    Completed
+                  </span>
+                </div>
+                <p class="text-gray-400 text-xs mb-2">Reach level 5</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 bg-gray-700 rounded-full h-2 mr-3">
+                    <div
+                      class="bg-green-500 h-2 rounded-full"
+                      style="width: 100%"
+                    ></div>
+                  </div>
+                  <span class="text-white text-xs">5/5</span>
+                </div>
+                <div class="mt-2 text-yellow-400 text-xs">
+                  Reward: 1000 coins
+                </div>
               </div>
-              <div>
-                <h3 class="text-white font-semibold">HP Recovery</h3>
-                <p class="text-gray-400 text-sm">Restore HP instantly</p>
-              </div>
-            </div>
-            <button
-              class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
-            >
-              Activate
-            </button>
-          </div>
-        </div>
 
-        <!-- Auto Tap -->
-        <div class="card-bg rounded-xl p-4">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <div
-                class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center"
-              >
-                <span class="text-2xl">🤖</span>
+              <!-- Mission 3 -->
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-white font-medium text-sm">Coin Collector</h3>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full bg-blue-600 text-blue-100"
+                  >
+                    Active
+                  </span>
+                </div>
+                <p class="text-gray-400 text-xs mb-2">Collect 5000 coins</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 bg-gray-700 rounded-full h-2 mr-3">
+                    <div
+                      class="bg-blue-500 h-2 rounded-full"
+                      style="width: 30%"
+                    ></div>
+                  </div>
+                  <span class="text-white text-xs">1500/5000</span>
+                </div>
+                <div class="mt-2 text-yellow-400 text-xs">
+                  Reward: 2000 coins
+                </div>
               </div>
-              <div>
-                <h3 class="text-white font-semibold">Auto Tap</h3>
-                <p class="text-gray-400 text-sm">
-                  Automatic tapping for 5 minutes
+
+              <!-- Mission 4 -->
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-white font-medium text-sm">
+                    Survival Expert
+                  </h3>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full bg-gray-600 text-gray-100"
+                  >
+                    Locked
+                  </span>
+                </div>
+                <p class="text-gray-400 text-xs mb-2">
+                  Survive 10 rounds without HP reaching 0
                 </p>
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 bg-gray-700 rounded-full h-2 mr-3">
+                    <div
+                      class="bg-gray-500 h-2 rounded-full"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                  <span class="text-white text-xs">0/10</span>
+                </div>
+                <div class="mt-2 text-yellow-400 text-xs">
+                  Reward: 3000 coins
+                </div>
+              </div>
+
+              <!-- Mission 5 -->
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-white font-medium text-sm">Speed Demon</h3>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full bg-blue-600 text-blue-100"
+                  >
+                    Active
+                  </span>
+                </div>
+                <p class="text-gray-400 text-xs mb-2">
+                  Perform 100 multi-finger taps
+                </p>
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 bg-gray-700 rounded-full h-2 mr-3">
+                    <div
+                      class="bg-blue-500 h-2 rounded-full"
+                      style="width: 45%"
+                    ></div>
+                  </div>
+                  <span class="text-white text-xs">45/100</span>
+                </div>
+                <div class="mt-2 text-yellow-400 text-xs">
+                  Reward: 1500 coins
+                </div>
+              </div>
+
+              <!-- Mission 6 -->
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-white font-medium text-sm">
+                    Auto Earn Master
+                  </h3>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full bg-blue-600 text-blue-100"
+                  >
+                    Active
+                  </span>
+                </div>
+                <p class="text-gray-400 text-xs mb-2">
+                  Use auto earn for 30 minutes
+                </p>
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 bg-gray-700 rounded-full h-2 mr-3">
+                    <div
+                      class="bg-blue-500 h-2 rounded-full"
+                      style="width: 80%"
+                    ></div>
+                  </div>
+                  <span class="text-white text-xs">24/30</span>
+                </div>
+                <div class="mt-2 text-yellow-400 text-xs">
+                  Reward: 2500 coins
+                </div>
+              </div>
+
+              <!-- Mission 7 -->
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-white font-medium text-sm">
+                    Exchange Expert
+                  </h3>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full bg-gray-600 text-gray-100"
+                  >
+                    Locked
+                  </span>
+                </div>
+                <p class="text-gray-400 text-xs mb-2">Complete 5 exchanges</p>
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 bg-gray-700 rounded-full h-2 mr-3">
+                    <div
+                      class="bg-gray-500 h-2 rounded-full"
+                      style="width: 0%"
+                    ></div>
+                  </div>
+                  <span class="text-white text-xs">0/5</span>
+                </div>
+                <div class="mt-2 text-yellow-400 text-xs">
+                  Reward: 4000 coins
+                </div>
+              </div>
+
+              <!-- Mission 8 -->
+              <div class="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-white font-medium text-sm">
+                    Weekly Champion
+                  </h3>
+                  <span
+                    class="text-xs px-2 py-1 rounded-full bg-purple-600 text-purple-100"
+                  >
+                    Weekly
+                  </span>
+                </div>
+                <p class="text-gray-400 text-xs mb-2">
+                  Earn 50,000 coins this week
+                </p>
+                <div class="flex items-center justify-between">
+                  <div class="flex-1 bg-gray-700 rounded-full h-2 mr-3">
+                    <div
+                      class="bg-purple-500 h-2 rounded-full"
+                      style="width: 25%"
+                    ></div>
+                  </div>
+                  <span class="text-white text-xs">12,500/50,000</span>
+                </div>
+                <div class="mt-2 text-yellow-400 text-xs">
+                  Reward: 10,000 coins + Special Boost
+                </div>
               </div>
             </div>
-            <button
-              class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg"
-            >
-              Activate
-            </button>
           </div>
         </div>
       </div>
@@ -167,9 +495,9 @@
       <!-- Bottom Navigation -->
       <div
         id="bottom-navigation"
-        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 gradient-bg card-bg w-[360px] h-[72px] rounded-full p-[24px] flex justify-center items-center"
+        class="absolute bottom-[-110px] gradient-bg card-bg w-[360px] h-[72px] rounded-full p-[24px] flex justify-center items-center"
       >
-        <ul class="flex justify-between items-center gap-[24px] w-full">
+        <ul class="flex justify-between items-center gap-[20px] w-full">
           <li class="nav-item" id="nav-earn">
             <img src="./image/earn.svg" alt="" />
           </li>
@@ -190,6 +518,54 @@
     </div>
 
     <script>
+      // =====================
+      // Mission Scrolling Management
+      // =====================
+
+      function initializeMissionScrolling() {
+        const missionContainer = document.querySelector(".mission-container");
+        const scrollableContent = document.querySelector(".scrollable-content");
+        const scrollIndicator = document.querySelector(".scroll-indicator");
+
+        if (!missionContainer || !scrollableContent) return;
+
+        // Check if content is scrollable
+        setTimeout(() => {
+          const isScrollable =
+            scrollableContent.scrollHeight > scrollableContent.clientHeight;
+          if (isScrollable) {
+            missionContainer.classList.add("scrollable");
+          } else {
+            missionContainer.classList.remove("scrollable");
+          }
+        }, 100);
+
+        // Add scroll event listener with indicator management
+        scrollableContent.addEventListener("scroll", function () {
+          const scrollTop = this.scrollTop;
+          const scrollHeight = this.scrollHeight;
+          const clientHeight = this.clientHeight;
+
+          console.log("Mission scroll position:", scrollTop);
+          console.log("At top:", scrollTop === 0);
+          console.log(
+            "At bottom:",
+            scrollTop + clientHeight >= scrollHeight - 1
+          );
+
+          // Auto-hide scroll indicator after scrolling starts
+          if (
+            scrollIndicator &&
+            !scrollIndicator.classList.contains("fade-out")
+          ) {
+            scrollIndicator.classList.add("fade-out");
+            setTimeout(() => {
+              scrollIndicator.classList.remove("fade-out");
+            }, 2000); // Show again after 2 seconds
+          }
+        });
+      }
+
       // =====================
       // Bottom Navigation Functions
       // =====================
@@ -244,10 +620,11 @@
         });
       }
 
-      // Initialize bottom navigation when page loads
+      // Initialize when page loads
       document.addEventListener("DOMContentLoaded", function () {
         initializeBottomNavigation();
-        console.log("🚀 Boost page initialized with active navigation");
+        initializeMissionScrolling();
+        console.log("🚀 Boost page initialized with scrollable missions");
       });
     </script>
   </body>
