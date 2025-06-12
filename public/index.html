@@ -1143,10 +1143,18 @@
       }
 
       function canLevelUp(currentLevel, totalCoins) {
-        const currentLevelRequirement = getLevelUpRequirement(currentLevel);
+        // Calculate total coins needed to reach the NEXT level (currentLevel + 1)
+        const totalCoinsNeededForNextLevel = getTotalCoinsForLevel(currentLevel + 1);
+        
+        console.log(`🔍 Level up check details:`);
+        console.log(`Current level: ${currentLevel}`);
+        console.log(`Total coins available: ${totalCoins}`);
+        console.log(`Total coins needed for level ${currentLevel + 1}: ${totalCoinsNeededForNextLevel}`);
+        console.log(`Can level up: ${totalCoins >= totalCoinsNeededForNextLevel && currentLevel < 100}`);
+        
         return (
-          currentLevelRequirement > 0 &&
-          totalCoins >= currentLevelRequirement &&
+          totalCoinsNeededForNextLevel > 0 &&
+          totalCoins >= totalCoinsNeededForNextLevel &&
           currentLevel < 100
         );
       }
@@ -1267,10 +1275,10 @@
           Math.min(100, (state.hp / maxHP) * 100)
         );
 
-        // Update HP display
+        // Update HP display - CHANGED: Show percentage instead of actual numbers
         document.getElementById(
           "hp-display"
-        ).textContent = `${state.hp}/${maxHP}`;
+        ).textContent = `${Math.round(hpPercentage)}/100`;
         document.getElementById("hp-bar").style.width = `${hpPercentage}%`;
 
         // Update HP progress icon position
@@ -1298,23 +1306,31 @@
         ).textContent = `${state.level}`;
 
         // Calculate level progress based on current coins vs level up requirement
-        const currentLevelRequirement = getLevelUpRequirement(state.level);
+        const totalCoinsNeededForNextLevel = getTotalCoinsForLevel(state.level + 1);
         let levelProgress = 0;
 
-        if (currentLevelRequirement > 0) {
-          // Calculate progress based on current coins vs requirement for current level
-          const totalCoinsForCurrentLevel = getTotalCoinsForLevel(state.level);
+        if (totalCoinsNeededForNextLevel > 0) {
+          // Calculate progress based on current coins vs requirement for NEXT level
+          const totalCoinsNeededForCurrentLevel = getTotalCoinsForLevel(state.level);
           const totalCoinsAvailable = state.coinCount + state.coinEarn;
-          const coinsTowardsCurrentLevel =
-            totalCoinsAvailable - totalCoinsForCurrentLevel;
+          const coinsTowardsNextLevel = totalCoinsAvailable - totalCoinsNeededForCurrentLevel;
+          const coinsNeededForNextLevel = totalCoinsNeededForNextLevel - totalCoinsNeededForCurrentLevel;
 
           levelProgress = Math.min(
             100,
             Math.max(
               0,
-              (coinsTowardsCurrentLevel / currentLevelRequirement) * 100
+              (coinsTowardsNextLevel / coinsNeededForNextLevel) * 100
             )
           );
+          
+          console.log(`📊 Level progress calculation:`);
+          console.log(`Total coins available: ${totalCoinsAvailable}`);
+          console.log(`Coins needed for current level ${state.level}: ${totalCoinsNeededForCurrentLevel}`);
+          console.log(`Coins needed for next level ${state.level + 1}: ${totalCoinsNeededForNextLevel}`);
+          console.log(`Coins towards next level: ${coinsTowardsNextLevel}`);
+          console.log(`Coins needed for next level: ${coinsNeededForNextLevel}`);
+          console.log(`Level progress: ${levelProgress}%`);
         } else {
           // If no requirement (max level or special level), show 100%
           levelProgress = 100;
@@ -1770,11 +1786,14 @@
           saveGameState(state);
           updateUI(state);
 
-          // Check for level up after delay
+          // Check for level up after delay - FIXED: Use correct cumulative logic
           setTimeout(() => {
             let currentState = loadGameState();
             if (canLevelUp(currentState.level, currentState.coinCount)) {
+              const oldLevel = currentState.level;
               currentState.level++;
+              console.log(`🎉 LEVEL UP after HP=0! ${oldLevel} → ${currentState.level} (Total coins: ${currentState.coinCount})`);
+              
               if (currentState.hp > 0) {
                 currentState.hp = getLevelHP(currentState.level);
               }
@@ -1787,9 +1806,9 @@
           return;
         }
 
-        // Check for level up (when HP > 0) - FIXED: Use total coins
+        // Check for level up (when HP > 0) - FIXED: Use total coins with correct cumulative logic
         const totalCoins = state.coinCount + state.coinEarn; // Total coins available
-        console.log(`🔍 Level up check: Level ${state.level}, Total coins: ${totalCoins}, Required: ${getLevelUpRequirement(state.level)}`);
+        console.log(`🔍 Level up check: Level ${state.level}, Total coins: ${totalCoins}`);
         
         if (canLevelUp(state.level, totalCoins)) {
           const oldLevel = state.level;

@@ -3,6 +3,7 @@ const path = require("path");
 const TelegramBot = require("node-telegram-bot-api");
 const { Database } = require("./database");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 require("dotenv").config();
 
 const app = express();
@@ -20,10 +21,60 @@ const db = new Database();
 // In-memory fallback database (if MongoDB fails)
 const gameDatabase = new Map();
 
+// Enhanced CORS configuration
+const corsOptions = {
+  origin: [
+    "https://hoangthienk2.github.io",
+    "https://HoangThienk2.github.io",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://api.allorigins.win",
+    "https://cors-anywhere.herokuapp.com",
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: true,
+  optionsSuccessStatus: 200,
+};
+
+// Rate limiting configuration
+const apiLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 300, // Increased from 100 to 300 requests per minute
+  message: {
+    success: false,
+    error: "Too many requests",
+    message: "Please wait a moment before making more requests",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks
+    return req.path === "/health" || req.path === "/api/db-status";
+  },
+});
+
+// More lenient rate limiting for sync endpoints (for gaming)
+const syncLimiter = rateLimit({
+  windowMs: 5 * 1000, // 5 seconds (reduced from 10 seconds)
+  max: 50, // 50 requests per 5 seconds (increased from 20 per 10 seconds)
+  message: {
+    success: false,
+    error: "Sync rate limit exceeded",
+    message: "Please slow down your game actions",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors(corsOptions));
+app.use(express.json({ limit: "10mb" }));
 app.use(express.static(path.join(__dirname, "public")));
+
+// Apply rate limiting
+app.use("/api/", apiLimiter);
+app.use("/api/sync/", syncLimiter);
 
 // Swagger Documentation - Direct setup for better Vercel compatibility
 try {

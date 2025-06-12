@@ -6,7 +6,48 @@
 # Password: psj 1212qwqw!!
 # Root password: 1212qwqw@@
 
-echo "🦑 Starting Squid Game Deployment..."
+echo "🚀 Starting deployment..."
+
+# Backup current project
+echo "📦 Backing up current project..."
+if [ -d "SquidGame" ]; then
+    mv SquidGame SquidGame-backup-$(date +%Y%m%d-%H%M%S)
+    echo "✅ Backup completed"
+fi
+
+# Extract new project
+echo "📂 Extracting new project..."
+tar -xzf SquidGame-updated.tar.gz
+echo "✅ Project extracted"
+
+# Go to project directory
+cd SquidGame
+
+# Install dependencies
+echo "📦 Installing dependencies..."
+npm install --production
+echo "✅ Dependencies installed"
+
+# Stop existing processes
+echo "🛑 Stopping existing processes..."
+pkill -f "node.*server" || echo "No existing processes found"
+pm2 stop all || echo "No PM2 processes found"
+
+# Start the server
+echo "🚀 Starting server..."
+pm2 start server.js --name "squidgame-server" || node server.js &
+
+# Check status
+echo "📊 Checking server status..."
+sleep 3
+pm2 status || ps aux | grep "node.*server"
+
+echo "✅ Deployment completed!"
+echo "🌐 Server should be running on the configured port"
+
+# Test the API
+echo "🧪 Testing API..."
+curl -s http://localhost:3000/api/user/test_deploy_user | head -200
 
 # Server configuration
 SERVER_IP="211.239.114.79"
