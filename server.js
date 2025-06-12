@@ -1484,7 +1484,6 @@ if (require.main === module) {
     console.log(
       `- POST /api/sync/:telegramUserId - Sync game state from client`
     );
-    console.log(`- GET /api/leaderboard - Get leaderboard`);
     console.log(`- GET /api/stats - Get game statistics`);
     console.log(`- GET /api/db-status - Check database status`);
     console.log(
