@@ -39,8 +39,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 48px;
-        min-height: 48px;
+     
       }
 
       .nav-item.active {
@@ -59,7 +58,7 @@
         transform: scale(1.05);
       }
 
-      .nav-item img {
+       .nav-item img {
         width: 24px;
         height: 24px;
         transition: all 0.3s ease;
@@ -69,7 +68,7 @@
   <body class="bg-gray-900 font-sans">
     <!-- User Info -->
     <div
-      class="max-w-[375px] mx-auto mt-6 p-2 rounded-2xl bg-[#17171F] shadow-lg relative"
+      class="md:max-w-[375px] w-full mx-auto md:mt-6 p-4 rounded-2xl bg-[#17171F] shadow-lg relative"
     >
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
@@ -295,7 +294,7 @@
 
       <div
         id="bottom-navigation"
-        class="gradient-bg card-bg w-[360px] h-[72px] mt-4 rounded-full p-[24px] flex justify-center items-center"
+        class="gradient-bg card-bg md:w-[360px] w-full h-[72px] mt-4 rounded-full p-[24px] flex justify-center items-center"
       >
         <ul class="flex justify-between items-center gap-[20px] w-full">
           <li class="nav-item active" id="nav-earn">

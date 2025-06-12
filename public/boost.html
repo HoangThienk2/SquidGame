@@ -28,13 +28,13 @@
       .nav-item {
         transition: all 0.3s ease;
         cursor: pointer;
-        padding: 12px;
+        padding: 6px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 48px;
-        min-height: 48px;
+        min-width: 30px;
+        min-height: 30px;
       }
 
       .nav-item.active {
@@ -63,7 +63,7 @@
   <body class="bg-gray-900 font-sans">
     <!-- Main Container -->
     <div
-      class="max-w-[375px] mx-auto mt-6 p-4 rounded-2xl bg-[#17171F] shadow-lg relative min-h-screen"
+      class="md:max-w-[375px] w-full mx-auto md:mt-6 p-4 rounded-2xl bg-[#17171F] shadow-lg relative min-h-screen"
     >
       <!-- Header -->
       <div class="text-center mb-8">
@@ -164,10 +164,9 @@
         </div>
       </div>
 
-      <!-- Bottom Navigation -->
       <div
         id="bottom-navigation"
-        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 gradient-bg card-bg w-[360px] h-[72px] rounded-full p-[24px] flex justify-center items-center"
+        class=" gradient-bg card-bg md:w-[360px] w-full h-[72px] rounded-full p-[24px] flex justify-center items-center"
       >
         <ul class="flex justify-between items-center gap-[24px] w-full">
           <li class="nav-item" id="nav-earn">
@@ -187,6 +186,7 @@
           </li>
         </ul>
       </div>
+      <!-- Bottom Navigation -->
     </div>
 
     <script>
