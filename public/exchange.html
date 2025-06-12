@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Exchange - Squid Game</title>
+    <!-- Telegram WebApp Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       .shadow-top-left {
@@ -63,6 +65,106 @@
         width: 24px;
         height: 24px;
         transition: all 0.3s ease;
+      }
+
+      /* Custom scrollbar styles for transaction history */
+      #history-list {
+        scrollbar-width: thin;
+        scrollbar-color: #6b7280 #374151;
+      }
+
+      #history-list::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      #history-list::-webkit-scrollbar-track {
+        background: #374151;
+        border-radius: 3px;
+      }
+
+      #history-list::-webkit-scrollbar-thumb {
+        background: #6b7280;
+        border-radius: 3px;
+      }
+
+      #history-list::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+      }
+
+      /* Smooth scrolling */
+      #history-list {
+        scroll-behavior: smooth;
+      }
+
+      /* Fade effect at top and bottom when scrolling */
+      .history-container {
+        position: relative;
+      }
+
+      .history-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 10px;
+        background: linear-gradient(
+          to bottom,
+          rgba(55, 65, 81, 1),
+          rgba(55, 65, 81, 0)
+        );
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .history-container::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 10px;
+        background: linear-gradient(
+          to top,
+          rgba(55, 65, 81, 1),
+          rgba(55, 65, 81, 0)
+        );
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .history-container.scrollable::before,
+      .history-container.scrollable::after {
+        opacity: 1;
+      }
+
+      /* Scroll indicator */
+      .scroll-indicator {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(107, 114, 128, 0.8);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        z-index: 2;
+      }
+
+      .history-container.scrollable .scroll-indicator {
+        opacity: 1;
+      }
+
+      .scroll-indicator.fade-out {
+        opacity: 0;
       }
     </style>
   </head>
@@ -231,63 +333,24 @@
 
       <!-- Transaction History -->
       <div class="bg-gray-700 rounded-xl p-4 mt-4">
-        <div class="flex items-center justify-end gap-2 mb-3">
-          <span class="text-gray-300 text-sm">10 seconds ago</span>
-          <button class="text-gray-400 hover:text-gray-200">
-            <svg
-              fill="#fff"
-              width="15px"
-              height="15px"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M23,12A11,11,0,1,1,12,1a10.9,10.9,0,0,1,5.882,1.7l1.411-1.411A1,1,0,0,1,21,2V6a1,1,0,0,1-1,1H16a1,1,0,0,1-.707-1.707L16.42,4.166A8.9,8.9,0,0,0,12,3a9,9,0,1,0,9,9,1,1,0,0,1,2,0Z"
-              />
-            </svg>
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-white font-semibold">Transaction History</h3>
+          <button
+            id="clear-history-btn"
+            class="text-gray-400 hover:text-gray-200 text-sm"
+          >
+            Clear All
           </button>
         </div>
-        <div class="flex flex-col gap-3">
+        <div class="history-container relative">
+          <div class="scroll-indicator">↕ Scroll</div>
           <div
-            id="history-content"
-            class="flex items-center justify-center gap-6"
+            id="history-list"
+            class="flex flex-col gap-3 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700"
           >
-            <div class="flex items-center gap-2">
-              <span
-                class="w-8 h-8 rounded-full bg-yellow-400 inline-block"
-              ></span>
-              <div class="flex flex-col">
-                <span id="history-from-label" class="text-white font-semibold"
-                  >Point</span
-                >
-                <span id="history-from-value" class="text-gray-300"
-                  >221113</span
-                >
-              </div>
-            </div>
-            <svg
-              class="w-8 h-8 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-            <div class="flex items-center gap-2">
-              <span
-                class="w-8 h-8 rounded-full bg-gray-200 inline-block"
-              ></span>
-              <div class="flex flex-col">
-                <span id="history-to-label" class="text-white font-semibold"
-                  >Smg</span
-                >
-                <span id="history-to-value" class="text-gray-300">$221.1</span>
-              </div>
+            <!-- Transaction items will be dynamically added here -->
+            <div class="text-gray-400 text-center py-4">
+              No transactions yet
             </div>
           </div>
         </div>
@@ -318,6 +381,268 @@
     </div>
 
     <script>
+      // Global variables
+      let currentUser = null;
+      let currentExchangeType = "point-to-smg";
+      let telegramUserId = null;
+
+      // Store transaction timestamp for real-time updates
+      let lastTransactionTime = null;
+
+      // Store transaction history array
+      let transactionHistory = [];
+
+      // Get Telegram user ID (same logic as index.html)
+      function getTelegramUserId() {
+        // 1. Check if already cached
+        if (telegramUserId) return telegramUserId;
+
+        // 2. Try to get from localStorage first
+        const savedUserId = localStorage.getItem("telegramUserId");
+        if (savedUserId) {
+          telegramUserId = savedUserId;
+          console.log("📱 Telegram User ID from localStorage:", telegramUserId);
+          return telegramUserId;
+        }
+
+        // 3. Try to get from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdFromUrl = urlParams.get("userId");
+        if (userIdFromUrl) {
+          telegramUserId = userIdFromUrl;
+          // Save to localStorage for future use
+          localStorage.setItem("telegramUserId", telegramUserId);
+          console.log("📱 Telegram User ID from URL:", telegramUserId);
+          return telegramUserId;
+        }
+
+        // 4. Try to get from Telegram WebApp
+        if (
+          typeof window !== "undefined" &&
+          window.Telegram &&
+          window.Telegram.WebApp &&
+          window.Telegram.WebApp.initDataUnsafe &&
+          window.Telegram.WebApp.initDataUnsafe.user
+        ) {
+          const webApp = window.Telegram.WebApp;
+          telegramUserId = webApp.initDataUnsafe.user.id.toString();
+          // Save to localStorage for future use
+          localStorage.setItem("telegramUserId", telegramUserId);
+          console.log("📱 Telegram User ID from WebApp:", telegramUserId);
+
+          return telegramUserId;
+        }
+
+        // 5. Generate demo user ID as fallback
+        telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
+        // Save to localStorage for consistency
+        localStorage.setItem("telegramUserId", telegramUserId);
+        console.log(
+          "📱 Generated and saved demo Telegram User ID:",
+          telegramUserId
+        );
+
+        return telegramUserId;
+      }
+
+      // API Base URL
+      const API_BASE_URL = window.location.origin;
+
+      // Fetch user data from API
+      async function fetchUserData() {
+        try {
+          const telegramUserId = getTelegramUserId();
+          const response = await fetch(
+            `${API_BASE_URL}/api/user/${encodeURIComponent(telegramUserId)}`
+          );
+          const result = await response.json();
+
+          if (result.success) {
+            currentUser = result.data;
+            updateUserDisplay();
+            updateExchangeInputs();
+          } else {
+            console.error("Failed to fetch user data:", result.error);
+          }
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+        }
+      }
+
+      // Update user display with real data
+      function updateUserDisplay() {
+        if (!currentUser) return;
+
+        console.log("🎨 Updating user display with:", {
+          ruby: currentUser.ruby,
+          smg: currentUser.smg,
+          hp: currentUser.hp,
+        });
+
+        // Update user info display
+        document.querySelector(".text-yellow-300.font-bold").textContent =
+          currentUser.ruby.toLocaleString();
+        document.querySelector(".text-gray-200.font-bold").textContent = (
+          currentUser.smg || 0
+        ).toFixed(1);
+        document.querySelector(".text-white:last-child").textContent =
+          currentUser.hp.toLocaleString();
+
+        console.log("✅ User display updated successfully");
+      }
+
+      // Update exchange inputs based on current user data and exchange type
+      function updateExchangeInputs() {
+        if (!currentUser) return;
+
+        const input1 = document.getElementById("input1");
+        const input2 = document.getElementById("input2");
+
+        if (currentExchangeType === "point-to-smg") {
+          // Calculate how much SMG user can get with their ruby points
+          const maxPoints = Math.floor(currentUser.ruby / 1000) * 1000;
+          const smgAmount = maxPoints / 1000;
+
+          input1.value = maxPoints.toLocaleString();
+          input2.value = `$${smgAmount.toFixed(1)}`;
+        } else {
+          // Calculate how many points user can get with their SMG
+          const userSmg = currentUser.smg || 0;
+          const maxSmg = Math.floor(userSmg);
+          const pointsAmount = maxSmg * 1000;
+
+          input1.value = `$${maxSmg.toFixed(1)}`;
+          input2.value = pointsAmount.toLocaleString();
+        }
+      }
+
+      // Perform exchange
+      async function performExchange() {
+        if (!currentUser) {
+          alert("User data not loaded. Please refresh the page.");
+          return;
+        }
+
+        try {
+          const telegramUserId = getTelegramUserId();
+          let points;
+
+          if (currentExchangeType === "point-to-smg") {
+            points = Math.floor(currentUser.ruby / 1000) * 1000;
+            if (points < 1000) {
+              alert("You need at least 1,000 ruby points to exchange for SMG.");
+              return;
+            }
+          } else {
+            const userSmg = currentUser.smg || 0;
+            if (userSmg < 1) {
+              alert("You need at least 1 SMG to exchange for points.");
+              return;
+            }
+            points = Math.floor(userSmg) * 1000;
+          }
+
+          const response = await fetch(
+            `${API_BASE_URL}/api/exchange/${encodeURIComponent(
+              telegramUserId
+            )}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                points: points,
+                exchangeType: currentExchangeType,
+              }),
+            }
+          );
+
+          const result = await response.json();
+
+          console.log("🔄 Exchange API Response:", result);
+
+          if (result.success) {
+            console.log("✅ Exchange successful, updating UI...");
+            console.log("📊 New Balance:", result.data.newBalance);
+
+            // Update current user data with new balances
+            currentUser.ruby = result.data.newBalance.ruby;
+            currentUser.totalCoins = result.data.newBalance.totalCoins;
+            currentUser.smg = result.data.newBalance.smg;
+
+            console.log("📱 Updated currentUser:", {
+              ruby: currentUser.ruby,
+              totalCoins: currentUser.totalCoins,
+              smg: currentUser.smg,
+            });
+
+            // Update display
+            updateUserDisplay();
+            updateExchangeInputs();
+            await updateTransactionHistory(
+              result.data.exchanged,
+              currentExchangeType
+            );
+
+            // Show success message
+            alert(
+              `Exchange successful! ${
+                currentExchangeType === "point-to-smg"
+                  ? `Exchanged ${result.data.exchanged.points.toLocaleString()} points for ${
+                      result.data.exchanged.smg
+                    } SMG`
+                  : `Exchanged ${
+                      result.data.exchanged.smg
+                    } SMG for ${result.data.exchanged.points.toLocaleString()} points`
+              }`
+            );
+          } else {
+            alert(`Exchange failed: ${result.error}`);
+          }
+        } catch (error) {
+          console.error("Exchange error:", error);
+          alert("Exchange failed. Please try again.");
+        }
+      }
+
+      // Update transaction history after exchange
+      async function updateTransactionHistory(exchanged, exchangeType) {
+        await saveTransactionHistory(exchanged, exchangeType);
+      }
+
+      // Function to format time difference
+      function getTimeAgo(timestamp) {
+        const now = Date.now();
+        const diff = Math.floor((now - timestamp) / 1000); // difference in seconds
+
+        if (diff < 10) {
+          return "Just now";
+        } else if (diff < 60) {
+          return `${diff} seconds ago`;
+        } else if (diff < 3600) {
+          const minutes = Math.floor(diff / 60);
+          return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+        } else if (diff < 86400) {
+          const hours = Math.floor(diff / 3600);
+          return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+        } else {
+          const days = Math.floor(diff / 86400);
+          return `${days} day${days > 1 ? "s" : ""} ago`;
+        }
+      }
+
+      // Update transaction timestamp display
+      function updateTransactionTimestamp() {
+        // Re-render history to update all timestamps
+        if (transactionHistory && transactionHistory.length > 0) {
+          renderTransactionHistory();
+        }
+      }
+
+      // Update timestamp every 30 seconds (less frequent since we have multiple items)
+      setInterval(updateTransactionTimestamp, 30000);
+
       const btnPointCycon = document.getElementById("btn-point-cycon");
       const btnCyconPoint = document.getElementById("btn-cycon-point");
       const exchangeRate = document.getElementById("exchange-rate");
@@ -331,7 +656,9 @@
       const historyToValue = document.getElementById("history-to-value");
 
       function setActiveTab(tab) {
-        if (tab === "point-cycon") {
+        currentExchangeType = tab;
+
+        if (tab === "point-to-smg") {
           // Active tab style - Point to Cycon
           btnPointCycon.className =
             "flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all";
@@ -358,14 +685,6 @@
           exchangeRate.textContent = "1,000 P → 1 SMG";
           input1Label.textContent = "point";
           input2Label.textContent = "smg";
-          input1.value = "222134";
-          input2.value = "$222.1";
-
-          // Update history for Point → SMG
-          historyFromLabel.textContent = "Point";
-          historyFromValue.textContent = "221113";
-          historyToLabel.textContent = "Smg";
-          historyToValue.textContent = "$221.1";
         } else {
           // Inactive tab style - Point to Cycon
           btnPointCycon.className =
@@ -393,27 +712,49 @@
           exchangeRate.textContent = "1 SMG → 1,000 P";
           input1Label.textContent = "smg";
           input2Label.textContent = "point";
-          input1.value = "$221.1";
-          input2.value = "221113";
-
-          // Update history for SMG → Point
-          historyFromLabel.textContent = "Smg";
-          historyFromValue.textContent = "$221.1";
-          historyToLabel.textContent = "Point";
-          historyToValue.textContent = "221113";
         }
+
+        // Update inputs with current user data
+        updateExchangeInputs();
       }
 
       // Event listeners for exchange tabs
       btnPointCycon.addEventListener("click", () =>
-        setActiveTab("point-cycon")
+        setActiveTab("point-to-smg")
       );
       btnCyconPoint.addEventListener("click", () =>
-        setActiveTab("cycon-point")
+        setActiveTab("smg-to-point")
       );
 
-      // Initialize with Point→Cycon active
-      setActiveTab("point-cycon");
+      // Add confirm button event listener
+      document
+        .querySelector(".bg-blue-600")
+        .addEventListener("click", performExchange);
+
+      // Initialize with Point→SMG active
+      setActiveTab("point-to-smg");
+
+      // Load user data when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize Telegram User ID first
+        getTelegramUserId();
+        console.log("📱 Exchange page - Telegram User ID:", telegramUserId);
+
+        fetchUserData();
+        initializeBottomNavigation();
+
+        // Load transaction history after getting user ID
+        setTimeout(async () => {
+          await loadTransactionHistory();
+        }, 100);
+
+        // Add event listener for Clear All button
+        document
+          .getElementById("clear-history-btn")
+          .addEventListener("click", clearTransactionHistory);
+
+        console.log("🔄 Exchange page initialized with API integration");
+      });
 
       // =====================
       // Bottom Navigation Functions
@@ -458,7 +799,7 @@
                 break;
               case "nav-boost":
                 console.log("🚀 Boost tab selected");
-                window.location.href = "boost.html";
+
                 break;
               case "nav-point":
                 console.log("🎯 Point tab selected");
@@ -469,11 +810,211 @@
         });
       }
 
-      // Initialize bottom navigation when page loads
-      document.addEventListener("DOMContentLoaded", function () {
-        initializeBottomNavigation();
-        console.log("🔄 Exchange page initialized with active navigation");
-      });
+      // Load transaction history from database via API
+      async function loadTransactionHistory() {
+        try {
+          console.log(
+            `🌐 Loading transaction history from API for user: ${telegramUserId}`
+          );
+          const response = await fetch(
+            `/api/transaction-history/${encodeURIComponent(
+              telegramUserId
+            )}?limit=10`
+          );
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+              transactionHistory = result.data;
+              console.log(
+                `📥 Loaded ${transactionHistory.length} transactions from API`
+              );
+              renderTransactionHistory();
+            } else {
+              console.log("❌ No transaction history data in API response");
+              transactionHistory = [];
+              renderTransactionHistory();
+            }
+          } else {
+            console.error(
+              "❌ Failed to load transaction history from API:",
+              response.statusText
+            );
+            transactionHistory = [];
+            renderTransactionHistory();
+          }
+        } catch (error) {
+          console.error(
+            "❌ Error loading transaction history from API:",
+            error
+          );
+          transactionHistory = [];
+          renderTransactionHistory();
+        }
+      }
+
+      // Save transaction history to database via API
+      async function saveTransactionHistory(exchanged, exchangeType) {
+        try {
+          const newTransaction = {
+            id: Date.now(),
+            timestamp: Date.now(),
+            fromLabel: exchangeType === "point-to-smg" ? "Point" : "Smg",
+            fromValue:
+              exchangeType === "point-to-smg"
+                ? exchanged.points.toLocaleString()
+                : `$${exchanged.smg.toFixed(1)}`,
+            toLabel: exchangeType === "point-to-smg" ? "Smg" : "Point",
+            toValue:
+              exchangeType === "point-to-smg"
+                ? `$${exchanged.smg.toFixed(1)}`
+                : exchanged.points.toLocaleString(),
+            exchangeType: exchangeType,
+          };
+
+          console.log(`💾 Saving transaction to API:`, newTransaction);
+
+          const response = await fetch(
+            `/api/transaction-history/${encodeURIComponent(telegramUserId)}`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(newTransaction),
+            }
+          );
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+              console.log(`✅ Transaction saved to API successfully`);
+              // Reload transaction history from API to get updated list
+              await loadTransactionHistory();
+            } else {
+              console.error(
+                "❌ Failed to save transaction to API:",
+                result.error
+              );
+            }
+          } else {
+            console.error("❌ API request failed:", response.statusText);
+          }
+        } catch (error) {
+          console.error("❌ Error saving transaction to API:", error);
+        }
+      }
+
+      // Render transaction history list
+      function renderTransactionHistory() {
+        const historyList = document.getElementById("history-list");
+        const historyContainer = document.querySelector(".history-container");
+        const scrollIndicator = document.querySelector(".scroll-indicator");
+
+        if (transactionHistory.length === 0) {
+          historyList.innerHTML =
+            '<div class="text-gray-400 text-center py-4">No transactions yet</div>';
+          historyContainer.classList.remove("scrollable");
+          return;
+        }
+
+        historyList.innerHTML = transactionHistory
+          .map(
+            (tx) => `
+          <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
+            <div class="flex justify-between items-start mb-2">
+              <span class="text-sm font-medium ${
+                tx.type === "buy" ? "text-green-400" : "text-red-400"
+              }">
+                ${tx.type.toUpperCase()}
+              </span>
+              <span class="text-xs text-gray-400">${new Date(
+                tx.timestamp
+              ).toLocaleString()}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-white">${tx.amount} ${tx.coin}</span>
+              <span class="text-gray-300">$${tx.price.toFixed(2)}</span>
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        // Check if content is scrollable
+        setTimeout(() => {
+          const isScrollable =
+            historyList.scrollHeight > historyList.clientHeight;
+          if (isScrollable) {
+            historyContainer.classList.add("scrollable");
+          } else {
+            historyContainer.classList.remove("scrollable");
+          }
+        }, 100);
+
+        // Add scroll event listener with indicator management
+        historyList.addEventListener("scroll", function () {
+          const scrollTop = this.scrollTop;
+          const scrollHeight = this.scrollHeight;
+          const clientHeight = this.clientHeight;
+
+          console.log("Scroll position:", scrollTop);
+          console.log("At top:", scrollTop === 0);
+          console.log(
+            "At bottom:",
+            scrollTop + clientHeight >= scrollHeight - 1
+          );
+
+          // Auto-hide scroll indicator after scrolling starts
+          if (
+            scrollIndicator &&
+            !scrollIndicator.classList.contains("fade-out")
+          ) {
+            scrollIndicator.classList.add("fade-out");
+            setTimeout(() => {
+              scrollIndicator.classList.remove("fade-out");
+            }, 2000); // Show again after 2 seconds
+          }
+        });
+      }
+
+      // Clear all transaction history from database via API
+      async function clearTransactionHistory() {
+        if (
+          confirm("Are you sure you want to clear all transaction history?")
+        ) {
+          try {
+            console.log(
+              `🗑️ Clearing transaction history via API for user: ${telegramUserId}`
+            );
+
+            const response = await fetch(
+              `/api/transaction-history/${encodeURIComponent(telegramUserId)}`,
+              {
+                method: "DELETE",
+              }
+            );
+
+            if (response.ok) {
+              const result = await response.json();
+              if (result.success) {
+                console.log(`✅ Transaction history cleared successfully`);
+                transactionHistory = [];
+                renderTransactionHistory();
+              } else {
+                console.error(
+                  "❌ Failed to clear transaction history:",
+                  result.error
+                );
+              }
+            } else {
+              console.error("❌ API request failed:", response.statusText);
+            }
+          } catch (error) {
+            console.error("❌ Error clearing transaction history:", error);
+          }
+        }
+      }
     </script>
   </body>
 </html>
