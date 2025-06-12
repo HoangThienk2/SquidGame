@@ -1217,14 +1217,17 @@
       // Create audio objects for sound effects
       const coinSound = new Audio('./images/retro-coin-4-236671.mp3');
       const crashSound = new Audio('./images/box-crash-106687.mp3');
+      const levelUpSound = new Audio('./images/Game-level-up-sound-effect.mp3');
       
       // Configure audio settings
       coinSound.volume = 0.7; // Adjust volume (0.0 to 1.0)
       crashSound.volume = 0.8;
+      levelUpSound.volume = 0.9;
       
       // Preload audio files
       coinSound.preload = 'auto';
       crashSound.preload = 'auto';
+      levelUpSound.preload = 'auto';
       
       // Function to play coin sound with error handling
       function playCoinSound() {
@@ -1247,6 +1250,18 @@
           });
         } catch (error) {
           console.log('Crash sound error:', error);
+        }
+      }
+      
+      // Function to play level up sound with error handling
+      function playLevelUpSound() {
+        try {
+          levelUpSound.currentTime = 0; // Reset to beginning
+          levelUpSound.play().catch(error => {
+            console.log('Level up sound play failed:', error);
+          });
+        } catch (error) {
+          console.log('Level up sound error:', error);
         }
       }
 
@@ -2768,6 +2783,9 @@
       function showLevelUpPopup(newLevel) {
         const popup = document.getElementById("level-up-popup");
         const titleElement = popup.querySelector(".level-up-title");
+
+        // Play level up sound effect
+        playLevelUpSound();
 
         if (titleElement) {
           titleElement.textContent = `Level ${newLevel}!`;
