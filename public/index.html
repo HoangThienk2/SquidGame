@@ -796,20 +796,24 @@
       let telegramUserId = null;
 
       function getTelegramUserId() {
-        // First, try to get from localStorage (persistent)
+        // SECURITY: Only save Telegram User ID to localStorage for persistence
+        // Game state remains server-only to prevent hacking
+        
+        // First, try to get from localStorage (for demo ID persistence only)
         const savedUserId = localStorage.getItem("telegramUserId");
-        if (savedUserId && !savedUserId.startsWith("demo_")) {
+        if (savedUserId) {
           telegramUserId = savedUserId;
           console.log("📱 Telegram User ID from localStorage:", telegramUserId);
           return telegramUserId;
         }
-
+        
         // Try to get from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const userIdFromUrl = urlParams.get("userId");
 
         if (userIdFromUrl) {
           telegramUserId = userIdFromUrl;
+          // Save to localStorage for persistence
           localStorage.setItem("telegramUserId", telegramUserId);
           console.log("📱 Telegram User ID from URL:", telegramUserId);
           return telegramUserId;
@@ -824,6 +828,7 @@
 
           if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
             telegramUserId = webApp.initDataUnsafe.user.id.toString();
+            // Save to localStorage for persistence
             localStorage.setItem("telegramUserId", telegramUserId);
             console.log("📱 Telegram User ID from WebApp:", telegramUserId);
             console.log("👤 User info:", webApp.initDataUnsafe.user);
@@ -831,17 +836,12 @@
           }
         }
 
-        // Check if we have a saved demo ID
-        if (savedUserId && savedUserId.startsWith("demo_")) {
-          telegramUserId = savedUserId;
-          console.log("📱 Using saved demo Telegram User ID:", telegramUserId);
-          return telegramUserId;
-        }
-
-        // Fallback: generate a temporary ID for testing
+        // Fallback: generate a demo ID and save it for persistence
         telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
+        // Save demo ID to localStorage so it persists across page refreshes
         localStorage.setItem("telegramUserId", telegramUserId);
-        console.log("📱 Generated new demo Telegram User ID:", telegramUserId);
+        console.log("📱 Generated and saved demo Telegram User ID:", telegramUserId);
+        console.log("💾 Demo ID saved to localStorage for persistence across refreshes");
         return telegramUserId;
       }
 
@@ -1101,8 +1101,11 @@
       ];
 
       // =====================
-      // 2. Game State Management
+      // 2. Game State Management - IN-MEMORY ONLY (NO LOCALSTORAGE)
       // =====================
+
+      // In-memory game state (not saved to localStorage to prevent hacking)
+      let currentGameState = null;
 
       function getLevelHP(level) {
         if (level <= 1) return 23040; // Changed to return actual HP points
@@ -1160,36 +1163,17 @@
       }
 
       function loadGameState() {
-        console.log("📱 loadGameState() called");
+        console.log("📱 loadGameState() called - MEMORY ONLY MODE");
         console.log("🔍 STACK TRACE for loadGameState:");
         console.trace();
         
-        try {
-          const data = localStorage.getItem("game_interface_state");
-          if (data) {
-            const state = JSON.parse(data);
-            console.log("📱 Loaded state from localStorage:", state);
-            console.log(`📱 HP from localStorage: ${state.hp}`);
-            
-            // Ensure required fields exist with proper defaults
-            const gameState = {
-              level: state.level || 1,
-              hp: state.hp !== undefined ? state.hp : getLevelHP(state.level || 1),
-              coinCount: state.coinCount || 0,
-              coinEarn: state.coinEarn || 0,
-              lastRecover: state.lastRecover || Date.now(),
-              lastZeroHP: state.lastZeroHP || null,
-            };
-            
-            console.log("📱 Final processed state:", gameState);
-            console.log(`📱 Final HP value: ${gameState.hp}`);
-            return gameState;
-          }
-        } catch (error) {
-          console.error("❌ Error loading game state:", error);
+        // Return current in-memory state or default
+        if (currentGameState) {
+          console.log("📱 Returning current in-memory state:", currentGameState);
+          return currentGameState;
         }
-
-        // Return default state if no saved data or error
+        
+        // Return default state for new session
         const defaultLevel = 1;
         const defaultState = {
           level: defaultLevel,
@@ -1200,7 +1184,7 @@
           lastZeroHP: null,
         };
         
-        console.log("📱 Returning default state:", defaultState);
+        console.log("📱 Returning default state (MEMORY ONLY MODE):", defaultState);
         console.log(`📱 Default HP value: ${defaultState.hp}`);
         return defaultState;
       }
@@ -1211,24 +1195,24 @@
         console.log("🔍 STACK TRACE for saveGameState:");
         console.trace();
         
-        // Save to localStorage first for immediate persistence
-        localStorage.setItem("game_interface_state", JSON.stringify(state));
-        console.log("💾 State saved to localStorage successfully");
+        // Save to in-memory state immediately for UI responsiveness
+        currentGameState = { ...state };
+        console.log("💾 State saved to memory successfully");
 
         // Sync to server if telegramUserId is available
         if (telegramUserId) {
           console.log("🌐 Initiating server sync for user:", telegramUserId);
           syncGameStateToServer(state);
         } else {
-          console.log("⚠️ No telegramUserId - skipping server sync");
+          console.log("⚠️ No telegramUserId - cannot sync to server");
         }
       }
 
-      // Enhanced load function that tries server first, then localStorage
+      // Enhanced load function that ONLY uses server data
       async function loadGameStateEnhanced() {
-        console.log("🔄 Starting enhanced game state loading...");
+        console.log("🔄 Starting enhanced game state loading (SERVER ONLY MODE)...");
         
-        // Try to load from server first
+        // ONLY load from server - no localStorage fallback
         const serverState = await loadGameStateFromServer();
         if (serverState) {
           console.log("🌐 Server state received:", serverState);
@@ -1241,27 +1225,23 @@
             console.log(`💖 Server HP preserved: ${serverState.hp}`);
           }
           
-          // CRITICAL DEBUG: Add stack trace to see who calls this function
-          console.log("🔍 STACK TRACE for loadGameStateEnhanced:");
-          console.trace();
-          
-          // Save to localStorage for offline access
-          localStorage.setItem(
-            "game_interface_state",
-            JSON.stringify(serverState)
-          );
-          console.log("💾 Server state saved to localStorage");
+          // Save to in-memory state
+          currentGameState = { ...serverState };
+          console.log("💾 Server state saved to memory");
           
           return serverState;
         }
 
-        // Fallback to localStorage
-        console.log("📱 No server state, falling back to localStorage");
-        const localState = loadGameState();
-        console.log("📱 Local state loaded:", localState);
-        console.log(`📱 Local HP value: ${localState.hp}`);
+        // If no server state, return default (new user)
+        console.log("📱 No server state, returning default for new user");
+        const defaultState = loadGameState();
+        console.log("📱 Default state for new user:", defaultState);
+        console.log(`📱 Default HP value: ${defaultState.hp}`);
         
-        return localState;
+        // Save default to in-memory state
+        currentGameState = { ...defaultState };
+        
+        return defaultState;
       }
 
       // =====================
