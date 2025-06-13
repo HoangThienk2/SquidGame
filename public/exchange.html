@@ -7,7 +7,164 @@
     <!-- Telegram WebApp Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Gugi&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      body {
+        font-family: "Gugi", sans-serif;
+      }
+
+      /* Responsive height adjustments */
+      @media (max-height: 700px) {
+        /* iPhone SE and similar short screens */
+        .exchange-container {
+          padding: 6px !important;
+          padding-bottom: 80px !important; /* Less space for bottom nav - moved up */
+        }
+
+        .exchange-form {
+          padding: 10px !important;
+        }
+
+        .exchange-form .tab-buttons {
+          margin-bottom: 12px !important;
+        }
+
+        .exchange-form .exchange-rate {
+          margin-top: 28px !important;
+          margin-bottom: 12px !important;
+          font-size: 1.3rem !important; /* Smaller exchange rate */
+        }
+
+        .exchange-form .input-section {
+          margin-bottom: 10px !important;
+          gap: 8px !important;
+        }
+
+        .exchange-form .input-row {
+          gap: 6px !important;
+        }
+
+        .exchange-form .input-label {
+          font-size: 0.8rem !important; /* Smaller label */
+          width: 45px !important;
+        }
+
+        .exchange-form .input-field {
+          padding: 6px 10px !important;
+          font-size: 0.9rem !important; /* Smaller input text */
+        }
+
+        .exchange-form .wallet-section {
+          margin-bottom: 10px !important;
+        }
+
+        .exchange-form .wallet-label {
+          font-size: 0.8rem !important; /* Smaller label */
+          margin-bottom: 3px !important;
+        }
+
+        .exchange-form .wallet-input-container {
+          padding: 6px 10px !important;
+        }
+
+        .exchange-form .wallet-input {
+          padding: 3px 0 !important;
+          font-size: 0.8rem !important; /* Smaller wallet text */
+        }
+
+        .exchange-form .confirm-button {
+          padding: 10px 0 !important;
+          font-size: 0.9rem !important; /* Smaller button text */
+          margin-bottom: 8px !important; /* Reduced margin */
+        }
+
+        .transaction-history {
+          padding: 10px !important;
+          margin-top: 8px !important; /* Reduced margin */
+          margin-bottom: 60px !important; /* Less margin for bottom nav - moved up */
+        }
+
+        .transaction-history .history-header {
+          margin-bottom: 8px !important;
+        }
+
+        .transaction-history .history-title {
+          font-size: 0.9rem !important; /* Smaller title */
+        }
+
+        .transaction-history .clear-button {
+          font-size: 0.7rem !important; /* Smaller button */
+        }
+
+        .transaction-history .history-list {
+          max-height: 180px !important; /* Taller history area */
+          gap: 6px !important;
+        }
+
+        .transaction-item {
+          padding: 8px !important;
+        }
+
+        .transaction-item .item-header {
+          margin-bottom: 6px !important;
+        }
+
+        .transaction-item .item-type {
+          font-size: 0.7rem !important; /* Smaller type text */
+        }
+
+        .transaction-item .item-time {
+          font-size: 0.7rem !important; /* Smaller time text */
+        }
+
+        .transaction-item .item-values {
+          font-size: 0.8rem !important; /* Smaller values */
+        }
+
+        /* User info section adjustments */
+        .flex.items-center.justify-between.mb-4 {
+          margin-bottom: 10px !important;
+        }
+
+        .w-11.h-11 {
+          width: 2.25rem !important;
+          height: 2.25rem !important;
+        }
+
+        .flex.flex-col.gap-1 .flex.gap-2 {
+          gap: 3px !important;
+        }
+
+        .flex.px-2.py-1 {
+          padding: 2px 6px !important;
+          font-size: 0.75rem !important;
+        }
+
+        .w-full.px-2.py-1.bg-red-600 {
+          padding: 2px 6px !important;
+          font-size: 0.75rem !important;
+        }
+      }
+
+      @media (min-height: 701px) and (max-height: 800px) {
+        /* Medium height screens */
+        .transaction-history .history-list {
+          max-height: 280px !important;
+        }
+      }
+
+      @media (min-height: 801px) {
+        /* Tall screens like iPhone XR */
+        .transaction-history .history-list {
+          max-height: 350px !important;
+        }
+      }
+
       .shadow-top-left {
         box-shadow: -6px -6px 12px rgba(0, 0, 0, 0.4);
       }
@@ -36,13 +193,15 @@
       .nav-item {
         transition: all 0.3s ease;
         cursor: pointer;
-        padding: 12px;
+        padding: 6px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 48px;
-        min-height: 48px;
+        min-width: 40px;
+        min-height: 40px;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
       }
 
       .nav-item.active {
@@ -53,18 +212,26 @@
 
       .nav-item.active img {
         filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 107, 139, 0.8));
-        transform: scale(1.2);
+        transform: scale(1.1);
       }
 
       .nav-item:hover {
         background: rgba(255, 107, 139, 0.1);
-        transform: scale(1.05);
+      }
+
+      .nav-item:active {
+        transform: scale(0.95);
       }
 
       .nav-item img {
         width: 24px;
         height: 24px;
         transition: all 0.3s ease;
+      }
+
+      .nav-item span {
+        transition: all 0.3s ease;
+        font-family: "Gugi", sans-serif;
       }
 
       /* Custom scrollbar styles for transaction history */
@@ -168,10 +335,10 @@
       }
     </style>
   </head>
-  <body class="bg-gray-900 font-sans">
+  <body class="bg-gray-900">
     <!-- User Info -->
     <div
-      class="max-w-[375px] mx-auto mt-6 p-2 rounded-2xl bg-[#17171F] shadow-lg relative"
+      class="exchange-container md:w-[375px] md:max-w-[375px] w-full mx-auto md:mt-6 p-4 rounded-2xl bg-[#17171F] shadow-lg relative min-h-screen"
     >
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
@@ -209,9 +376,9 @@
         </div>
       </div>
 
-      <div class="rounded-2xl relative bg-[#22222E] p-[16px]">
+      <div class="exchange-form rounded-2xl relative bg-[#22222E] p-[16px]">
         <!-- Tab Buttons -->
-        <div class="absolute top-0 right-0 left-0 flex mb-6">
+        <div class="tab-buttons absolute top-0 right-0 left-0 flex mb-6">
           <button
             id="btn-point-cycon"
             class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all"
@@ -255,19 +422,19 @@
         </div>
 
         <!-- Exchange Rate -->
-        <div class="text-center mt-[50px] mb-6">
+        <div class="exchange-rate text-center mt-[50px] mb-6">
           <span id="exchange-rate" class="text-3xl font-bold text-white"
             >1,000 P → 1 SMG</span
           >
         </div>
 
         <!-- Input Fields -->
-        <div class="mb-4">
-          <div class="flex flex-col gap-3">
-            <div class="flex gap-2 items-center">
+        <div class="input-section mb-5">
+          <div class="flex flex-col gap-4">
+            <div class="input-row flex gap-3 items-center">
               <label
                 id="input1-label"
-                class="block text-gray-400 text-lg w-[60px] mb-1"
+                class="input-label block text-gray-400 text-lg w-[60px] mb-1"
                 >point</label
               >
               <input
@@ -275,13 +442,13 @@
                 type="text"
                 value="222134"
                 readonly
-                class="w-full bg-gray-700 text-white rounded-2xl px-4 py-3 text-lg font-semibold outline-none"
+                class="input-field w-full bg-gray-700 text-white rounded-2xl px-4 py-3 text-lg font-semibold outline-none"
               />
             </div>
-            <div class="flex gap-2 items-center">
+            <div class="input-row flex gap-3 items-center">
               <label
                 id="input2-label"
-                class="block text-gray-400 w-[60px] text-lg mb-1"
+                class="input-label block text-gray-400 w-[60px] text-lg mb-1"
                 >smg</label
               >
               <input
@@ -289,21 +456,25 @@
                 type="text"
                 value="$112.2"
                 readonly
-                class="w-full bg-gray-700 text-white rounded-2xl px-4 py-3 text-lg font-semibold outline-none"
+                class="input-field w-full bg-gray-700 text-white rounded-2xl px-4 py-3 text-lg font-semibold outline-none"
               />
             </div>
           </div>
         </div>
 
         <!-- Wallet Address -->
-        <div class="mb-4">
-          <label class="block text-gray-400 text-lg mb-1">To Wallet</label>
-          <div class="flex items-center bg-gray-700 rounded-lg px-3 py-2">
+        <div class="wallet-section mb-5">
+          <label class="wallet-label block text-gray-400 text-lg mb-2"
+            >To Wallet</label
+          >
+          <div
+            class="wallet-input-container flex items-center bg-gray-700 rounded-lg px-3 py-2.5"
+          >
             <input
               type="text"
               value="1njrRcKQtfjiLuQxFYCeMXcth77m5TAYo"
               readonly
-              class="bg-transparent py-2 text-blue-400 font-mono flex-1 outline-none"
+              class="wallet-input bg-transparent py-2 text-blue-400 font-mono flex-1 outline-none"
             />
             <button class="ml-2 text-blue-400 hover:text-blue-300" title="Copy">
               <svg
@@ -325,19 +496,21 @@
 
         <!-- Confirm Button -->
         <button
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl text-lg mb-6"
+          class="confirm-button w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl text-lg mb-6"
         >
           Confirm
         </button>
       </div>
 
       <!-- Transaction History -->
-      <div class="bg-gray-700 rounded-xl p-4 mt-4">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-white font-semibold">Transaction History</h3>
+      <div class="transaction-history bg-gray-700 rounded-xl p-5 mt-4 mb-20">
+        <div class="history-header flex items-center justify-between mb-4">
+          <h3 class="history-title text-white font-semibold text-lg">
+            Transaction History
+          </h3>
           <button
             id="clear-history-btn"
-            class="text-gray-400 hover:text-gray-200 text-sm"
+            class="clear-button text-gray-400 hover:text-gray-200 text-sm"
           >
             Clear All
           </button>
@@ -346,62 +519,73 @@
           <div class="scroll-indicator">↕ Scroll</div>
           <div
             id="history-list"
-            class="flex flex-col gap-3 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700"
+            class="history-list flex flex-col gap-3 max-h-[350px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700"
           >
             <!-- Transaction items will be dynamically added here -->
-            <div class="text-gray-400 text-center py-4">
+            <div class="text-gray-400 text-center py-4 text-base">
               No transactions yet
             </div>
           </div>
         </div>
       </div>
 
-      <div
-        id="bottom-navigation"
-        class="absolute bottom-[-110px] left-1/2 -translate-x-1/2 gradient-bg card-bg w-[360px] h-[88px] rounded-full p-[24px] flex justify-center items-center"
-      >
-        <ul class="flex justify-between items-center gap-[20px] w-full">
-          <li
-            class="nav-item active flex flex-col items-center gap-[4px]"
-            id="nav-earn"
-          >
-            <img src="./image/earn.svg" alt="" class="w-[20px] h-[20px]" />
-            <span class="text-[10px] text-white font-medium">Earn</span>
-          </li>
-          <li
-            class="nav-item flex flex-col items-center gap-[4px]"
-            id="nav-exchange"
-          >
-            <img src="./image/exchange.svg" alt="" class="w-[20px] h-[20px]" />
-            <span class="text-[10px] text-white font-medium">Exchange</span>
-          </li>
-          <li
-            class="nav-item flex flex-col items-center gap-[4px]"
-            id="nav-auto-earn"
-          >
-            <button
-              id="auto-earn-button"
-              class="gradient-bg w-[40px] h-[40px] rounded-lg flex items-center justify-center"
+      <div class="absolute bottom-[20px] left-0 right-0 flex justify-center">
+        <div
+          id="bottom-navigation"
+          class="gradient-bg card-bg md:w-[360px] w-full h-[72px] rounded-full p-[24px] flex justify-center items-center"
+          style="z-index: 999; pointer-events: auto"
+        >
+          <ul class="flex justify-between items-center gap-[20px] w-full">
+            <li
+              class="nav-item active flex flex-col items-center gap-[4px]"
+              id="nav-earn"
             >
-              <img src="./image/button.svg" alt="" class="w-[20px] h-[20px]" />
-            </button>
-            <span class="text-[10px] text-white font-medium">Auto</span>
-          </li>
-          <li
-            class="nav-item flex flex-col items-center gap-[4px]"
-            id="nav-point"
-          >
-            <img src="./image/point.svg" alt="" class="w-[20px] h-[20px]" />
-            <span class="text-[10px] text-white font-medium">Point</span>
-          </li>
-          <li
-            class="nav-item flex flex-col items-center gap-[4px]"
-            id="nav-help"
-          >
-            <img src="./image/help.svg" alt="" class="w-[20px] h-[20px]" />
-            <span class="text-[10px] text-white font-medium">Help</span>
-          </li>
-        </ul>
+              <img src="./image/earn.svg" alt="" class="w-[20px] h-[20px]" />
+              <span class="text-[10px] text-white font-medium">Earn</span>
+            </li>
+            <li
+              class="nav-item flex flex-col items-center gap-[4px]"
+              id="nav-exchange"
+            >
+              <img
+                src="./image/exchange.svg"
+                alt=""
+                class="w-[20px] h-[20px]"
+              />
+              <span class="text-[10px] text-white font-medium">Exchange</span>
+            </li>
+            <li
+              class="nav-item flex flex-col items-center gap-[4px]"
+              id="nav-auto-earn"
+            >
+              <button
+                id="auto-earn-button"
+                class="gradient-bg w-[40px] h-[40px] rounded-lg flex items-center justify-center"
+              >
+                <img
+                  src="./image/button.svg"
+                  alt=""
+                  class="w-[20px] h-[20px]"
+                />
+              </button>
+              <span class="text-[10px] text-white font-medium">Auto</span>
+            </li>
+            <li
+              class="nav-item flex flex-col items-center gap-[4px]"
+              id="nav-point"
+            >
+              <img src="./image/point.svg" alt="" class="w-[20px] h-[20px]" />
+              <span class="text-[10px] text-white font-medium">Point</span>
+            </li>
+            <li
+              class="nav-item flex flex-col items-center gap-[4px]"
+              id="nav-help"
+            >
+              <img src="./image/help.svg" alt="" class="w-[20px] h-[20px]" />
+              <span class="text-[10px] text-white font-medium">Help</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -753,7 +937,7 @@
 
       // Add confirm button event listener
       document
-        .querySelector(".bg-blue-600")
+        .querySelector(".confirm-button")
         .addEventListener("click", performExchange);
 
       // Initialize with Point→SMG active
@@ -847,16 +1031,25 @@
             )}?limit=10`
           );
 
+          console.log("📡 API Response status:", response.status);
+          console.log("📡 API Response ok:", response.ok);
+
           if (response.ok) {
             const result = await response.json();
+            console.log("📡 API Response data:", result);
+
             if (result.success && result.data) {
               transactionHistory = result.data;
               console.log(
-                `📥 Loaded ${transactionHistory.length} transactions from API`
+                `📥 Loaded ${transactionHistory.length} transactions from API:`,
+                transactionHistory
               );
               renderTransactionHistory();
             } else {
-              console.log("❌ No transaction history data in API response");
+              console.log(
+                "❌ No transaction history data in API response:",
+                result
+              );
               transactionHistory = [];
               renderTransactionHistory();
             }
@@ -932,39 +1125,66 @@
 
       // Render transaction history list
       function renderTransactionHistory() {
+        console.log(
+          "🎨 renderTransactionHistory called with:",
+          transactionHistory
+        );
+        console.log("🎨 transactionHistory length:", transactionHistory.length);
+
         const historyList = document.getElementById("history-list");
         const historyContainer = document.querySelector(".history-container");
         const scrollIndicator = document.querySelector(".scroll-indicator");
 
+        console.log("🎨 historyList element:", historyList);
+        console.log("🎨 historyContainer element:", historyContainer);
+
         if (transactionHistory.length === 0) {
+          console.log("🎨 No transactions, showing empty message");
           historyList.innerHTML =
-            '<div class="text-gray-400 text-center py-4">No transactions yet</div>';
+            '<div class="text-gray-400 text-center py-4 text-base">No transactions yet</div>';
           historyContainer.classList.remove("scrollable");
           return;
         }
 
+        console.log("🎨 Rendering", transactionHistory.length, "transactions");
+
         historyList.innerHTML = transactionHistory
-          .map(
-            (tx) => `
-          <div class="bg-gray-800 rounded-lg p-4 border border-gray-700">
-            <div class="flex justify-between items-start mb-2">
-              <span class="text-sm font-medium ${
-                tx.type === "buy" ? "text-green-400" : "text-red-400"
+          .map((tx) => {
+            console.log("🎨 Processing transaction:", tx);
+            return `
+          <div class="transaction-item bg-gray-800 rounded-lg p-4 border border-gray-600">
+            <div class="item-header flex justify-between items-start mb-3">
+              <span class="item-type text-sm font-medium ${
+                tx.exchangeType === "point-to-smg"
+                  ? "text-green-400"
+                  : "text-blue-400"
               }">
-                ${tx.type.toUpperCase()}
+                ${
+                  tx.exchangeType === "point-to-smg"
+                    ? "POINT → SMG"
+                    : "SMG → POINT"
+                }
               </span>
-              <span class="text-xs text-gray-400">${new Date(
+              <span class="item-time text-sm text-gray-400">${getTimeAgo(
                 tx.timestamp
-              ).toLocaleString()}</span>
+              )}</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-white">${tx.amount} ${tx.coin}</span>
-              <span class="text-gray-300">$${tx.price.toFixed(2)}</span>
+              <div class="flex flex-col gap-1">
+                <span class="item-values text-gray-300 text-base">${
+                  tx.fromLabel
+                }: ${tx.fromValue}</span>
+                <span class="item-values text-white text-base font-semibold">→ ${
+                  tx.toLabel
+                }: ${tx.toValue}</span>
+              </div>
             </div>
           </div>
-        `
-          )
+        `;
+          })
           .join("");
+
+        console.log("🎨 HTML generated, setting innerHTML");
 
         // Check if content is scrollable
         setTimeout(() => {
@@ -975,6 +1195,10 @@
           } else {
             historyContainer.classList.remove("scrollable");
           }
+          console.log(
+            "🎨 Scrollable check completed, isScrollable:",
+            isScrollable
+          );
         }, 100);
 
         // Add scroll event listener with indicator management
@@ -1058,7 +1282,58 @@
             toggleAutoEarn();
           });
         }
+
+        // Add event delegation for bottom navigation
+        const bottomNav = document.getElementById("bottom-navigation");
+        if (bottomNav) {
+          // Add click event listener with event delegation
+          bottomNav.addEventListener("click", function (event) {
+            const navItem = event.target.closest(".nav-item");
+            if (navItem) {
+              console.log("Navigation clicked:", navItem.id);
+              handleNavigation(navItem.id);
+            }
+          });
+
+          // Add touchstart event listener for better mobile responsiveness
+          bottomNav.addEventListener("touchstart", function (event) {
+            const navItem = event.target.closest(".nav-item");
+            if (navItem) {
+              console.log("Navigation touched:", navItem.id);
+              handleNavigation(navItem.id);
+            }
+          });
+        }
       });
+
+      // Handle navigation actions
+      function handleNavigation(navId) {
+        console.log("Handling navigation for:", navId);
+
+        switch (navId) {
+          case "nav-earn":
+            console.log("Navigating to Earn page");
+            window.location.href = "index.html";
+            break;
+          case "nav-exchange":
+            console.log("Already on Exchange page");
+            break;
+          case "nav-auto-earn":
+            console.log("Toggling Auto Earn");
+            toggleAutoEarn();
+            break;
+          case "nav-point":
+            console.log("Navigating to Point page");
+            // Add point page navigation when available
+            break;
+          case "nav-help":
+            console.log("Navigating to Help page");
+            // Add help page navigation when available
+            break;
+          default:
+            console.log("Unknown navigation item:", navId);
+        }
+      }
     </script>
   </body>
 </html>

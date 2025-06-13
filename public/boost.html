@@ -38,13 +38,13 @@
       .nav-item {
         transition: all 0.3s ease;
         cursor: pointer;
-        padding: 12px;
+        padding: 6px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 48px;
-        min-height: 48px;
+        min-width: 30px;
+        min-height: 30px;
       }
 
       .nav-item.active {
@@ -174,7 +174,7 @@
   <body class="bg-gray-900 min-h-screen">
     <!-- Main Container - Fixed dimensions like index.html -->
     <div
-      class="w-[375px] relative h-[667px] rounded-[20px] mx-auto gradient-bg p-[16px]"
+      class="md:max-w-[375px] w-full mx-auto md:mt-6 p-4 rounded-2xl bg-[#17171F] shadow-lg relative min-h-screen"
     >
       <img
         class="absolute rounded-[20px] top-0 left-0 z-[-1] bottom-0 right-0"
@@ -492,10 +492,9 @@
         </div>
       </div>
 
-      <!-- Bottom Navigation -->
       <div
         id="bottom-navigation"
-        class="absolute bottom-[-110px] gradient-bg card-bg w-[360px] h-[72px] rounded-full p-[24px] flex justify-center items-center"
+        class=" gradient-bg card-bg md:w-[360px] w-full h-[72px] rounded-full p-[24px] flex justify-center items-center"
       >
         <ul class="flex justify-between items-center gap-[20px] w-full">
           <li class="nav-item" id="nav-earn">
@@ -515,6 +514,7 @@
           </li>
         </ul>
       </div>
+      <!-- Bottom Navigation -->
     </div>
 
     <script>
