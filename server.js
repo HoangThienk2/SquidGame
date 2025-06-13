@@ -21,6 +21,110 @@ const db = new Database();
 // In-memory fallback database (if MongoDB fails)
 const gameDatabase = new Map();
 
+// Điểm cần để lên cấp (level 1 -> 100) - NEW SYSTEM
+const LEVEL_UP_REQUIREMENTS = [
+  6408, // Level 1: 267 taps × 24 = 6,408 points
+  10416, // Level 2: 434 taps × 24 = 10,416 points
+  13872, // Level 3: 578 taps × 24 = 13,872 points
+  15552, // Level 4: 648 taps × 24 = 15,552 points
+  17232, // Level 5: 718 taps × 24 = 17,232 points
+  18912, // Level 6: 788 taps × 24 = 18,912 points
+  20592, // Level 7: 858 taps × 24 = 20,592 points
+  22272, // Level 8: 928 taps × 24 = 22,272 points
+  23952, // Level 9: 998 taps × 24 = 23,952 points
+  25632, // Level 10: 1,068 taps × 24 = 25,632 points
+  31104, // Level 11: 1,296 taps × 24 = 31,104 points
+  33696, // Level 12: 1,404 taps × 24 = 33,696 points
+  36288, // Level 13: 1,512 taps × 24 = 36,288 points
+  38880, // Level 14: 1,620 taps × 24 = 38,880 points
+  41472, // Level 15: 1,728 taps × 24 = 41,472 points
+  44064, // Level 16: 1,836 taps × 24 = 44,064 points
+  46656, // Level 17: 1,944 taps × 24 = 46,656 points
+  49248, // Level 18: 2,052 taps × 24 = 49,248 points
+  51840, // Level 19: 2,160 taps × 24 = 51,840 points
+  54432, // Level 20: 2,268 taps × 24 = 54,432 points
+  65472, // Level 21: 2,728 taps × 24 = 65,472 points
+  68448, // Level 22: 2,852 taps × 24 = 68,448 points
+  71424, // Level 23: 2,976 taps × 24 = 71,424 points
+  74400, // Level 24: 3,100 taps × 24 = 74,400 points
+  77376, // Level 25: 3,224 taps × 24 = 77,376 points
+  80352, // Level 26: 3,348 taps × 24 = 80,352 points
+  83328, // Level 27: 3,472 taps × 24 = 83,328 points
+  86304, // Level 28: 3,596 taps × 24 = 86,304 points
+  89280, // Level 29: 3,720 taps × 24 = 89,280 points
+  92256, // Level 30: 3,844 taps × 24 = 92,256 points
+  110880, // Level 31: 4,620 taps × 24 = 110,880 points
+  117600, // Level 32: 4,900 taps × 24 = 117,600 points
+  124320, // Level 33: 5,180 taps × 24 = 124,320 points
+  131040, // Level 34: 5,460 taps × 24 = 131,040 points
+  137760, // Level 35: 5,740 taps × 24 = 137,760 points
+  144480, // Level 36: 6,020 taps × 24 = 144,480 points
+  151200, // Level 37: 6,300 taps × 24 = 151,200 points
+  157920, // Level 38: 6,580 taps × 24 = 157,920 points
+  164640, // Level 39: 6,860 taps × 24 = 164,640 points
+  171360, // Level 40: 7,140 taps × 24 = 171,360 points
+  198432, // Level 41: 8,268 taps × 24 = 198,432 points
+  206016, // Level 42: 8,584 taps × 24 = 206,016 points
+  213600, // Level 43: 8,900 taps × 24 = 213,600 points
+  221184, // Level 44: 9,216 taps × 24 = 221,184 points
+  228768, // Level 45: 9,532 taps × 24 = 228,768 points
+  236352, // Level 46: 9,848 taps × 24 = 236,352 points
+  243936, // Level 47: 10,164 taps × 24 = 243,936 points
+  251520, // Level 48: 10,480 taps × 24 = 251,520 points
+  259104, // Level 49: 10,796 taps × 24 = 259,104 points
+  0, // Level 50: Ruby level
+  329472, // Level 51: 13,728 taps × 24 = 329,472 points
+  338400, // Level 52: 14,100 taps × 24 = 338,400 points
+  347328, // Level 53: 14,472 taps × 24 = 347,328 points
+  356256, // Level 54: 14,844 taps × 24 = 356,256 points
+  365184, // Level 55: 15,216 taps × 24 = 365,184 points
+  374112, // Level 56: 15,588 taps × 24 = 374,112 points
+  383040, // Level 57: 15,960 taps × 24 = 383,040 points
+  391968, // Level 58: 16,332 taps × 24 = 391,968 points
+  400896, // Level 59: 16,704 taps × 24 = 400,896 points
+  409824, // Level 60: 17,076 taps × 24 = 409,824 points
+  487296, // Level 61: 20,304 taps × 24 = 487,296 points
+  502848, // Level 62: 20,952 taps × 24 = 502,848 points
+  518400, // Level 63: 21,600 taps × 24 = 518,400 points
+  533952, // Level 64: 22,248 taps × 24 = 533,952 points
+  549504, // Level 65: 22,896 taps × 24 = 549,504 points
+  565056, // Level 66: 23,544 taps × 24 = 565,056 points
+  580608, // Level 67: 24,192 taps × 24 = 580,608 points
+  596160, // Level 68: 24,840 taps × 24 = 596,160 points
+  611712, // Level 69: 25,488 taps × 24 = 611,712 points
+  627264, // Level 70: 26,136 taps × 24 = 627,264 points
+  // Continue with existing values for levels 71-100 (keeping original structure)
+  6498000,
+  7147000,
+  7797600,
+  8447400,
+  0, // 71-74, 75 là ruby
+  9747000,
+  10396800,
+  11046600,
+  11696400,
+  0, // 76-79, 80 là ruby
+  12346200,
+  13580820,
+  14815440,
+  16050060,
+  0, // 81-84, 85 là ruby
+  18519300,
+  19753920,
+  20988540,
+  22223160,
+  0, // 86-89, 90 là ruby
+  23457780,
+  26976448,
+  30495114,
+  34013782,
+  0, // 91-94, 95 là ruby
+  41051116,
+  44569782,
+  48008450,
+  0, // 96-98, 99 là ruby
+];
+
 // Enhanced CORS configuration
 const corsOptions = {
   origin: [
@@ -254,114 +358,200 @@ try {
 function getLevelHP(level) {
   // Daily point limits for each level (max points that can be earned per day)
   const DAILY_POINT_LIMITS = [
-    23040, // Level 1: 960 taps × 24 = 23,040 points
-    34560, // Level 2: 1,440 taps × 24 = 34,560 points
-    46080, // Level 3: 1,920 taps × 24 = 46,080 points
-    57600, // Level 4: 2,400 taps × 24 = 57,600 points
-    69120, // Level 5: 2,880 taps × 24 = 69,120 points
-    80640, // Level 6: 3,360 taps × 24 = 80,640 points
-    92160, // Level 7: 3,840 taps × 24 = 92,160 points
-    103680, // Level 8: 4,320 taps × 24 = 103,680 points
-    115200, // Level 9: 4,800 taps × 24 = 115,200 points
-    126720, // Level 10: 5,280 taps × 24 = 126,720 points
-    155520, // Level 11: 6,480 taps × 24 = 155,520 points
-    168480, // Level 12: 7,020 taps × 24 = 168,480 points
-    181440, // Level 13: 7,560 taps × 24 = 181,440 points
-    194400, // Level 14: 8,100 taps × 24 = 194,400 points
-    207360, // Level 15: 8,640 taps × 24 = 207,360 points
-    220320, // Level 16: 9,180 taps × 24 = 220,320 points
-    233280, // Level 17: 9,720 taps × 24 = 233,280 points
-    246240, // Level 18: 10,260 taps × 24 = 246,240 points
-    259200, // Level 19: 10,800 taps × 24 = 259,200 points
-    272160, // Level 20: 11,340 taps × 24 = 272,160 points
-    327360, // Level 21: 13,640 taps × 24 = 327,360 points
-    342240, // Level 22: 14,260 taps × 24 = 342,240 points
-    357120, // Level 23: 14,880 taps × 24 = 357,120 points
-    372000, // Level 24: 15,500 taps × 24 = 372,000 points
-    386880, // Level 25: 16,120 taps × 24 = 386,880 points
-    401760, // Level 26: 16,740 taps × 24 = 401,760 points
-    416640, // Level 27: 17,360 taps × 24 = 416,640 points
-    431520, // Level 28: 17,980 taps × 24 = 431,520 points
-    446400, // Level 29: 18,600 taps × 24 = 446,400 points
-    461280, // Level 30: 19,220 taps × 24 = 461,280 points
-    554400, // Level 31: 23,100 taps × 24 = 554,400 points
-    588000, // Level 32: 24,500 taps × 24 = 588,000 points
-    621600, // Level 33: 25,900 taps × 24 = 621,600 points
-    655200, // Level 34: 27,300 taps × 24 = 655,200 points
-    688800, // Level 35: 28,700 taps × 24 = 688,800 points
-    722400, // Level 36: 30,100 taps × 24 = 722,400 points
-    756000, // Level 37: 31,500 taps × 24 = 756,000 points
-    789600, // Level 38: 32,900 taps × 24 = 789,600 points
-    823200, // Level 39: 34,300 taps × 24 = 823,200 points
-    856800, // Level 40: 35,700 taps × 24 = 856,800 points
-    992160, // Level 41: 41,340 taps × 24 = 992,160 points
-    1029600, // Level 42: 42,900 taps × 24 = 1,029,600 points
-    1067040, // Level 43: 44,460 taps × 24 = 1,067,040 points
-    1104480, // Level 44: 46,020 taps × 24 = 1,104,480 points
-    1141920, // Level 45: 47,580 taps × 24 = 1,141,920 points
-    1179360, // Level 46: 49,140 taps × 24 = 1,179,360 points
-    1216800, // Level 47: 50,700 taps × 24 = 1,216,800 points
-    1254240, // Level 48: 52,260 taps × 24 = 1,254,240 points
-    1291680, // Level 49: 53,820 taps × 24 = 1,291,680 points
-    0, // Level 50: Ruby level
-    1646880, // Level 51: 68,620 taps × 24 = 1,646,880 points
-    1692000, // Level 52: 70,500 taps × 24 = 1,692,000 points
-    1737120, // Level 53: 72,380 taps × 24 = 1,737,120 points
-    1782240, // Level 54: 74,260 taps × 24 = 1,782,240 points
-    1827360, // Level 55: 76,140 taps × 24 = 1,827,360 points
-    1872480, // Level 56: 78,020 taps × 24 = 1,872,480 points
-    1917600, // Level 57: 79,900 taps × 24 = 1,917,600 points
-    1962720, // Level 58: 81,780 taps × 24 = 1,962,720 points
-    2007840, // Level 59: 83,660 taps × 24 = 2,007,840 points
-    2052960, // Level 60: 85,540 taps × 24 = 2,052,960 points
-    2436480, // Level 61: 101,520 taps × 24 = 2,436,480 points
-    2514240, // Level 62: 104,760 taps × 24 = 2,514,240 points
-    2592000, // Level 63: 108,000 taps × 24 = 2,592,000 points
-    2669760, // Level 64: 111,240 taps × 24 = 2,669,760 points
-    2747520, // Level 65: 114,480 taps × 24 = 2,747,520 points
-    2825280, // Level 66: 117,720 taps × 24 = 2,825,280 points
-    2903040, // Level 67: 120,960 taps × 24 = 2,903,040 points
-    2980800, // Level 68: 124,200 taps × 24 = 2,980,800 points
-    3058560, // Level 69: 127,440 taps × 24 = 3,058,560 points
-    3136320, // Level 70: 130,680 taps × 24 = 3,136,320 points
-    // Continue with higher values for levels 71-100
-    3500000,
-    3600000,
-    3700000,
-    3800000,
-    0, // 71-75
-    4000000,
-    4100000,
-    4200000,
-    4300000,
-    0, // 76-80
-    4500000,
-    4600000,
-    4700000,
-    4800000,
-    0, // 81-85
-    5000000,
-    5100000,
-    5200000,
-    5300000,
-    0, // 86-90
-    5500000,
-    5600000,
-    5700000,
-    5800000,
-    0, // 91-95
-    6000000,
-    6100000,
-    6200000,
-    0,
-    0, // 96-100
+    2400,
+    3600,
+    4800,
+    6000,
+    7200,
+    8400,
+    9600,
+    10800,
+    12000,
+    13200, // Levels 1–10
+    16200,
+    17550,
+    18900,
+    20250,
+    21600,
+    22950,
+    24300,
+    25650,
+    27000,
+    28350, // Levels 11–20
+    34100,
+    35650,
+    37200,
+    38750,
+    40300,
+    41850,
+    43400,
+    44950,
+    46500,
+    48050, // Levels 21–30
+    57750,
+    61250,
+    64750,
+    68250,
+    71750,
+    75250,
+    78750,
+    82250,
+    85750,
+    89250, // Levels 31–40
+    103350,
+    107250,
+    111150,
+    115050,
+    118950,
+    122850,
+    126750,
+    130650,
+    134550,
+    0, // Levels 41–50 (Ruby level remains 0)
+    171550,
+    176250,
+    180950,
+    185650,
+    190350,
+    195050,
+    199750,
+    204450,
+    209150,
+    213850, // Levels 51–60
+    253800,
+    261900,
+    270000,
+    278100,
+    286200,
+    294300,
+    302400,
+    310500,
+    318600,
+    326700, // Levels 61–70
+    378200,
+    387350,
+    396500,
+    405650,
+    414800,
+    423950,
+    433100,
+    442250,
+    451400,
+    460550, // Levels 71–80
+    539000,
+    549500,
+    560000,
+    570500,
+    581000,
+    591500,
+    602000,
+    612500,
+    623000,
+    633500, // Levels 81–90
+    740000,
+    756000,
+    772000,
+    788000,
+    804000,
+    820000,
+    836000,
+    852000,
+    868000,
+    884000, // Levels 91–100
+    // Remaining values unchanged from previous configuration...
   ];
 
   // Return the daily point limit as max HP for the level
-  if (level <= 0 || level > DAILY_POINT_LIMITS.length) return 23040; // Default for invalid levels
+  if (level <= 0 || level > DAILY_POINT_LIMITS.length) return 2400; // Default for invalid levels
   const dailyLimit = DAILY_POINT_LIMITS[level - 1];
-  if (dailyLimit === 0) return 23040; // Default for ruby levels (Level 1 equivalent)
+  if (dailyLimit === 0) return 2400; // Default for ruby levels (Level 1 equivalent)
   return dailyLimit; // Return actual HP points
+}
+
+// Helper function to check if user can level up
+function canLevelUp(currentLevel, totalCoins) {
+  const totalCoinsNeededForNextLevel = getTotalCoinsForLevel(currentLevel + 1);
+
+  console.log(`🔍 Level up check details:`);
+  console.log(`Current level: ${currentLevel}`);
+  console.log(`Total coins available: ${totalCoins}`);
+  console.log(
+    `Total coins needed for level ${
+      currentLevel + 1
+    }: ${totalCoinsNeededForNextLevel}`
+  );
+  console.log(
+    `Can level up: ${
+      totalCoins >= totalCoinsNeededForNextLevel && currentLevel < 100
+    }`
+  );
+
+  return (
+    totalCoinsNeededForNextLevel > 0 &&
+    totalCoins >= totalCoinsNeededForNextLevel &&
+    currentLevel < 100
+  );
+}
+
+// Helper function to get total coins needed for a level
+function getTotalCoinsForLevel(level) {
+  if (level <= 1) return 0;
+  let total = 0;
+  for (let i = 0; i < level - 1; i++) {
+    total += LEVEL_UP_REQUIREMENTS[i] || 0;
+  }
+  return total;
+}
+
+// Helper function to recover HP based on time elapsed
+function recoverHP(userData) {
+  const currentTime = Date.now();
+  const maxHP = getLevelHP(userData.level);
+
+  // Cap HP at maxHP if it's already over the limit
+  if (userData.hp > maxHP) {
+    console.log(`🔧 Capping HP: ${userData.hp} → ${maxHP} (maxHP limit)`);
+    userData.hp = maxHP;
+    userData.lastRecover = currentTime;
+    return userData;
+  }
+
+  // Initialize lastRecover if not set
+  if (!userData.lastRecover) {
+    userData.lastRecover = currentTime;
+    return userData;
+  }
+
+  const timeSinceLastRecover = currentTime - userData.lastRecover;
+  const recoveryInterval = 3 * 60 * 1000; // 3 minutes in milliseconds
+
+  // Check if enough time has passed for recovery
+  if (timeSinceLastRecover >= recoveryInterval && userData.hp < maxHP) {
+    // Calculate how many 3-minute intervals have passed
+    const intervalsElapsed = Math.floor(
+      timeSinceLastRecover / recoveryInterval
+    );
+
+    // Calculate recovery amount (2% per interval)
+    const recoveryPerInterval = Math.floor(maxHP * 0.02);
+    const totalRecovery = recoveryPerInterval * intervalsElapsed;
+
+    // Apply recovery but don't exceed maxHP
+    const oldHP = userData.hp;
+    userData.hp = Math.min(maxHP, userData.hp + totalRecovery);
+
+    // Update lastRecover timestamp to account for the intervals used
+    userData.lastRecover =
+      userData.lastRecover + intervalsElapsed * recoveryInterval;
+
+    console.log(
+      `💚 Server HP Recovery: ${oldHP} → ${userData.hp} (+${
+        userData.hp - oldHP
+      }) for user ${userData.telegramUserId}`
+    );
+  }
+
+  return userData;
 }
 
 // =====================
@@ -385,6 +575,7 @@ async function getUserData(telegramUserId) {
           maxHP: maxHP,
           ruby: 0,
           coins: 0,
+          smg: 0,
           lastRecover: Date.now(),
           lastZeroHP: null,
         });
@@ -405,6 +596,22 @@ async function getUserData(telegramUserId) {
             hp: user.hp,
           });
         }
+
+        // Apply HP recovery logic
+        const originalHP = user.hp;
+        const originalLastRecover = user.lastRecover;
+        user = recoverHP(user);
+
+        // Update database if HP or lastRecover changed
+        if (
+          user.hp !== originalHP ||
+          user.lastRecover !== originalLastRecover
+        ) {
+          await db.updateUserData(telegramUserId, {
+            hp: user.hp,
+            lastRecover: user.lastRecover,
+          });
+        }
       }
       return user;
     } else {
@@ -420,11 +627,26 @@ async function getUserData(telegramUserId) {
           coinCount: 0,
           coinEarn: 0,
           totalCoins: 0,
+          smg: 0,
           lastRecover: Date.now(),
           lastZeroHP: null,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         });
+      } else {
+        // Apply HP recovery for in-memory users too
+        let userData = gameDatabase.get(telegramUserId);
+        const originalHP = userData.hp;
+        const originalLastRecover = userData.lastRecover;
+        userData = recoverHP(userData);
+
+        // Update in-memory data if changed
+        if (
+          userData.hp !== originalHP ||
+          userData.lastRecover !== originalLastRecover
+        ) {
+          gameDatabase.set(telegramUserId, userData);
+        }
       }
       return gameDatabase.get(telegramUserId);
     }
@@ -442,6 +664,7 @@ async function getUserData(telegramUserId) {
         coinCount: 0,
         coinEarn: 0,
         totalCoins: 0,
+        smg: 0,
         lastRecover: Date.now(),
         lastZeroHP: null,
         createdAt: new Date().toISOString(),
@@ -474,6 +697,7 @@ async function updateUserData(telegramUserId, updateData) {
         coinCount: user.coinCount,
         coinEarn: user.coinEarn,
         totalCoins: user.totalCoins,
+        smg: user.smg || 0,
         lastRecover: user.lastRecover,
         lastZeroHP: user.lastZeroHP,
         createdAt: user.createdAt,
@@ -708,6 +932,9 @@ app.post("/webhook", (req, res) => {
  *                     totalCoins:
  *                       type: integer
  *                       example: 1590
+ *                     smg:
+ *                       type: integer
+ *                       example: 50
  *                     lastRecover:
  *                       type: integer
  *                       example: 1703123456789
@@ -770,6 +997,7 @@ app.get("/api/user/:telegramUserId", async (req, res) => {
         ruby: userData.coinCount, // Ruby coins (top display)
         coins: userData.coinEarn, // Current earning session
         totalCoins: userData.totalCoins, // Total coins earned
+        smg: userData.smg || 0, // SMG currency
         lastRecover: userData.lastRecover,
         lastZeroHP: userData.lastZeroHP,
         createdAt: userData.createdAt,
@@ -859,6 +1087,7 @@ app.post("/api/user/:telegramUserId", async (req, res) => {
       "coinCount",
       "coinEarn",
       "totalCoins",
+      "smg",
       "lastRecover",
       "lastZeroHP",
     ];
@@ -883,6 +1112,7 @@ app.post("/api/user/:telegramUserId", async (req, res) => {
         ruby: updatedUserData.coinCount,
         coins: updatedUserData.coinEarn,
         totalCoins: updatedUserData.totalCoins,
+        smg: updatedUserData.smg || 0,
         updatedAt: updatedUserData.updatedAt,
       },
     });
@@ -978,13 +1208,41 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
       });
     }
 
-    // Update user data with game state
+    // Get current user data first
+    const currentUserData = await getUserData(telegramUserId);
+
+    // Check for level up before updating
+    const totalCoins = (gameState.coinCount || 0) + (gameState.coinEarn || 0);
+    let finalCoinCount = gameState.coinCount || 0;
+    let finalCoinEarn = gameState.coinEarn || 0;
+    let finalLevel = gameState.level || 1;
+
+    // Check if user should level up
+    if (canLevelUp(currentUserData.level, totalCoins)) {
+      const oldLevel = currentUserData.level;
+      finalLevel = oldLevel + 1;
+
+      console.log(`🎉 SERVER LEVEL UP! ${oldLevel} → ${finalLevel}`);
+      console.log(
+        `Before level up - Ruby: ${finalCoinCount}, Coins: ${finalCoinEarn}`
+      );
+
+      // FIXED: Khi lên level, cộng coins vào ruby và reset coins về 0
+      finalCoinCount += finalCoinEarn;
+      finalCoinEarn = 0;
+
+      console.log(
+        `After level up - Ruby: ${finalCoinCount}, Coins: ${finalCoinEarn}`
+      );
+    }
+
+    // Update user data with game state (including level up changes)
     const syncData = {
-      level: gameState.level || 1,
+      level: finalLevel,
       hp: gameState.hp !== undefined ? gameState.hp : 100,
-      coinCount: gameState.coinCount || 0,
-      coinEarn: gameState.coinEarn || 0,
-      totalCoins: (gameState.coinCount || 0) + (gameState.coinEarn || 0),
+      coinCount: finalCoinCount,
+      coinEarn: finalCoinEarn,
+      totalCoins: finalCoinCount + finalCoinEarn,
       lastRecover: gameState.lastRecover || Date.now(),
       lastZeroHP: gameState.lastZeroHP || null,
     };
@@ -1001,9 +1259,198 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
         ruby: updatedUserData.coinCount,
         coins: updatedUserData.coinEarn,
         totalCoins: updatedUserData.totalCoins,
+        smg: updatedUserData.smg || 0,
         syncedAt: updatedUserData.updatedAt,
       },
     });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/exchange/{telegramUserId}:
+ *   post:
+ *     summary: Exchange points for SMG
+ *     description: Convert 1000 points to 1 SMG
+ *     tags: [Exchange]
+ *     parameters:
+ *       - in: path
+ *         name: telegramUserId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Telegram User ID
+ *         example: "123456789"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               points:
+ *                 type: integer
+ *                 minimum: 1000
+ *                 description: Points to exchange (must be multiple of 1000)
+ *                 example: 1000
+ *               exchangeType:
+ *                 type: string
+ *                 enum: [point-to-smg, smg-to-point]
+ *                 description: Type of exchange
+ *                 example: "point-to-smg"
+ *     responses:
+ *       200:
+ *         description: Exchange successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Exchange completed successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     exchanged:
+ *                       type: object
+ *                       properties:
+ *                         points:
+ *                           type: integer
+ *                         smg:
+ *                           type: number
+ *                     newBalance:
+ *                       type: object
+ *                       properties:
+ *                         totalCoins:
+ *                           type: integer
+ *                         smg:
+ *                           type: number
+ *       400:
+ *         description: Invalid exchange request
+ *       500:
+ *         description: Server error
+ */
+app.post("/api/exchange/:telegramUserId", async (req, res) => {
+  try {
+    const telegramUserId = req.params.telegramUserId;
+    const { points, exchangeType = "point-to-smg" } = req.body;
+
+    if (!telegramUserId) {
+      return res.status(400).json({
+        success: false,
+        error: "Telegram user ID is required",
+      });
+    }
+
+    if (!points || points < 1000) {
+      return res.status(400).json({
+        success: false,
+        error: "Minimum 1000 points required for exchange",
+      });
+    }
+
+    if (points % 1000 !== 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Points must be a multiple of 1000",
+      });
+    }
+
+    // Get current user data
+    const userData = await getUserData(telegramUserId);
+
+    if (exchangeType === "point-to-smg") {
+      // Check if user has enough ruby points
+      if (userData.coinCount < points) {
+        return res.status(400).json({
+          success: false,
+          error: "Insufficient ruby points for exchange",
+        });
+      }
+
+      // Calculate SMG to give (1000 points = 1 SMG)
+      const smgToAdd = points / 1000;
+
+      // Update user data - subtract from ruby (coinCount) and add SMG
+      const updateData = {
+        coinCount: userData.coinCount - points,
+        totalCoins: userData.coinCount - points + (userData.coinEarn || 0),
+        smg: (userData.smg || 0) + smgToAdd,
+      };
+
+      const updatedUserData = await updateUserData(telegramUserId, updateData);
+
+      console.log("🔄 Exchange completed - Updated user data:", {
+        ruby: updatedUserData.coinCount,
+        totalCoins: updatedUserData.totalCoins,
+        smg: updatedUserData.smg,
+      });
+
+      res.json({
+        success: true,
+        message: "Exchange completed successfully",
+        data: {
+          exchanged: {
+            points: points,
+            smg: smgToAdd,
+          },
+          newBalance: {
+            ruby: updatedUserData.coinCount,
+            totalCoins: updatedUserData.totalCoins,
+            smg: updatedUserData.smg,
+          },
+        },
+      });
+    } else if (exchangeType === "smg-to-point") {
+      // Convert SMG back to ruby points (1 SMG = 1000 points)
+      const smgToExchange = points / 1000; // points here represents the points equivalent
+
+      if ((userData.smg || 0) < smgToExchange) {
+        return res.status(400).json({
+          success: false,
+          error: "Insufficient SMG for exchange",
+        });
+      }
+
+      // Update user data - add to ruby (coinCount) and subtract SMG
+      const updateData = {
+        coinCount: userData.coinCount + points,
+        totalCoins: userData.coinCount + points + (userData.coinEarn || 0),
+        smg: (userData.smg || 0) - smgToExchange,
+      };
+
+      const updatedUserData = await updateUserData(telegramUserId, updateData);
+
+      res.json({
+        success: true,
+        message: "Exchange completed successfully",
+        data: {
+          exchanged: {
+            smg: smgToExchange,
+            points: points,
+          },
+          newBalance: {
+            ruby: updatedUserData.coinCount,
+            totalCoins: updatedUserData.totalCoins,
+            smg: updatedUserData.smg,
+          },
+        },
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid exchange type",
+      });
+    }
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -1247,6 +1694,321 @@ app.get("/api/db-status", (req, res) => {
       inMemoryUsers: gameDatabase.size,
     },
   });
+});
+
+// =====================
+// Transaction History API Endpoints
+// =====================
+
+/**
+ * @swagger
+ * /api/transaction-history/{telegramUserId}:
+ *   get:
+ *     summary: Get transaction history
+ *     description: Get user's exchange transaction history
+ *     tags: [Transaction History]
+ *     parameters:
+ *       - in: path
+ *         name: telegramUserId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Telegram User ID
+ *         example: "123456789"
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *         description: Number of transactions to return
+ *         example: 10
+ *     responses:
+ *       200:
+ *         description: Success
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       transactionId:
+ *                         type: string
+ *                       exchangeType:
+ *                         type: string
+ *                         enum: [point-to-smg, smg-to-point]
+ *                       fromLabel:
+ *                         type: string
+ *                       fromValue:
+ *                         type: string
+ *                       toLabel:
+ *                         type: string
+ *                       toValue:
+ *                         type: string
+ *                       timestamp:
+ *                         type: number
+ *       400:
+ *         description: Invalid request
+ *       500:
+ *         description: Server error
+ */
+app.get("/api/transaction-history/:telegramUserId", async (req, res) => {
+  try {
+    const telegramUserId = req.params.telegramUserId;
+    const limit = parseInt(req.query.limit) || 10;
+
+    if (!telegramUserId) {
+      return res.status(400).json({
+        success: false,
+        error: "Telegram user ID is required",
+      });
+    }
+
+    if (limit < 1 || limit > 50) {
+      return res.status(400).json({
+        success: false,
+        error: "Limit must be between 1 and 50",
+      });
+    }
+
+    let transactions = [];
+
+    if (db.isConnected) {
+      // Use MongoDB
+      transactions = await db.getTransactionHistory(telegramUserId, limit);
+    } else {
+      // Fallback: return empty array for now
+      console.log("⚠️ Transaction history not available in fallback mode");
+    }
+
+    res.json({
+      success: true,
+      data: transactions,
+    });
+  } catch (error) {
+    console.error("❌ Error getting transaction history:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/transaction-history/{telegramUserId}:
+ *   post:
+ *     summary: Save transaction history
+ *     description: Save a new exchange transaction to history
+ *     tags: [Transaction History]
+ *     parameters:
+ *       - in: path
+ *         name: telegramUserId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Telegram User ID
+ *         example: "123456789"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - exchangeType
+ *               - fromLabel
+ *               - fromValue
+ *               - toLabel
+ *               - toValue
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Transaction ID (optional, will be generated if not provided)
+ *               exchangeType:
+ *                 type: string
+ *                 enum: [point-to-smg, smg-to-point]
+ *               fromLabel:
+ *                 type: string
+ *               fromValue:
+ *                 type: string
+ *               toLabel:
+ *                 type: string
+ *               toValue:
+ *                 type: string
+ *               timestamp:
+ *                 type: number
+ *                 description: Transaction timestamp (optional, will be generated if not provided)
+ *     responses:
+ *       200:
+ *         description: Transaction saved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Transaction history saved successfully"
+ *                 data:
+ *                   type: object
+ *       400:
+ *         description: Invalid request
+ *       500:
+ *         description: Server error
+ */
+app.post("/api/transaction-history/:telegramUserId", async (req, res) => {
+  try {
+    const telegramUserId = req.params.telegramUserId;
+    const transactionData = req.body;
+
+    if (!telegramUserId) {
+      return res.status(400).json({
+        success: false,
+        error: "Telegram user ID is required",
+      });
+    }
+
+    // Validate required fields
+    const requiredFields = [
+      "exchangeType",
+      "fromLabel",
+      "fromValue",
+      "toLabel",
+      "toValue",
+    ];
+    for (const field of requiredFields) {
+      if (!transactionData[field]) {
+        return res.status(400).json({
+          success: false,
+          error: `${field} is required`,
+        });
+      }
+    }
+
+    // Validate exchangeType
+    if (
+      !["point-to-smg", "smg-to-point"].includes(transactionData.exchangeType)
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: "exchangeType must be 'point-to-smg' or 'smg-to-point'",
+      });
+    }
+
+    let savedTransaction = null;
+
+    if (db.isConnected) {
+      // Use MongoDB
+      savedTransaction = await db.saveTransactionHistory(
+        telegramUserId,
+        transactionData
+      );
+    } else {
+      // Fallback: just return success for now
+      console.log("⚠️ Transaction history not saved in fallback mode");
+      savedTransaction = { ...transactionData, id: Date.now().toString() };
+    }
+
+    res.json({
+      success: true,
+      message: "Transaction history saved successfully",
+      data: savedTransaction,
+    });
+  } catch (error) {
+    console.error("❌ Error saving transaction history:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+/**
+ * @swagger
+ * /api/transaction-history/{telegramUserId}:
+ *   delete:
+ *     summary: Clear transaction history
+ *     description: Clear all transaction history for a user
+ *     tags: [Transaction History]
+ *     parameters:
+ *       - in: path
+ *         name: telegramUserId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Telegram User ID
+ *         example: "123456789"
+ *     responses:
+ *       200:
+ *         description: Transaction history cleared successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Transaction history cleared successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     deletedCount:
+ *                       type: number
+ *       400:
+ *         description: Invalid request
+ *       500:
+ *         description: Server error
+ */
+app.delete("/api/transaction-history/:telegramUserId", async (req, res) => {
+  try {
+    const telegramUserId = req.params.telegramUserId;
+
+    if (!telegramUserId) {
+      return res.status(400).json({
+        success: false,
+        error: "Telegram user ID is required",
+      });
+    }
+
+    let result = { deletedCount: 0 };
+
+    if (db.isConnected) {
+      // Use MongoDB
+      result = await db.clearTransactionHistory(telegramUserId);
+    } else {
+      // Fallback: just return success for now
+      console.log("⚠️ Transaction history not cleared in fallback mode");
+    }
+
+    res.json({
+      success: true,
+      message: "Transaction history cleared successfully",
+      data: {
+        deletedCount: result.deletedCount,
+      },
+    });
+  } catch (error) {
+    console.error("❌ Error clearing transaction history:", error);
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
 });
 
 // =====================

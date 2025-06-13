@@ -8,113 +8,113 @@ const mongoose = require("mongoose");
 function getLevelHP(level) {
   // Daily point limits for each level (max points that can be earned per day)
   const DAILY_POINT_LIMITS = [
-    23040, // Level 1: 960 taps × 24 = 23,040 points
-    34560, // Level 2: 1,440 taps × 24 = 34,560 points
-    46080, // Level 3: 1,920 taps × 24 = 46,080 points
-    57600, // Level 4: 2,400 taps × 24 = 57,600 points
-    69120, // Level 5: 2,880 taps × 24 = 69,120 points
-    80640, // Level 6: 3,360 taps × 24 = 80,640 points
-    92160, // Level 7: 3,840 taps × 24 = 92,160 points
-    103680, // Level 8: 4,320 taps × 24 = 103,680 points
-    115200, // Level 9: 4,800 taps × 24 = 115,200 points
-    126720, // Level 10: 5,280 taps × 24 = 126,720 points
-    155520, // Level 11: 6,480 taps × 24 = 155,520 points
-    168480, // Level 12: 7,020 taps × 24 = 168,480 points
-    181440, // Level 13: 7,560 taps × 24 = 181,440 points
-    194400, // Level 14: 8,100 taps × 24 = 194,400 points
-    207360, // Level 15: 8,640 taps × 24 = 207,360 points
-    220320, // Level 16: 9,180 taps × 24 = 220,320 points
-    233280, // Level 17: 9,720 taps × 24 = 233,280 points
-    246240, // Level 18: 10,260 taps × 24 = 246,240 points
-    259200, // Level 19: 10,800 taps × 24 = 259,200 points
-    272160, // Level 20: 11,340 taps × 24 = 272,160 points
-    327360, // Level 21: 13,640 taps × 24 = 327,360 points
-    342240, // Level 22: 14,260 taps × 24 = 342,240 points
-    357120, // Level 23: 14,880 taps × 24 = 357,120 points
-    372000, // Level 24: 15,500 taps × 24 = 372,000 points
-    386880, // Level 25: 16,120 taps × 24 = 386,880 points
-    401760, // Level 26: 16,740 taps × 24 = 401,760 points
-    416640, // Level 27: 17,360 taps × 24 = 416,640 points
-    431520, // Level 28: 17,980 taps × 24 = 431,520 points
-    446400, // Level 29: 18,600 taps × 24 = 446,400 points
-    461280, // Level 30: 19,220 taps × 24 = 461,280 points
-    554400, // Level 31: 23,100 taps × 24 = 554,400 points
-    588000, // Level 32: 24,500 taps × 24 = 588,000 points
-    621600, // Level 33: 25,900 taps × 24 = 621,600 points
-    655200, // Level 34: 27,300 taps × 24 = 655,200 points
-    688800, // Level 35: 28,700 taps × 24 = 688,800 points
-    722400, // Level 36: 30,100 taps × 24 = 722,400 points
-    756000, // Level 37: 31,500 taps × 24 = 756,000 points
-    789600, // Level 38: 32,900 taps × 24 = 789,600 points
-    823200, // Level 39: 34,300 taps × 24 = 823,200 points
-    856800, // Level 40: 35,700 taps × 24 = 856,800 points
-    992160, // Level 41: 41,340 taps × 24 = 992,160 points
-    1029600, // Level 42: 42,900 taps × 24 = 1,029,600 points
-    1067040, // Level 43: 44,460 taps × 24 = 1,067,040 points
-    1104480, // Level 44: 46,020 taps × 24 = 1,104,480 points
-    1141920, // Level 45: 47,580 taps × 24 = 1,141,920 points
-    1179360, // Level 46: 49,140 taps × 24 = 1,179,360 points
-    1216800, // Level 47: 50,700 taps × 24 = 1,216,800 points
-    1254240, // Level 48: 52,260 taps × 24 = 1,254,240 points
-    1291680, // Level 49: 53,820 taps × 24 = 1,291,680 points
-    0, // Level 50: Ruby level
-    1646880, // Level 51: 68,620 taps × 24 = 1,646,880 points
-    1692000, // Level 52: 70,500 taps × 24 = 1,692,000 points
-    1737120, // Level 53: 72,380 taps × 24 = 1,737,120 points
-    1782240, // Level 54: 74,260 taps × 24 = 1,782,240 points
-    1827360, // Level 55: 76,140 taps × 24 = 1,827,360 points
-    1872480, // Level 56: 78,020 taps × 24 = 1,872,480 points
-    1917600, // Level 57: 79,900 taps × 24 = 1,917,600 points
-    1962720, // Level 58: 81,780 taps × 24 = 1,962,720 points
-    2007840, // Level 59: 83,660 taps × 24 = 2,007,840 points
-    2052960, // Level 60: 85,540 taps × 24 = 2,052,960 points
-    2436480, // Level 61: 101,520 taps × 24 = 2,436,480 points
-    2514240, // Level 62: 104,760 taps × 24 = 2,514,240 points
-    2592000, // Level 63: 108,000 taps × 24 = 2,592,000 points
-    2669760, // Level 64: 111,240 taps × 24 = 2,669,760 points
-    2747520, // Level 65: 114,480 taps × 24 = 2,747,520 points
-    2825280, // Level 66: 117,720 taps × 24 = 2,825,280 points
-    2903040, // Level 67: 120,960 taps × 24 = 2,903,040 points
-    2980800, // Level 68: 124,200 taps × 24 = 2,980,800 points
-    3058560, // Level 69: 127,440 taps × 24 = 3,058,560 points
-    3136320, // Level 70: 130,680 taps × 24 = 3,136,320 points
-    // Continue with higher values for levels 71-100
-    3500000,
-    3600000,
-    3700000,
-    3800000,
-    0, // 71-75
-    4000000,
-    4100000,
-    4200000,
-    4300000,
-    0, // 76-80
-    4500000,
-    4600000,
-    4700000,
-    4800000,
-    0, // 81-85
-    5000000,
-    5100000,
-    5200000,
-    5300000,
-    0, // 86-90
-    5500000,
-    5600000,
-    5700000,
-    5800000,
-    0, // 91-95
-    6000000,
-    6100000,
-    6200000,
-    0,
-    0, // 96-100
+    2400,
+    3600,
+    4800,
+    6000,
+    7200,
+    8400,
+    9600,
+    10800,
+    12000,
+    13200, // Levels 1–10
+    16200,
+    17550,
+    18900,
+    20250,
+    21600,
+    22950,
+    24300,
+    25650,
+    27000,
+    28350, // Levels 11–20
+    34100,
+    35650,
+    37200,
+    38750,
+    40300,
+    41850,
+    43400,
+    44950,
+    46500,
+    48050, // Levels 21–30
+    57750,
+    61250,
+    64750,
+    68250,
+    71750,
+    75250,
+    78750,
+    82250,
+    85750,
+    89250, // Levels 31–40
+    103350,
+    107250,
+    111150,
+    115050,
+    118950,
+    122850,
+    126750,
+    130650,
+    134550,
+    0, // Levels 41–50 (Ruby level remains 0)
+    171550,
+    176250,
+    180950,
+    185650,
+    190350,
+    195050,
+    199750,
+    204450,
+    209150,
+    213850, // Levels 51–60
+    253800,
+    261900,
+    270000,
+    278100,
+    286200,
+    294300,
+    302400,
+    310500,
+    318600,
+    326700, // Levels 61–70
+    378200,
+    387350,
+    396500,
+    405650,
+    414800,
+    423950,
+    433100,
+    442250,
+    451400,
+    460550, // Levels 71–80
+    539000,
+    549500,
+    560000,
+    570500,
+    581000,
+    591500,
+    602000,
+    612500,
+    623000,
+    633500, // Levels 81–90
+    740000,
+    756000,
+    772000,
+    788000,
+    804000,
+    820000,
+    836000,
+    852000,
+    868000,
+    884000, // Levels 91–100
+    // Remaining values unchanged from previous configuration...
   ];
 
   // Return the daily point limit as max HP for the level
-  if (level <= 0 || level > DAILY_POINT_LIMITS.length) return 23040; // Default for invalid levels
+  if (level <= 0 || level > DAILY_POINT_LIMITS.length) return 2400; // Default for invalid levels
   const dailyLimit = DAILY_POINT_LIMITS[level - 1];
-  if (dailyLimit === 0) return 23040; // Default for ruby levels (Level 1 equivalent)
+  if (dailyLimit === 0) return 2400; // Default for ruby levels (Level 1 equivalent)
   return dailyLimit; // Return actual HP points
 }
 
@@ -176,6 +176,11 @@ const userSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    smg: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     lastRecover: {
       type: Number,
       default: Date.now,
@@ -193,12 +198,11 @@ const userSchema = new mongoose.Schema(
 
 // Pre-save middleware to calculate maxHP based on level
 userSchema.pre("save", function (next) {
-  if (this.isModified("level")) {
-    this.maxHP = getLevelHP(this.level);
-    console.log(
-      `🔧 Pre-save: Setting maxHP for level ${this.level}: ${this.maxHP}`
-    );
-  }
+  // Calculate maxHP based on current level
+  this.maxHP = getLevelHP(this.level);
+  console.log(
+    `🔧 Pre-update: Setting maxHP for level ${this.level}: ${this.maxHP}`
+  );
   next();
 });
 
@@ -222,11 +226,66 @@ userSchema.index({ level: -1, totalCoins: -1 });
 userSchema.index({ coinCount: -1 });
 userSchema.index({ updatedAt: -1 });
 
+// Transaction History Schema
+const transactionHistorySchema = new mongoose.Schema(
+  {
+    telegramUserId: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    transactionId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    exchangeType: {
+      type: String,
+      required: true,
+      enum: ["point-to-smg", "smg-to-point"],
+    },
+    fromLabel: {
+      type: String,
+      required: true,
+    },
+    fromValue: {
+      type: String,
+      required: true,
+    },
+    toLabel: {
+      type: String,
+      required: true,
+    },
+    toValue: {
+      type: String,
+      required: true,
+    },
+    timestamp: {
+      type: Number,
+      required: true,
+      default: Date.now,
+    },
+  },
+  {
+    timestamps: true,
+    collection: "transaction_history",
+  }
+);
+
+// Index for efficient queries
+transactionHistorySchema.index({ telegramUserId: 1, timestamp: -1 });
+
 const User = mongoose.model("User", userSchema);
+const TransactionHistory = mongoose.model(
+  "TransactionHistory",
+  transactionHistorySchema
+);
 
 class Database {
   constructor() {
     this.isConnected = false;
+    this.User = User;
+    this.TransactionHistory = TransactionHistory;
   }
 
   // Kết nối MongoDB
@@ -282,6 +341,7 @@ class Database {
           coinCount: 0,
           coinEarn: 0,
           totalCoins: 0,
+          smg: 0,
           lastRecover: Date.now(),
           lastZeroHP: null,
         });
@@ -328,6 +388,7 @@ class Database {
         coinCount: userData.coinCount || 0,
         coinEarn: userData.coinEarn || 0,
         totalCoins: userData.totalCoins || 0,
+        smg: userData.smg || 0,
         lastRecover: userData.lastRecover || Date.now(),
         lastZeroHP: userData.lastZeroHP || null,
       });
@@ -445,6 +506,69 @@ class Database {
     }
   }
 
+  // =====================
+  // Transaction History Methods
+  // =====================
+
+  // Lưu transaction history
+  async saveTransactionHistory(telegramUserId, transactionData) {
+    try {
+      const transaction = new this.TransactionHistory({
+        telegramUserId,
+        transactionId: transactionData.id || Date.now().toString(),
+        exchangeType: transactionData.exchangeType,
+        fromLabel: transactionData.fromLabel,
+        fromValue: transactionData.fromValue,
+        toLabel: transactionData.toLabel,
+        toValue: transactionData.toValue,
+        timestamp: transactionData.timestamp || Date.now(),
+      });
+
+      await transaction.save();
+      console.log(`💾 Transaction history saved for user: ${telegramUserId}`);
+      return transaction;
+    } catch (error) {
+      console.error("❌ Error saving transaction history:", error);
+      throw error;
+    }
+  }
+
+  // Lấy transaction history của user
+  async getTransactionHistory(telegramUserId, limit = 10) {
+    try {
+      const transactions = await this.TransactionHistory.find({
+        telegramUserId,
+      })
+        .sort({ timestamp: -1 })
+        .limit(limit)
+        .lean();
+
+      console.log(
+        `📥 Retrieved ${transactions.length} transactions for user: ${telegramUserId}`
+      );
+      return transactions;
+    } catch (error) {
+      console.error("❌ Error getting transaction history:", error);
+      throw error;
+    }
+  }
+
+  // Xóa tất cả transaction history của user
+  async clearTransactionHistory(telegramUserId) {
+    try {
+      const result = await this.TransactionHistory.deleteMany({
+        telegramUserId,
+      });
+      console.log(
+        `🗑️ Cleared ${result.deletedCount} transactions for user: ${telegramUserId}`
+      );
+      return result;
+    } catch (error) {
+      console.error("❌ Error clearing transaction history:", error);
+      throw error;
+    }
+  }
+
   // Đóng kết nối
   async disconnect() {
     try {
@@ -457,4 +581,4 @@ class Database {
   }
 }
 
-module.exports = { Database, User };
+module.exports = { Database, User, TransactionHistory };

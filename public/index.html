@@ -170,23 +170,305 @@
         font-family: "Gugi", sans-serif;
       }
 
-      /* Character and Sole Press Animation */
+      /* Loading Screen Styles */
+      .loading-dots {
+        display: flex;
+        gap: 8px;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        background-color: #ff6b8b;
+        border-radius: 50%;
+        animation: loadingDots 1.5s infinite ease-in-out;
+      }
+
+      .dot:nth-child(1) {
+        animation-delay: 0s;
+      }
+
+      .dot:nth-child(2) {
+        animation-delay: 0.3s;
+      }
+
+      .dot:nth-child(3) {
+        animation-delay: 0.6s;
+      }
+
+      @keyframes loadingDots {
+        0%, 60%, 100% {
+          transform: scale(1);
+          opacity: 0.7;
+        }
+        30% {
+          transform: scale(1.3);
+          opacity: 1;
+        }
+      }
+
+      /* Character and Sole Press Animation - ENHANCED */
       .character-container {
-        transition: transform 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        transition: all 0.15s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         z-index: 50; /* Ensure character is above sole */
+        position: relative;
       }
 
       .character-container.pressed {
-        transform: translateY(6px);
+        transform: translateY(6px) scale(0.95);
+      }
+
+      /* Enhanced Character Animations */
+      .character-container.bounce {
+        animation: characterBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      }
+
+      .character-container.shake {
+        animation: characterShake 0.5s ease-in-out;
+      }
+
+      .character-container.glow {
+        filter: drop-shadow(0 0 20px #ff6b8b) drop-shadow(0 0 40px #ff6b8b) brightness(1.2);
+        animation: characterGlow 1s ease-in-out;
+      }
+
+      .character-container.super-glow {
+        filter: drop-shadow(0 0 30px #ffd700) drop-shadow(0 0 60px #ffd700) brightness(1.4);
+        animation: characterSuperGlow 1.2s ease-in-out;
+      }
+
+      /* Character Bounce Animation */
+      @keyframes characterBounce {
+        0% {
+          transform: translateY(0px) scale(1);
+        }
+        20% {
+          transform: translateY(-15px) scale(1.05);
+        }
+        40% {
+          transform: translateY(-8px) scale(1.02);
+        }
+        60% {
+          transform: translateY(-12px) scale(1.03);
+        }
+        80% {
+          transform: translateY(-4px) scale(1.01);
+        }
+        100% {
+          transform: translateY(0px) scale(1);
+        }
+      }
+
+      /* Character Shake Animation */
+      @keyframes characterShake {
+        0%, 100% {
+          transform: translateX(0);
+        }
+        10% {
+          transform: translateX(-3px) rotate(-1deg);
+        }
+        20% {
+          transform: translateX(3px) rotate(1deg);
+        }
+        30% {
+          transform: translateX(-3px) rotate(-1deg);
+        }
+        40% {
+          transform: translateX(3px) rotate(1deg);
+        }
+        50% {
+          transform: translateX(-2px) rotate(-0.5deg);
+        }
+        60% {
+          transform: translateX(2px) rotate(0.5deg);
+        }
+        70% {
+          transform: translateX(-1px) rotate(-0.25deg);
+        }
+        80% {
+          transform: translateX(1px) rotate(0.25deg);
+        }
+        90% {
+          transform: translateX(-0.5px);
+        }
+      }
+
+      /* Character Glow Animation */
+      @keyframes characterGlow {
+        0% {
+          filter: drop-shadow(0 0 5px #ff6b8b) brightness(1);
+        }
+        50% {
+          filter: drop-shadow(0 0 25px #ff6b8b) drop-shadow(0 0 50px #ff6b8b) brightness(1.3);
+        }
+        100% {
+          filter: drop-shadow(0 0 5px #ff6b8b) brightness(1);
+        }
+      }
+
+      /* Character Super Glow Animation (for 3-finger tap) */
+      @keyframes characterSuperGlow {
+        0% {
+          filter: drop-shadow(0 0 10px #ffd700) brightness(1);
+        }
+        25% {
+          filter: drop-shadow(0 0 40px #ffd700) drop-shadow(0 0 80px #ffd700) brightness(1.5);
+        }
+        50% {
+          filter: drop-shadow(0 0 60px #ffd700) drop-shadow(0 0 120px #ffd700) brightness(1.6);
+        }
+        75% {
+          filter: drop-shadow(0 0 40px #ffd700) drop-shadow(0 0 80px #ffd700) brightness(1.4);
+        }
+        100% {
+          filter: drop-shadow(0 0 10px #ffd700) brightness(1);
+        }
+      }
+
+      /* Particle Effects for Character */
+      .character-particles {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 200px;
+        pointer-events: none;
+        z-index: 45;
+      }
+
+      .particle {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        background: radial-gradient(circle, #ff6b8b 0%, #ff4081 100%);
+        border-radius: 50%;
+        opacity: 0;
+        animation: particleFloat 1.5s ease-out forwards;
+      }
+
+      .particle.golden {
+        background: radial-gradient(circle, #ffd700 0%, #ffb300 100%);
+        width: 8px;
+        height: 8px;
+        animation: goldenParticleFloat 2s ease-out forwards;
+      }
+
+      @keyframes particleFloat {
+        0% {
+          transform: translate(0, 0) scale(0);
+          opacity: 0;
+        }
+        20% {
+          transform: translate(var(--dx), var(--dy)) scale(1);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(calc(var(--dx) * 3), calc(var(--dy) * 3)) scale(0);
+          opacity: 0;
+        }
+      }
+
+      @keyframes goldenParticleFloat {
+        0% {
+          transform: translate(0, 0) scale(0) rotate(0deg);
+          opacity: 0;
+        }
+        15% {
+          transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(90deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(calc(var(--dx) * 4), calc(var(--dy) * 4)) scale(0) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      /* Heart Effect for Special Taps */
+      .heart-effect {
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 20px;
+        color: #ff6b8b;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 55;
+        animation: heartFloat 2s ease-out forwards;
+      }
+
+      @keyframes heartFloat {
+        0% {
+          transform: translateX(-50%) translateY(0) scale(0);
+          opacity: 0;
+        }
+        20% {
+          transform: translateX(-50%) translateY(-20px) scale(1.2);
+          opacity: 1;
+        }
+        100% {
+          transform: translateX(-50%) translateY(-80px) scale(0.8);
+          opacity: 0;
+        }
+      }
+
+      /* Energy Wave Effect */
+      .energy-wave {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100px;
+        height: 100px;
+        border: 3px solid #ff6b8b;
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 40;
+        animation: energyWave 0.8s ease-out forwards;
+      }
+
+      .energy-wave.golden {
+        border-color: #ffd700;
+        animation: goldenEnergyWave 1s ease-out forwards;
+      }
+
+      @keyframes energyWave {
+        0% {
+          transform: translate(-50%, -50%) scale(0.5);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(3);
+          opacity: 0;
+        }
+      }
+
+      @keyframes goldenEnergyWave {
+        0% {
+          transform: translate(-50%, -50%) scale(0.3);
+          opacity: 1;
+          border-width: 4px;
+        }
+        50% {
+          opacity: 0.6;
+          border-width: 2px;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(4);
+          opacity: 0;
+          border-width: 1px;
+        }
       }
 
       #sole {
-        transition: transform 0.08s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        transition: all 0.08s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         z-index: 10; /* Lower than character */
       }
 
       #sole.pressed {
-        transform: translateY(8px);
+        transform: translateY(8px) scale(0.98);
       }
 
       /* Light Effect Animation */
@@ -238,6 +520,48 @@
           transform: translate(var(--tx), var(--ty)) scale(1) rotate(360deg);
           opacity: 0;
         }
+      }
+
+      /* Flying Score Text Animation */
+      @keyframes scoreTextFly {
+        0% {
+          transform: translate(-50%, -50%) scale(0.5);
+          opacity: 0;
+        }
+        20% {
+          transform: translate(-50%, -70px) scale(1.2);
+          opacity: 1;
+        }
+        100% {
+          transform: translate(-50%, -150px) scale(1);
+          opacity: 0;
+        }
+      }
+
+      .flying-score-text {
+        position: fixed;
+        font-family: "Gugi", sans-serif;
+        font-size: 28px;
+        font-weight: bold;
+        color: #ffd93d;
+        text-shadow: 
+          2px 2px 4px rgba(0, 0, 0, 0.8),
+          0 0 10px rgba(255, 217, 61, 0.6),
+          0 0 20px rgba(255, 217, 61, 0.4);
+        pointer-events: none;
+        z-index: 9998;
+        animation: scoreTextFly 1.5s ease-out forwards;
+        user-select: none;
+      }
+
+      .flying-score-text.special {
+        color: #ff6b8b;
+        font-size: 32px;
+        text-shadow: 
+          2px 2px 4px rgba(0, 0, 0, 0.8),
+          0 0 10px rgba(255, 107, 139, 0.8),
+          0 0 20px rgba(255, 107, 139, 0.6),
+          0 0 30px rgba(255, 107, 139, 0.4);
       }
 
       .flying-coin {
@@ -365,6 +689,12 @@
         background-color: #facc15;
         height: 12px;
       }
+      .level-bars-mt {
+        background-color: #bf5206;
+        height: 12px;
+      }
+
+
 
       /* HP Progress Container */
       .hp-progress-container {
@@ -431,7 +761,10 @@
         .level-bars {
           height: 8px;
         }
-
+        .level-bars-mt {
+        background-color: #bf5206;
+        height: 12px;
+      }
         .progress-icon {
           height: 12px;
         }
@@ -449,6 +782,8 @@
         cursor: pointer;
         z-index: 100;
         position: relative;
+        border: none;
+        background: transparent;
       }
 
       #auto-earn-button:hover {
@@ -469,6 +804,27 @@
       }
 
       #auto-earn-button.active img {
+        filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+      }
+
+      /* Navigation item containing auto-earn button */
+      #nav-auto-earn {
+        padding: 0 !important;
+      }
+
+      #nav-auto-earn.active #auto-earn-button {
+        background: linear-gradient(
+          135deg,
+          #ff6b8b 0%,
+          #ff4081 100%
+        ) !important;
+        border: 2px solid #ff6b8b !important;
+        box-shadow: 0 0 20px rgba(255, 107, 139, 0.6),
+          inset 0 0 10px rgba(255, 255, 255, 0.2) !important;
+        animation: pulse-glow 2s infinite;
+      }
+
+      #nav-auto-earn.active #auto-earn-button img {
         filter: brightness(1.2) drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
       }
 
@@ -555,6 +911,11 @@
         transform: scale(1.2);
       }
 
+      .nav-item.active span {
+        color: #ff6b8b;
+        text-shadow: 0 0 8px rgba(255, 107, 139, 0.6);
+      }
+
       .nav-item:hover {
         background: rgba(255, 107, 139, 0.1);
         transform: scale(1.05);
@@ -565,6 +926,56 @@
         height: 24px;
         transition: all 0.3s ease;
       }
+
+      .nav-item span {
+        transition: all 0.3s ease;
+        font-family: "Gugi", sans-serif;
+      }
+
+      /* Character Faint Animation (when HP = 0) */
+      .character-container.faint {
+        animation: characterFaint 2s ease-in-out;
+        filter: grayscale(0.7) brightness(0.6);
+      }
+
+      @keyframes characterFaint {
+        0% {
+          transform: translateY(0px) scale(1) rotate(0deg);
+          opacity: 1;
+        }
+        30% {
+          transform: translateY(-5px) scale(0.98) rotate(-2deg);
+          opacity: 0.8;
+        }
+        60% {
+          transform: translateY(2px) scale(0.95) rotate(1deg);
+          opacity: 0.6;
+        }
+        100% {
+          transform: translateY(0px) scale(0.9) rotate(0deg);
+          opacity: 0.4;
+        }
+      }
+
+      /* HP Zero overlay effect */
+      .hp-zero-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,0,0,0.1) 0%, rgba(0,0,0,0.3) 100%);
+        z-index: 9997;
+        pointer-events: none;
+        opacity: 0;
+        animation: hpZeroOverlay 3s ease-in-out forwards;
+      }
+
+      @keyframes hpZeroOverlay {
+        0% { opacity: 0; }
+        50% { opacity: 1; }
+        100% { opacity: 0; }
+      }
     </style>
   </head>
 
@@ -572,6 +983,32 @@
     <div
       class="md:w-[375px] w-full relative h-[667px] rounded-[20px] mx-auto gradient-bg p-[16px]"
     >
+      <!-- Loading Screen -->
+      <div id="loading-screen" class="absolute top-0 left-0 right-0 z-[99999] bg-gray-900 rounded-[20px] flex flex-col items-center justify-center" style="bottom: -150px;">
+        <img 
+          src="./images/polling.png" 
+          alt="Loading..." 
+          class="w-full h-full object-cover rounded-[20px] absolute top-0 left-0"
+        />
+        <!-- Loading Text Overlay -->
+        <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-40 rounded-[20px]">
+          <div class="text-center mb-8">
+            <h1 class="text-white text-2xl font-bold mb-2 gugi-font">🦑 SQUID GAME</h1>
+            <p class="text-pink-300 text-lg gugi-font">Welcome to the Game!</p>
+          </div>
+          
+          <!-- Loading Animation -->
+          <div class="flex flex-col items-center">
+            <div class="loading-dots mb-4">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <p id="loading-text" class="text-white text-sm gugi-font">Loading...</p>
+          </div>
+        </div>
+      </div>
+
       <img
         class="absolute rounded-[20px] top-0 left-0 z-[-1] bottom-0 right-0"
         src="./image/bg.png"
@@ -585,7 +1022,7 @@
             <img src="./image/ruby.svg" class="w-[20px]" alt="" />
 
             <span
-              id="coin-count"
+              
               class="gugi-font text-[14px] leading-[22px] tracking-[0%] align-middle text-white"
               >0</span
             >
@@ -609,7 +1046,7 @@
         >
           <div class="flex flex-col gap-[8px]">
             <div class="flex justify-between">
-              <div class="flex flex-col gap-[10px] w-[228px]">
+              <div class="flex flex-col gap-[10px] w-full">
                 <div class="flex justify-between">
                   <p
                     class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-[#FF6B8B]"
@@ -633,17 +1070,7 @@
                   <div class="progress-icon" style="left: 100%"></div>
                 </div>
               </div>
-              <div
-                class="w-[63px] h-[52px] bg-[rgba(252,55,102,0.13)] flex flex-col gap-[4px] items-center justify-center rounded-[8px]"
-              >
-                <img class="w-[16px] h-[16px]" src="./image/money.png" alt="" />
-                <p
-                  id="total-coins"
-                  class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-white"
-                >
-                  0
-                </p>
-              </div>
+
             </div>
             <img src="./image/divider.svg" alt="" />
             <div class="flex justify-between items-center">
@@ -691,7 +1118,7 @@
                 <!-- LP Level Progress Bar -->
                 <div class="lp-level-progress-container">
                   <div
-                    class="level-bars"
+                    class="level-bars-mt "
                     id="lp-level-bar"
                     style="width: 0%; transition: width 0.3s ease-in-out"
                   ></div>
@@ -729,37 +1156,32 @@
         class="absolute bottom-[-110px] gradient-bg card-bg  md:w-[360px] w-full h-[72px] rounded-full p-[24px] flex justify-center items-center"
       >
         <ul class="flex justify-between items-center gap-[20px] w-full">
-          <li class="nav-item active" id="nav-earn">
-            <img src="./image/earn.svg" alt="" />
+          <li class="nav-item active flex flex-col items-center gap-[4px]" id="nav-earn">
+            <img src="./image/earn.svg" alt="" class="w-[20px] h-[20px]" />
+            <span class="text-[10px] text-white font-medium">Earn</span>
           </li>
-          <li class="nav-item" id="nav-exchange">
-            <img src="./image/exchange.svg" alt="" />
+          <li class="nav-item flex flex-col items-center gap-[4px]" id="nav-exchange">
+            <img src="./image/exchange.svg" alt="" class="w-[20px] h-[20px]" />
+            <span class="text-[10px] text-white font-medium">Exchange</span>
           </li>
-          <li class="nav-item" id="nav-boost">
-            <img src="./image/boost.svg" alt="" />
+          <li class="nav-item flex flex-col items-center gap-[4px]" id="nav-auto-earn">
+            <button
+              id="auto-earn-button"
+              class="gradient-bg card-bg w-[40px] h-[40px] rounded-lg flex items-center justify-center"
+            >
+              <img src="./image/button.svg" alt="" class="w-[20px] h-[20px]" />
+            </button>
+            <span class="text-[10px] text-white font-medium">Auto</span>
           </li>
-          <li class="nav-item" id="nav-point">
-            <img src="./image/point.svg" alt="" />
+          <li class="nav-item flex flex-col items-center gap-[4px]" id="nav-point">
+            <img src="./image/point.svg" alt="" class="w-[20px] h-[20px]" />
+            <span class="text-[10px] text-white font-medium">Point</span>
           </li>
-          <li class="nav-item" id="nav-point">
-            <img src="./image/help.svg" alt="" />
+          <li class="nav-item flex flex-col items-center gap-[4px]" id="nav-help">
+            <img src="./image/help.svg" alt="" class="w-[20px] h-[20px]" />
+            <span class="text-[10px] text-white font-medium">Help</span>
           </li>
         </ul>
-      </div>
-      <div
-        class="absolute bottom-[-20px] right-[16px] flex flex-col items-center justify-center"
-      >
-        <button
-          id="auto-earn-button"
-          class="gradient-bg card-bg w-[48px] h-[48px] rounded-lg flex items-center justify-center"
-        >
-          <img src="./image/button.svg" alt="" />
-        </button>
-        <p
-          class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-[#FF6B8B]"
-        >
-          Auto earn
-        </p>
       </div>
     </div>
 
@@ -788,6 +1210,125 @@
     </div>
 
     <script>
+      // =====================
+      // Audio System
+      // =====================
+      
+      // Create audio objects for sound effects
+      const coinSound = new Audio('./images/retro-coin-4-236671.mp3');
+      const crashSound = new Audio('./images/box-crash-106687.mp3');
+      const levelUpSound = new Audio('./images/Game-level-up-sound-effect.mp3');
+      
+      // Configure audio settings
+      coinSound.volume = 0.7; // Adjust volume (0.0 to 1.0)
+      crashSound.volume = 0.8;
+      levelUpSound.volume = 0.9;
+      
+      // Preload audio files
+      coinSound.preload = 'auto';
+      crashSound.preload = 'auto';
+      levelUpSound.preload = 'auto';
+      
+      // Function to play coin sound with error handling
+      function playCoinSound() {
+        try {
+          coinSound.currentTime = 0; // Reset to beginning for rapid taps
+          coinSound.play().catch(error => {
+            console.log('Coin sound play failed:', error);
+          });
+        } catch (error) {
+          console.log('Coin sound error:', error);
+        }
+      }
+      
+      // Function to play crash sound with error handling
+      function playCrashSound() {
+        try {
+          crashSound.currentTime = 0; // Reset to beginning
+          crashSound.play().catch(error => {
+            console.log('Crash sound play failed:', error);
+          });
+        } catch (error) {
+          console.log('Crash sound error:', error);
+        }
+      }
+      
+      // Function to play level up sound with error handling
+      function playLevelUpSound() {
+        try {
+          levelUpSound.currentTime = 0; // Reset to beginning
+          levelUpSound.play().catch(error => {
+            console.log('Level up sound play failed:', error);
+          });
+        } catch (error) {
+          console.log('Level up sound error:', error);
+        }
+      }
+
+      // =====================
+      // Loading Screen Management
+      // =====================
+      
+      // Loading messages in English
+      const loadingMessages = [
+        "Loading...",
+        "Preparing game...",
+        "Connecting to server...",
+        "Almost complete...",
+        "Welcome!"
+      ];
+      
+      let currentMessageIndex = 0;
+      let loadingTextInterval;
+      
+      // Animate loading text
+      function animateLoadingText() {
+        const loadingTextElement = document.getElementById('loading-text');
+        if (loadingTextElement && currentMessageIndex < loadingMessages.length) {
+          loadingTextElement.style.opacity = '0';
+          setTimeout(() => {
+            loadingTextElement.textContent = loadingMessages[currentMessageIndex];
+            loadingTextElement.style.opacity = '1';
+            currentMessageIndex++;
+          }, 200);
+        }
+      }
+      
+      // Start loading text animation
+      function startLoadingAnimation() {
+        const loadingTextElement = document.getElementById('loading-text');
+        if (loadingTextElement) {
+          loadingTextElement.style.transition = 'opacity 0.3s ease-in-out';
+          loadingTextInterval = setInterval(animateLoadingText, 800);
+        }
+      }
+      
+      // Hide loading screen when page is fully loaded
+      window.addEventListener('load', function() {
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+          // Start loading text animation
+          startLoadingAnimation();
+          
+          // Keep loading screen visible for 3.5 seconds
+          setTimeout(() => {
+            // Clear loading text animation
+            if (loadingTextInterval) {
+              clearInterval(loadingTextInterval);
+            }
+            
+            // Add fade out animation
+            loadingScreen.style.transition = 'opacity 0.8s ease-out';
+            loadingScreen.style.opacity = '0';
+            
+            // Remove from DOM after animation completes
+            setTimeout(() => {
+              loadingScreen.style.display = 'none';
+            }, 800);
+          }, 3500); // Extended to 3.5 seconds
+        }
+      });
+
       // =====================
       // 0. Telegram Integration & API Sync
       // =====================
@@ -936,16 +1477,19 @@
             const result = await response.json();
             if (result.success && result.data) {
               console.log("📥 Raw database data received:", result.data);
+              console.log("🔍 DEBUG: result.data.ruby value:", result.data.ruby);
+              console.log("🔍 DEBUG: typeof result.data.ruby:", typeof result.data.ruby);
 
               // Convert server data format to client format
               const serverState = {
                 level: result.data.level || 1,
                 hp: result.data.hp, // Don't provide default - preserve exact value from DB
-                coinCount: result.data.ruby || 0,
-                coinEarn: result.data.coins || 0,
+                coinCount: result.data.ruby || 0, // Only ruby count needed
                 lastRecover: result.data.lastRecover || Date.now(),
                 lastZeroHP: result.data.lastZeroHP || null,
               };
+              
+              console.log("🔍 DEBUG: serverState.coinCount after conversion:", serverState.coinCount);
 
               // CRITICAL: Preserve HP=0 from database
               if (result.data.hp === 0) {
@@ -1108,8 +1652,8 @@
       let currentGameState = null;
 
       function getLevelHP(level) {
-        if (level <= 1) return 23040; // Changed to return actual HP points
-        let hp = 23040;
+        if (level <= 1) return 2400; // Changed to return actual HP points
+        let hp = 2400;
         for (let lv = 2; lv <= level; lv++) {
           if (lv <= 30) hp += 11520;
           else if (lv <= 60) hp += 17280;
@@ -1151,7 +1695,7 @@
         
         console.log(`🔍 Level up check details:`);
         console.log(`Current level: ${currentLevel}`);
-        console.log(`Total coins available: ${totalCoins}`);
+        console.log(`Ruby coins available: ${totalCoins}`);
         console.log(`Total coins needed for level ${currentLevel + 1}: ${totalCoinsNeededForNextLevel}`);
         console.log(`Can level up: ${totalCoins >= totalCoinsNeededForNextLevel && currentLevel < 100}`);
         
@@ -1178,14 +1722,14 @@
         const defaultState = {
           level: defaultLevel,
           hp: getLevelHP(defaultLevel),
-          coinCount: 0,
-          coinEarn: 0,
+          coinCount: 100, // Give new users 100 coins to test display
           lastRecover: Date.now(),
           lastZeroHP: null,
         };
         
         console.log("📱 Returning default state (MEMORY ONLY MODE):", defaultState);
         console.log(`📱 Default HP value: ${defaultState.hp}`);
+        console.log(`📱 Default coinCount value: ${defaultState.coinCount}`);
         return defaultState;
       }
 
@@ -1269,13 +1813,22 @@
           hpProgressIcon.style.left = `${hpPercentage}%`;
         }
 
-        // Update coin displays
-        // Ruby (coin-count) stays at 0 - not used
-        // Money (coin-earn) shows final coinCount after HP=0
-        // Total-coins box shows current coinEarn during tapping
-        document.getElementById("coin-count").textContent = "0";
-        document.getElementById("coin-earn").textContent = state.coinCount;
-        document.getElementById("total-coins").textContent = state.coinEarn;
+        // Update coin displays - BOTH show the same ruby count
+        // Ruby (coin-count) shows the ruby count
+        // Money (coin-earn) also shows the ruby count for consistency
+        const coinCountElement = document.getElementById("coin-count");
+        const coinEarnElement = document.getElementById("coin-earn");
+        
+        // Ensure both elements display the current ruby count
+        const displayValue = state.coinCount || 0; // Fallback to 0 if undefined
+        
+        if (coinCountElement) {
+          coinCountElement.textContent = displayValue;
+        }
+        
+        if (coinEarnElement) {
+          coinEarnElement.textContent = displayValue;
+        }
 
         // Update level displays
         document.getElementById(
@@ -1292,7 +1845,7 @@
         if (totalCoinsNeededForNextLevel > 0) {
           // Calculate progress based on current coins vs requirement for NEXT level
           const totalCoinsNeededForCurrentLevel = getTotalCoinsForLevel(state.level);
-          const totalCoinsAvailable = state.coinCount + state.coinEarn;
+          const totalCoinsAvailable = state.coinCount; // Only use coinCount now
           const coinsTowardsNextLevel = totalCoinsAvailable - totalCoinsNeededForCurrentLevel;
           const coinsNeededForNextLevel = totalCoinsNeededForNextLevel - totalCoinsNeededForCurrentLevel;
 
@@ -1400,6 +1953,26 @@
         }, 2500);
       }
 
+      function createFlyingScoreText(startX, startY, score, isSpecial = false) {
+        const scoreText = document.createElement("div");
+        scoreText.className = isSpecial ? "flying-score-text special" : "flying-score-text";
+        scoreText.textContent = `+${score}`;
+        scoreText.style.left = startX + "px";
+        scoreText.style.top = startY + "px";
+
+        // Add some random horizontal offset for variety
+        const randomOffset = (Math.random() - 0.5) * 60; // -30px to +30px
+        scoreText.style.transform = `translate(calc(-50% + ${randomOffset}px), -50%)`;
+
+        document.body.appendChild(scoreText);
+
+        setTimeout(() => {
+          if (scoreText.parentNode) {
+            scoreText.parentNode.removeChild(scoreText);
+          }
+        }, 1500);
+      }
+
       // =====================
       // 5. Character Animation Functions
       // =====================
@@ -1479,6 +2052,15 @@
         const soleElement = document.getElementById("sole");
         const lightEffect = document.getElementById("light-effect");
 
+        // Apply enhanced character effects
+        if (isSpecial) {
+          // 3-finger tap effects
+          triggerEnhancedCharacterEffects('super');
+        } else {
+          // Normal tap effects
+          triggerEnhancedCharacterEffects('normal');
+        }
+
         characterContainer.classList.add("pressed");
         soleElement.classList.add("pressed");
 
@@ -1522,6 +2104,169 @@
           },
           isSpecial ? 300 : 200
         );
+      }
+
+      // =====================
+      // Enhanced Character Effects Functions
+      // =====================
+
+      function triggerEnhancedCharacterEffects(type = 'normal') {
+        const characterContainer = document.querySelector(".character-container");
+        
+        if (!characterContainer) return;
+
+        // Clear any existing animation classes
+        characterContainer.classList.remove('bounce', 'shake', 'glow', 'super-glow');
+        
+        // Apply effects based on type
+        if (type === 'super') {
+          // 3-finger tap effects
+          characterContainer.classList.add('super-glow');
+          createParticleEffect(true); // Golden particles
+          createEnergyWave(true); // Golden energy wave
+          createHeartEffect();
+          
+          // Add bounce after a short delay
+          setTimeout(() => {
+            characterContainer.classList.add('bounce');
+          }, 100);
+          
+        } else if (type === 'normal') {
+          // Normal tap effects
+          const effects = ['bounce', 'glow', 'shake'];
+          const randomEffect = effects[Math.floor(Math.random() * effects.length)];
+          
+          characterContainer.classList.add(randomEffect);
+          createParticleEffect(false); // Normal particles
+          createEnergyWave(false); // Normal energy wave
+          
+          // 20% chance for heart effect on normal taps
+          if (Math.random() < 0.2) {
+            createHeartEffect();
+          }
+        }
+
+        // Clean up animation classes after animations complete
+        setTimeout(() => {
+          characterContainer.classList.remove('bounce', 'shake', 'glow', 'super-glow');
+        }, 1500);
+      }
+
+      function createParticleEffect(isGolden = false) {
+        const characterContainer = document.querySelector(".character-container");
+        if (!characterContainer) return;
+
+        // Create particle container
+        const particleContainer = document.createElement('div');
+        particleContainer.className = 'character-particles';
+        
+        // Create multiple particles
+        const particleCount = isGolden ? 12 : 8;
+        
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement('div');
+          particle.className = isGolden ? 'particle golden' : 'particle';
+          
+          // Random direction and distance
+          const angle = (360 / particleCount) * i + Math.random() * 30 - 15;
+          const distance = 40 + Math.random() * 30;
+          const dx = Math.cos(angle * Math.PI / 180) * distance;
+          const dy = Math.sin(angle * Math.PI / 180) * distance;
+          
+          particle.style.setProperty('--dx', dx + 'px');
+          particle.style.setProperty('--dy', dy + 'px');
+          
+          // Random position within container
+          particle.style.left = (50 + Math.random() * 20 - 10) + '%';
+          particle.style.top = (50 + Math.random() * 20 - 10) + '%';
+          
+          particleContainer.appendChild(particle);
+        }
+        
+        characterContainer.appendChild(particleContainer);
+        
+        // Clean up after animation
+        setTimeout(() => {
+          if (particleContainer.parentNode) {
+            particleContainer.parentNode.removeChild(particleContainer);
+          }
+        }, isGolden ? 2000 : 1500);
+      }
+
+      function createEnergyWave(isGolden = false) {
+        const characterContainer = document.querySelector(".character-container");
+        if (!characterContainer) return;
+
+        const energyWave = document.createElement('div');
+        energyWave.className = isGolden ? 'energy-wave golden' : 'energy-wave';
+        
+        characterContainer.appendChild(energyWave);
+        
+        // Clean up after animation
+        setTimeout(() => {
+          if (energyWave.parentNode) {
+            energyWave.parentNode.removeChild(energyWave);
+          }
+        }, isGolden ? 1000 : 800);
+      }
+
+      function createHeartEffect() {
+        const characterContainer = document.querySelector(".character-container");
+        if (!characterContainer) return;
+
+        const hearts = ['💖', '💕', '💗', '❤️', '💝'];
+        const randomHeart = hearts[Math.floor(Math.random() * hearts.length)];
+        
+        const heartEffect = document.createElement('div');
+        heartEffect.className = 'heart-effect';
+        heartEffect.textContent = randomHeart;
+        
+        // Random horizontal offset
+        const offset = Math.random() * 40 - 20; // -20px to +20px
+        heartEffect.style.left = `calc(50% + ${offset}px)`;
+        
+        characterContainer.appendChild(heartEffect);
+        
+        // Clean up after animation
+        setTimeout(() => {
+          if (heartEffect.parentNode) {
+            heartEffect.parentNode.removeChild(heartEffect);
+          }
+        }, 2000);
+      }
+
+      // Enhanced screen shake effect for special moments
+      function triggerScreenShake() {
+        const gameContainer = document.querySelector('.w-\\[375px\\]');
+        if (!gameContainer) return;
+
+        gameContainer.style.animation = 'screenShake 0.5s ease-in-out';
+        
+        // Add screen shake keyframes if not exists
+        if (!document.querySelector('#screen-shake-style')) {
+          const style = document.createElement('style');
+          style.id = 'screen-shake-style';
+          style.textContent = `
+            @keyframes screenShake {
+              0%, 100% { transform: translateX(0); }
+              10% { transform: translateX(-2px) translateY(-1px); }
+              20% { transform: translateX(2px) translateY(1px); }
+              30% { transform: translateX(-2px) translateY(-1px); }
+              40% { transform: translateX(2px) translateY(1px); }
+              50% { transform: translateX(-1px) translateY(-1px); }
+              60% { transform: translateX(1px) translateY(1px); }
+              70% { transform: translateX(-1px) translateY(-1px); }
+              80% { transform: translateX(1px) translateY(1px); }
+              90% { transform: translateX(-0.5px); }
+            }
+          `;
+          document.head.appendChild(style);
+        }
+        
+        // Clean up animation
+        setTimeout(() => {
+          gameContainer.style.animation = '';
+        }, 500);
       }
 
       // =====================
@@ -1701,40 +2446,38 @@
           is3FingerTap ? "(3-finger tap - FORCED)" : "(normal tap)"
         );
 
-        // Calculate coins with proper multiplier - FIXED CALCULATION
+        // Calculate coins with proper multiplier - FIXED: Always 24 coins per tap
         let tapCoin;
-        const baseCoin = baseHPLoss; // Coins = HP loss for this level
-        const upgradeMultiplier = getUpgradeMultiplier(state.level);
+        const baseCoin = 24; // FIXED: Always 24 coins per tap regardless of level
 
+        console.log("🔧 USING FIXED COIN LOGIC - baseCoin is hardcoded to 24");
         console.log("=== COIN CALCULATION DEBUG ===");
         console.log("Level:", state.level);
         console.log("baseHPLoss (HP loss for this level):", baseHPLoss);
-        console.log("upgradeMultiplier:", upgradeMultiplier);
-        console.log("baseCoin (before multiplier):", baseCoin);
+        console.log("baseCoin (FIXED to 24):", baseCoin);
+        console.log("upgradeMultiplier: REMOVED - always 1");
         console.log("is3FingerTap:", is3FingerTap);
         console.log("finalMultiplier:", finalMultiplier);
 
         if (finalMultiplier === 0.25) {
-          // Auto-earn case
-          tapCoin = Math.floor((baseCoin * upgradeMultiplier) / 4);
-          console.log("Auto-earn calculation:", baseCoin, "* upgradeMultiplier / 4 =", tapCoin);
+          // Auto-earn case: 24 / 4 = 6 coins
+          tapCoin = Math.floor(baseCoin / 4);
+          console.log("Auto-earn calculation:", baseCoin, "/ 4 =", tapCoin);
         } else if (is3FingerTap) {
-          // 3-finger tap: exactly 3x the base coin - FIXED CALCULATION
-          tapCoin = Math.floor(baseCoin * upgradeMultiplier * 3);
+          // 3-finger tap: exactly 3x the base coin = 72 coins
+          tapCoin = Math.floor(baseCoin * 3);
           console.log(
             "3-finger tap coin calculation:",
             baseCoin,
-            "* upgradeMultiplier * 3 =",
+            "* 3 =",
             tapCoin
           );
         } else {
-          // Normal tap: base coin * upgradeMultiplier * finalMultiplier
-          tapCoin = Math.floor(baseCoin * upgradeMultiplier * finalMultiplier);
+          // Normal tap: exactly 24 coins
+          tapCoin = baseCoin;
           console.log(
             "Normal tap coin calculation:",
             baseCoin,
-            "* upgradeMultiplier *",
-            finalMultiplier,
             "=",
             tapCoin
           );
@@ -1743,36 +2486,50 @@
         console.log("Final tapCoin value:", tapCoin);
         console.log("=== END COIN CALCULATION ===");
 
-        // Add coins to coinEarn (which shows in total-coins box during tapping)
-        state.coinEarn += tapCoin;
+        // Create flying score text effect
+        if (event && tapCoin > 0) {
+          const tapX = event.clientX || event.touches?.[0]?.clientX || window.innerWidth / 2;
+          const tapY = event.clientY || event.touches?.[0]?.clientY || window.innerHeight / 2;
+          
+          // Show flying score text with special effect for 3-finger tap
+          createFlyingScoreText(tapX, tapY, tapCoin, is3FingerTap);
+        }
+
+        // Play coin sound effect
+        playCoinSound();
+
+        // Add coins directly to coinCount (ruby count)
+        state.coinCount += tapCoin;
+        
+        // Log tap summary
         console.log("=== TAP SUMMARY ===");
         console.log("Tap type:", is3FingerTap ? "3-FINGER TAP" : "NORMAL TAP");
         console.log("Base coin per tap:", getTapCoin(state.level));
-        console.log("Upgrade multiplier:", getUpgradeMultiplier(state.level));
+        console.log("Upgrade multiplier: REMOVED - always 1");
         console.log("Final coin earned:", tapCoin);
         console.log("HP lost:", actualHPLoss);
-        console.log("Total coinEarn:", state.coinEarn);
+        console.log("Total ruby count:", state.coinCount);
         console.log("==================");
 
         // Handle HP reaching 0
         if (state.hp <= 0) {
           state.hp = 0;
-          // Transfer coins from coinEarn to coinCount (top display)
-          state.coinCount += state.coinEarn;
-          state.coinEarn = 0;
           state.lastRecover = Date.now();
           state.lastZeroHP = Date.now();
+
+          // Trigger special "faint" effects when HP reaches 0
+          triggerHPZeroEffects();
 
           saveGameState(state);
           updateUI(state);
 
-          // Check for level up after delay - FIXED: Use correct cumulative logic
+          // Check for level up after delay
           setTimeout(() => {
             let currentState = loadGameState();
             if (canLevelUp(currentState.level, currentState.coinCount)) {
               const oldLevel = currentState.level;
               currentState.level++;
-              console.log(`🎉 LEVEL UP after HP=0! ${oldLevel} → ${currentState.level} (Total coins: ${currentState.coinCount})`);
+              console.log(`🎉 LEVEL UP after HP=0! ${oldLevel} → ${currentState.level} (Total ruby: ${currentState.coinCount})`);
               
               if (currentState.hp > 0) {
                 currentState.hp = getLevelHP(currentState.level);
@@ -1786,18 +2543,16 @@
           return;
         }
 
-        // Check for level up (when HP > 0) - FIXED: Use total coins with correct cumulative logic
-        const totalCoins = state.coinCount + state.coinEarn; // Total coins available
-        console.log(`🔍 Level up check: Level ${state.level}, Total coins: ${totalCoins}`);
+        // Check for level up (when HP > 0)
+        console.log(`🔍 Level up check: Level ${state.level}, Total ruby: ${state.coinCount}`);
         
-        if (canLevelUp(state.level, totalCoins)) {
+        if (canLevelUp(state.level, state.coinCount)) {
           const oldLevel = state.level;
           state.level++;
-          console.log(`🎉 LEVEL UP! ${oldLevel} → ${state.level} (Total coins: ${totalCoins})`);
+          console.log(`🎉 LEVEL UP! ${oldLevel} → ${state.level} (Total ruby: ${state.coinCount})`);
           
           if (state.hp > 0) {
-            // FIXED: Don't reset HP when leveling up - preserve remaining HP
-            // state.hp = getLevelHP(state.level);
+            // Don't reset HP when leveling up - preserve remaining HP
           }
           showLevelUpPopup(state.level);
         }
@@ -1812,6 +2567,9 @@
       // =====================
 
       function triggerSpecial3FingerEffect() {
+        // Trigger screen shake for dramatic effect
+        triggerScreenShake();
+        
         // Add special glow effect to character
         const character = document.getElementById("younghee");
         const sole = document.getElementById("sole");
@@ -1833,6 +2591,35 @@
 
         // Trigger special character press with light effect
         triggerCharacterPress(true);
+        
+        // Add extra dramatic effects
+        setTimeout(() => {
+          createMultipleEnergyWaves();
+        }, 200);
+      }
+
+      // Create multiple energy waves for extra dramatic effect
+      function createMultipleEnergyWaves() {
+        const characterContainer = document.querySelector(".character-container");
+        if (!characterContainer) return;
+
+        // Create 3 energy waves with different delays
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => {
+            const energyWave = document.createElement('div');
+            energyWave.className = 'energy-wave golden';
+            energyWave.style.animationDelay = `${i * 0.1}s`;
+            
+            characterContainer.appendChild(energyWave);
+            
+            // Clean up after animation
+            setTimeout(() => {
+              if (energyWave.parentNode) {
+                energyWave.parentNode.removeChild(energyWave);
+              }
+            }, 1200);
+          }, i * 150);
+        }
       }
 
       function show3xMultiplierText() {
@@ -1997,12 +2784,51 @@
         const popup = document.getElementById("level-up-popup");
         const titleElement = popup.querySelector(".level-up-title");
 
+        // Play level up sound effect
+        playLevelUpSound();
+
         if (titleElement) {
           titleElement.textContent = `Level ${newLevel}!`;
         }
 
+        // Trigger celebration effects on character
+        triggerLevelUpCelebration();
+
         popup.style.display = "flex";
         popup.classList.add("show");
+      }
+
+      // Special celebration effects for level up
+      function triggerLevelUpCelebration() {
+        const characterContainer = document.querySelector(".character-container");
+        if (!characterContainer) return;
+
+        // Multiple celebration effects
+        triggerEnhancedCharacterEffects('super');
+        
+        // Screen shake for excitement
+        setTimeout(() => {
+          triggerScreenShake();
+        }, 300);
+        
+        // Multiple heart effects
+        for (let i = 0; i < 5; i++) {
+          setTimeout(() => {
+            createHeartEffect();
+          }, i * 200);
+        }
+        
+        // Continuous particle effects
+        for (let i = 0; i < 3; i++) {
+          setTimeout(() => {
+            createParticleEffect(true); // Golden particles
+          }, i * 400);
+        }
+        
+        // Energy wave burst
+        setTimeout(() => {
+          createMultipleEnergyWaves();
+        }, 500);
       }
 
       function closeLevelUpPopup() {
@@ -2022,6 +2848,7 @@
 
       function toggleAutoEarn() {
         const button = document.getElementById("auto-earn-button");
+        const navItem = document.getElementById("nav-auto-earn");
 
         if (isAutoEarnEnabled) {
           // Disable auto earn
@@ -2031,6 +2858,8 @@
             autoEarnInterval = null;
           }
           button.classList.remove("active");
+          navItem.classList.remove("active");
+          console.log("🔴 Auto earn disabled");
         } else {
           // Enable auto earn
           isAutoEarnEnabled = true;
@@ -2044,6 +2873,8 @@
             }
           }, 1000);
           button.classList.add("active");
+          navItem.classList.add("active");
+          console.log("🟢 Auto earn enabled");
         }
       }
 
@@ -2152,30 +2983,18 @@
 
         // Initialize game with enhanced loading (server + localStorage)
         loadGameStateEnhanced().then((initialState) => {
-          console.log("🎮 Initial state received from loadGameStateEnhanced:", initialState);
-          console.log(`🎮 Initial HP value: ${initialState.hp}`);
-          
-          // CRITICAL: Verify HP is not being modified
-          if (initialState.hp === 0) {
-            console.log("💀 CRITICAL: Initial state has HP=0, this should be preserved");
-          } else {
-            console.log(`💖 Initial HP: ${initialState.hp}`);
-          }
+          console.log("🎮 Game initialized with state:", initialState);
           
           updateUI(initialState);
           console.log("🖥️ UI updated with initial state");
-
+          
           // Initialize coin target indicator
           updateCoinTargetIndicator();
 
           // Initialize bottom navigation
           initializeBottomNavigation();
 
-          console.log(
-            "🎮 Game Interface Initialized with state:",
-            initialState
-          );
-          console.log(`🎮 Final HP after initialization: ${initialState.hp}`);
+          console.log("🎮 Game Interface Initialized");
           console.log("📱 Telegram User ID:", telegramUserId);
         });
 
@@ -2275,7 +3094,8 @@
           });
         }
 
-        // Auto earn button
+        // Auto earn button - DISABLED: Now handled through navigation menu
+        /*
         document
           .getElementById("auto-earn-button")
           .addEventListener("click", function (event) {
@@ -2307,6 +3127,7 @@
             event.preventDefault();
             event.stopPropagation();
           });
+        */
 
         // HP recovery interval
         setInterval(recoverHP, 60 * 1000); // Every minute
@@ -2414,7 +3235,6 @@
               level: state.level,
               hp: state.hp,
               coinCount: state.coinCount,
-              coinEarn: state.coinEarn,
               lastRecover: state.lastRecover || Date.now(),
               lastZeroHP: state.lastZeroHP,
             }),
@@ -2428,8 +3248,6 @@
             if (result.data) {
               if (result.data.ruby !== undefined)
                 state.coinCount = result.data.ruby;
-              if (result.data.coins !== undefined)
-                state.coinEarn = result.data.coins;
               if (result.data.level !== undefined)
                 state.level = result.data.level;
               if (result.data.hp !== undefined) state.hp = result.data.hp;
@@ -2486,9 +3304,9 @@
                 console.log('🔄 Exchange tab selected - redirecting...');
                 window.location.href = 'exchange.html';
                 break;
-              case 'nav-boost':
-                console.log('🚀 Boost tab selected');
-                window.location.href = 'boost.html';
+              case 'nav-auto-earn':
+                console.log('🚀 Auto earn tab selected');
+                toggleAutoEarn();
                 break;
               case 'nav-point':
                 console.log('🎯 Point tab selected');
@@ -2537,7 +3355,160 @@
         return hpLoss === 0 ? 24 : hpLoss; // Use default for ruby levels
       }
 
-      // Coin per tap by level
+      // Special effects when HP reaches 0
+      function triggerHPZeroEffects() {
+        const characterContainer = document.querySelector(".character-container");
+        if (!characterContainer) return;
+
+        console.log("💀 Triggering HP=0 effects - character faint animation");
+
+        // Play crash sound effect
+        playCrashSound();
+
+        // Add faint animation to character
+        characterContainer.classList.add('faint');
+        
+        // Create HP zero overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'hp-zero-overlay';
+        document.body.appendChild(overlay);
+        
+        // Show "HP Depleted" message
+        showHPDepletedMessage();
+        
+        // Create sad particles effect
+        createSadParticles();
+        
+        // Clean up effects after animation
+        setTimeout(() => {
+          characterContainer.classList.remove('faint');
+          if (overlay.parentNode) {
+            overlay.parentNode.removeChild(overlay);
+          }
+        }, 3000);
+      }
+
+      // Show HP depleted message
+      function showHPDepletedMessage() {
+        const message = document.createElement('div');
+        message.textContent = '💔 HP Depleted! 💔';
+        message.style.cssText = `
+          position: fixed;
+          top: 25%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 24px;
+          font-weight: bold;
+          color: #ff4444;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px #ff4444;
+          z-index: 9999;
+          pointer-events: none;
+          animation: hpDepletedMessage 3s ease-out forwards;
+          font-family: 'Gugi', sans-serif;
+          border: 2px solid #ff4444;
+          background: rgba(0,0,0,0.8);
+          padding: 15px 25px;
+          border-radius: 15px;
+        `;
+
+        // Add animation
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes hpDepletedMessage {
+            0% { 
+              transform: translate(-50%, -50%) scale(0.5); 
+              opacity: 0; 
+            }
+            20% { 
+              transform: translate(-50%, -50%) scale(1.1); 
+              opacity: 1; 
+            }
+            80% { 
+              transform: translate(-50%, -50%) scale(1); 
+              opacity: 1; 
+            }
+            100% { 
+              transform: translate(-50%, -50%) scale(0.8) translateY(-30px); 
+              opacity: 0; 
+            }
+          }
+        `;
+        document.head.appendChild(style);
+        document.body.appendChild(message);
+
+        // Clean up after animation
+        setTimeout(() => {
+          if (message.parentNode) {
+            message.parentNode.removeChild(message);
+          }
+          if (style.parentNode) {
+            style.parentNode.removeChild(style);
+          }
+        }, 3000);
+      }
+
+      // Create sad particles (blue/gray) when HP reaches 0
+      function createSadParticles() {
+        const characterContainer = document.querySelector(".character-container");
+        if (!characterContainer) return;
+
+        const particleContainer = document.createElement('div');
+        particleContainer.className = 'character-particles';
+        
+        // Create sad particles (tears effect)
+        for (let i = 0; i < 6; i++) {
+          const particle = document.createElement('div');
+          particle.style.cssText = `
+            position: absolute;
+            width: 4px;
+            height: 8px;
+            background: linear-gradient(180deg, #87CEEB 0%, #4682B4 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            opacity: 0;
+            animation: tearDrop 2s ease-out forwards;
+          `;
+          
+          // Random position around character's face area
+          particle.style.left = (45 + Math.random() * 10) + '%';
+          particle.style.top = (30 + Math.random() * 20) + '%';
+          
+          // Set animation delay
+          particle.style.animationDelay = (i * 0.3) + 's';
+          
+          particleContainer.appendChild(particle);
+        }
+        
+        // Add tear drop animation
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes tearDrop {
+            0% {
+              transform: translateY(0px);
+              opacity: 0;
+            }
+            20% {
+              opacity: 0.8;
+            }
+            100% {
+              transform: translateY(60px);
+              opacity: 0;
+            }
+          }
+        `;
+        document.head.appendChild(style);
+        
+        characterContainer.appendChild(particleContainer);
+        
+        // Clean up after animation
+        setTimeout(() => {
+          if (particleContainer.parentNode) {
+            particleContainer.parentNode.removeChild(particleContainer);
+          }
+          if (style.parentNode) {
+            style.parentNode.removeChild(style);
+          }
+        }, 3000);
+      }
     </script>
   </body>
 </html>
