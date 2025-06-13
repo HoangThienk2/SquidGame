@@ -1845,7 +1845,7 @@
         }
         
         // Try to load from server if we have a user ID
-        if (telegramUserId && !telegramUserId.startsWith("demo_")) {
+        if (telegramUserId && (!telegramUserId.startsWith("demo_") || window.shouldForceRefresh)) {
           console.log("🌐 Attempting to load from server...");
           serverState = await loadGameStateFromServer();
           
@@ -1857,17 +1857,10 @@
             console.log(`🔍 Data comparison - Local coins: ${localCoins}, Server coins: ${serverCoins}`);
             console.log(`🔍 Data comparison - Local HP: ${localState.hp}, Server HP: ${serverState.hp}`);
             
-            // Use the state with more coins to prevent data loss
-            if (localCoins > serverCoins) {
-              console.log("📈 Local has more coins - using local state and syncing to server");
-              window.currentGameState = localState;
-              // Sync local state to server to update it
-              setTimeout(() => {
-                syncGameStateToServer(localState);
-              }, 1000);
-              return localState;
-            } else if (serverCoins > localCoins) {
-              console.log("📈 Server has more coins - using server state");
+            // FIXED: Always prioritize server state when there's a difference in coins
+            // This ensures that exchange operations are properly reflected in the UI
+            if (serverCoins !== localCoins) {
+              console.log("🔄 Server and local coins differ - prioritizing server state to ensure exchange updates are shown");
               // Save server state to local storage with backups
               if (window.saveGameStateWithBackups) {
                 window.saveGameStateWithBackups(serverState);
@@ -3057,6 +3050,22 @@
         async function initializeGame() {
           console.log("🎮 Starting game initialization...");
           
+          // Check if user is coming from exchange page
+          const urlParams = new URLSearchParams(window.location.search);
+          const fromExchange = urlParams.get('from') === 'exchange';
+          const fromPoint = urlParams.get('from') === 'point';
+          const fromBoost = urlParams.get('from') === 'boost';
+          const shouldForceRefresh = fromExchange || fromPoint || fromBoost;
+          
+          // Set as global variable for loadGameStateEnhanced to access
+          window.shouldForceRefresh = shouldForceRefresh;
+          
+          if (shouldForceRefresh) {
+            console.log("🔄 User coming from exchange, point, or boost - will force refresh ruby from server");
+            // Clear the URL parameter
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+          
           // Wait for Telegram WebApp to be ready (with timeout)
           let telegramReady = false;
           let attempts = 0;
@@ -3081,9 +3090,37 @@
           getTelegramUserId();
 
           // Initialize game with enhanced loading (server + localStorage)
-          loadGameStateEnhanced().then((initialState) => {
+          loadGameStateEnhanced().then(async (initialState) => {
             console.log("🎮 Initial state received from loadGameStateEnhanced:", initialState);
             console.log(`🎮 Initial HP value: ${initialState.hp}`);
+            
+            // If coming from exchange or point, force refresh from server to get latest ruby
+            if (shouldForceRefresh && telegramUserId) {
+              console.log("🔄 Force refreshing ruby from server due to exchange, point, or boost redirect...");
+              try {
+                const serverState = await loadGameStateFromServer();
+                if (serverState) {
+                  const serverCoins = serverState.coinCount || 0;
+                  const localCoins = initialState.coinCount || 0;
+                  
+                  if (serverCoins !== localCoins) {
+                    console.log(`🔄 Ruby updated after exchange, point, or boost: ${localCoins} → ${serverCoins}`);
+                    initialState = serverState;
+                    window.currentGameState = serverState;
+                    if (window.saveGameStateWithBackups) {
+                      window.saveGameStateWithBackups(serverState);
+                    }
+                    
+                    // Show notification about the update
+                    setTimeout(() => {
+                      showFloatingText(`Ruby Updated: ${serverCoins.toLocaleString()}`, "#FFD93D");
+                    }, 1000);
+                  }
+                }
+              } catch (error) {
+                console.warn("⚠️ Error force refreshing from server:", error);
+              }
+            }
             
             // CRITICAL: Verify HP is not being modified
             if (initialState.hp === 0) {
@@ -3778,11 +3815,112 @@
         });
       };
       
-      console.log('🔧 DEBUG COMMANDS AVAILABLE:');
-      console.log('- debugGameState() - Check current game state');
-      console.log('- debugForceSync() - Force sync to server');
-      console.log('- debugAddCoins(amount) - Add coins for testing');
-      console.log('- debugReloadFromServer() - Reload from server');
+      // Debug function to test force refresh
+      window.debugForceRefreshFromServer = async function() {
+        console.log("🔧 DEBUG: Manually triggering force refresh from server...");
+        window.shouldForceRefresh = true;
+        
+        try {
+          const serverState = await loadGameStateFromServer();
+          if (serverState) {
+            console.log("🔧 DEBUG: Server state received:", serverState);
+            const currentState = window.currentGameState || loadGameState();
+            
+            const serverCoins = serverState.coinCount || 0;
+            const localCoins = currentState.coinCount || 0;
+            
+            console.log(`🔧 DEBUG: Local coins: ${localCoins}, Server coins: ${serverCoins}`);
+            
+            if (serverCoins !== localCoins) {
+              console.log(`🔧 DEBUG: Updating Ruby: ${localCoins} → ${serverCoins}`);
+              window.currentGameState = serverState;
+              if (window.saveGameStateWithBackups) {
+                window.saveGameStateWithBackups(serverState);
+              }
+              updateUI(serverState);
+              showFloatingText(`Ruby Updated: ${serverCoins.toLocaleString()}`, "#FFD93D");
+            } else {
+              console.log("🔧 DEBUG: No difference in Ruby count");
+            }
+          } else {
+            console.log("🔧 DEBUG: No server state received");
+          }
+        } catch (error) {
+          console.error("🔧 DEBUG: Error:", error);
+        }
+      };
+
+      console.log("🔧 DEBUG COMMANDS AVAILABLE:");
+      console.log("- debugGameState() - Check current game state");
+      console.log("- debugForceSync() - Force sync to server");
+      console.log("- debugAddCoins(amount) - Add coins for testing");
+      console.log("- debugReloadFromServer() - Reload from server");
+      console.log("- debugForceRefreshFromServer() - Test force refresh functionality");
+
+      // =====================
+      // Page Visibility and Focus Handlers for Exchange Updates
+      // =====================
+      
+      // Force reload from server when user returns to page (e.g., from exchange)
+      document.addEventListener('visibilitychange', async function() {
+        if (!document.hidden && telegramUserId && !telegramUserId.startsWith("demo_")) {
+          console.log("👁️ Page became visible - checking for server updates...");
+          
+          try {
+            const serverState = await loadGameStateFromServer();
+            if (serverState && window.currentGameState) {
+              const serverCoins = serverState.coinCount || 0;
+              const localCoins = window.currentGameState.coinCount || 0;
+              
+              if (serverCoins !== localCoins) {
+                console.log(`🔄 Ruby updated on server: ${localCoins} → ${serverCoins}`);
+                console.log("✅ Updating UI with latest server data");
+                
+                // Update current state and UI
+                window.currentGameState = serverState;
+                if (window.saveGameStateWithBackups) {
+                  window.saveGameStateWithBackups(serverState);
+                }
+                updateUI(serverState);
+                
+                // Show notification about the update
+                showFloatingText(`Ruby Updated: ${serverCoins.toLocaleString()}`, "#FFD93D");
+              }
+            }
+          } catch (error) {
+            console.warn("⚠️ Error checking server updates:", error);
+          }
+        }
+      });
+      
+      // Also handle window focus events as backup
+      window.addEventListener('focus', async function() {
+        if (telegramUserId && !telegramUserId.startsWith("demo_")) {
+          console.log("🎯 Window focused - checking for server updates...");
+          
+          try {
+            const serverState = await loadGameStateFromServer();
+            if (serverState && window.currentGameState) {
+              const serverCoins = serverState.coinCount || 0;
+              const localCoins = window.currentGameState.coinCount || 0;
+              
+              if (serverCoins !== localCoins) {
+                console.log(`🔄 Ruby updated on server: ${localCoins} → ${serverCoins}`);
+                console.log("✅ Updating UI with latest server data");
+                
+                // Update current state and UI
+                window.currentGameState = serverState;
+                if (window.saveGameStateWithBackups) {
+                  window.saveGameStateWithBackups(serverState);
+                }
+                updateUI(serverState);
+              }
+            }
+          } catch (error) {
+            console.warn("⚠️ Error checking server updates:", error);
+          }
+        }
+      });
     </script>
     
     <!-- Auto Earn Shared Functionality -->

@@ -503,9 +503,8 @@
               >
               <input
                 id="input1"
-                type="text"
-                value="222134"
-                readonly
+                type="number"
+                placeholder="Enter Point amount"
                 class="input-field w-full bg-[#14141c] text-white rounded-2xl px-4 py-5 text-lg font-semibold outline-none"
               />
             </div>
@@ -517,9 +516,9 @@
               >
               <input
                 id="input2"
-                type="text"
-                value="$112.2"
-                readonly
+                type="number"
+                step="0.001"
+                placeholder="Enter SMG amount"
                 class="input-field w-full bg-[#14141c] text-white rounded-2xl px-4 py-5 text-lg font-semibold outline-none"
               />
             </div>
@@ -788,24 +787,19 @@
       function updateExchangeInputs() {
         if (!currentUser) return;
 
-        const input1 = document.getElementById("input1");
-        const input2 = document.getElementById("input2");
+        // Clear inputs to allow manual entry
+        input1.value = "";
+        input2.value = "";
 
+        // Set placeholders based on exchange type
         if (currentExchangeType === "point-to-smg") {
-          // Calculate how much SMG user can get with their ruby points
-          const maxPoints = Math.floor(currentUser.ruby / 1000) * 1000;
-          const smgAmount = maxPoints / 1000;
-
-          input1.value = maxPoints.toLocaleString();
-          input2.value = `$${smgAmount.toFixed(1)}`;
+          input1.placeholder = `0`;
+          input2.placeholder = "0";
         } else {
-          // Calculate how many points user can get with their SMG
-          const userSmg = currentUser.smg || 0;
-          const maxSmg = Math.floor(userSmg);
-          const pointsAmount = maxSmg * 1000;
-
-          input1.value = `$${maxSmg.toFixed(1)}`;
-          input2.value = pointsAmount.toLocaleString();
+          input1.placeholder = `Available: ${(currentUser.smg || 0).toFixed(
+            3
+          )} SMG`;
+          input2.placeholder = "Point amount";
         }
       }
 
@@ -816,23 +810,55 @@
           return;
         }
 
+        // Get values from inputs
+        const input1Value = parseFloat(input1.value) || 0;
+        const input2Value = parseFloat(input2.value) || 0;
+
+        if (input1Value <= 0 && input2Value <= 0) {
+          alert("Please enter an amount to exchange.");
+          return;
+        }
+
         try {
           const telegramUserId = getTelegramUserId();
-          let points;
+          let points, smgAmount;
 
           if (currentExchangeType === "point-to-smg") {
-            points = Math.floor(currentUser.ruby / 1000) * 1000;
+            // Use input1 (Points) as the source
+            points = Math.floor(input1Value);
+            smgAmount = points / 1000;
+
             if (points < 1000) {
-              alert("You need at least 1,000 ruby Points to exchange for SMG.");
+              alert("Minimum exchange is 1,000 Points for 1 SMG.");
+              return;
+            }
+
+            if (points > (currentUser.ruby || 0)) {
+              alert(
+                `You only have ${(
+                  currentUser.ruby || 0
+                ).toLocaleString()} Points available.`
+              );
               return;
             }
           } else {
-            const userSmg = currentUser.smg || 0;
-            if (userSmg < 1) {
-              alert("You need at least 1 SMG to exchange for Points.");
+            // Use input1 (SMG) as the source
+            smgAmount = parseFloat(input1Value);
+            points = Math.floor(smgAmount * 1000);
+
+            if (smgAmount < 0.001) {
+              alert("Minimum exchange is 0.001 SMG.");
               return;
             }
-            points = Math.floor(userSmg) * 1000;
+
+            if (smgAmount > (currentUser.smg || 0)) {
+              alert(
+                `You only have ${(currentUser.smg || 0).toFixed(
+                  3
+                )} SMG available.`
+              );
+              return;
+            }
           }
 
           const response = await fetch(
@@ -846,6 +872,7 @@
               },
               body: JSON.stringify({
                 points: points,
+                smgAmount: smgAmount,
                 exchangeType: currentExchangeType,
               }),
             }
@@ -1015,6 +1042,35 @@
         setActiveTab("smg-to-point")
       );
 
+      // Add input event listeners for automatic calculation
+      input1.addEventListener("input", function () {
+        const value = parseFloat(this.value) || 0;
+
+        if (currentExchangeType === "point-to-smg") {
+          // Point to SMG: 1000 Points = 1 SMG
+          const smgAmount = value / 1000;
+          input2.value = smgAmount.toFixed(3);
+        } else {
+          // SMG to Point: 1 SMG = 1000 Points
+          const pointAmount = value * 1000;
+          input2.value = pointAmount.toLocaleString();
+        }
+      });
+
+      input2.addEventListener("input", function () {
+        const value = parseFloat(this.value) || 0;
+
+        if (currentExchangeType === "point-to-smg") {
+          // SMG to Point: 1 SMG = 1000 Points
+          const pointAmount = value * 1000;
+          input1.value = pointAmount.toLocaleString();
+        } else {
+          // Point to SMG: 1000 Points = 1 SMG
+          const smgAmount = value / 1000;
+          input1.value = smgAmount.toFixed(3);
+        }
+      });
+
       // Add confirm button event listener
       document
         .querySelector(".confirm-button")
@@ -1079,7 +1135,8 @@
             switch (item.id) {
               case "nav-earn":
                 console.log("📈 Earn tab selected - redirecting...");
-                window.location.href = "index.html";
+                // Add parameter to indicate coming from exchange
+                window.location.href = "index.html?from=exchange";
                 break;
               case "nav-exchange":
                 console.log("🔄 Exchange tab selected");
@@ -1393,7 +1450,7 @@
         switch (navId) {
           case "nav-earn":
             console.log("Navigating to Earn page");
-            window.location.href = "index.html";
+            window.location.href = "index.html?from=exchange";
             break;
           case "nav-exchange":
             console.log("Already on Exchange page");
