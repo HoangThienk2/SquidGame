@@ -50,7 +50,7 @@
         }
 
         .exchange-form .input-label {
-          font-size: 0.8rem !important; /* Smaller label */
+          font-size: 1rem !important; /* Smaller label */
           width: 45px !important;
         }
 
@@ -86,7 +86,7 @@
         .transaction-history {
           padding: 10px !important;
           margin-top: 8px !important; /* Reduced margin */
-          margin-bottom: 60px !important; /* Less margin for bottom nav - moved up */
+          margin-bottom: 25px !important; /* Less margin for bottom nav - moved up */
         }
 
         .transaction-history .history-header {
@@ -341,7 +341,7 @@
       class="exchange-container md:w-[375px] md:max-w-[375px] w-full mx-auto md:mt-6 p-4 rounded-2xl bg-[#17171F] shadow-lg relative min-h-screen"
     >
       <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
+        <div class="flex flex-col items-center gap-3 ml-[40px]">
           <div
             class="w-11 h-11 rounded-full bg-gradient-to-br from-green-400 to-yellow-400 flex items-center justify-center text-2xl font-bold text-white"
           >
@@ -352,25 +352,23 @@
         <div class="flex flex-col gap-1">
           <div class="flex gap-2">
             <div
-              class="flex px-2 py-1 bg-[#0E0E18] rounded-full items-center gap-2"
+              class="flex px-5 py-1 bg-[#0E0E18] rounded-full items-center gap-5"
+            >
+              <img src="./image/ruby.svg" alt="Ruby" class="w-5 h-5" />
+              <span class="text-gray-200 font-bold">0</span>
+            </div>
+            <div
+              class="flex px-5 py-1 bg-[#0E0E18] rounded-full items-center gap-5"
             >
               <span
                 class="w-3 h-3 rounded-full bg-yellow-400 inline-block"
               ></span>
               <span class="text-yellow-300 font-bold">123,456</span>
             </div>
-            <div
-              class="flex px-2 py-1 bg-[#0E0E18] rounded-full items-center gap-2"
-            >
-              <span
-                class="w-3 h-3 rounded-full bg-gray-200 inline-block"
-              ></span>
-              <span class="text-gray-200 font-bold">123,456</span>
-            </div>
           </div>
           <div class="w-full px-2 py-1 bg-red-600 rounded-full">
             <div class="text-white font-bold flex justify-between">
-              HP <span class="text-white">123,456</span>
+              HP <span class="text-white">400/400</span>
             </div>
           </div>
         </div>
@@ -397,13 +395,13 @@
                 d="M9 5l7 7-7 7"
               />
             </svg>
-            <span class="text-white font-semibold">Smg</span>
+            <span class="text-white font-semibold">SMG</span>
           </button>
           <button
             id="btn-cycon-point"
             class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-transparent bg-gray-700 text-gray-400 font-semibold shadow-top-left transition-all"
           >
-            <span class="text-gray-400">Smg</span>
+            <span class="text-gray-400">SMG</span>
             <svg
               class="w-3 h-3 inline mx-1"
               fill="none"
@@ -427,7 +425,14 @@
             >1,000 P → 1 SMG</span
           >
         </div>
-
+        <div
+          class="flex justify-center gap-2 flex-col items-center text-center mb-5"
+        >
+          <span class="text-gray-400 text-xs"
+            >Minimum exchange is 10,000 SMG</span
+          >
+          <span class="text-gray-400 text-xs">Minimum ITEM LV is 147 </span>
+        </div>
         <!-- Input Fields -->
         <div class="input-section mb-5">
           <div class="flex flex-col gap-4">
@@ -435,7 +440,7 @@
               <label
                 id="input1-label"
                 class="input-label block text-gray-400 text-lg w-[60px] mb-1"
-                >point</label
+                >Point</label
               >
               <input
                 id="input1"
@@ -449,7 +454,7 @@
               <label
                 id="input2-label"
                 class="input-label block text-gray-400 w-[60px] text-lg mb-1"
-                >smg</label
+                >SMG</label
               >
               <input
                 id="input2"
@@ -691,9 +696,7 @@
         // Update user info display
         document.querySelector(".text-yellow-300.font-bold").textContent =
           currentUser.ruby.toLocaleString();
-        document.querySelector(".text-gray-200.font-bold").textContent = (
-          currentUser.smg || 0
-        ).toFixed(1);
+        document.querySelector(".text-gray-200.font-bold").textContent = "0";
         document.querySelector(".text-white:last-child").textContent =
           currentUser.hp.toLocaleString();
 
@@ -739,13 +742,13 @@
           if (currentExchangeType === "point-to-smg") {
             points = Math.floor(currentUser.ruby / 1000) * 1000;
             if (points < 1000) {
-              alert("You need at least 1,000 ruby points to exchange for SMG.");
+              alert("You need at least 1,000 ruby Points to exchange for SMG.");
               return;
             }
           } else {
             const userSmg = currentUser.smg || 0;
             if (userSmg < 1) {
-              alert("You need at least 1 SMG to exchange for points.");
+              alert("You need at least 1 SMG to exchange for Points.");
               return;
             }
             points = Math.floor(userSmg) * 1000;
@@ -798,12 +801,12 @@
             alert(
               `Exchange successful! ${
                 currentExchangeType === "point-to-smg"
-                  ? `Exchanged ${result.data.exchanged.points.toLocaleString()} points for ${
+                  ? `Exchanged ${result.data.exchanged.points.toLocaleString()} Points for ${
                       result.data.exchanged.smg
                     } SMG`
                   : `Exchanged ${
                       result.data.exchanged.smg
-                    } SMG for ${result.data.exchanged.points.toLocaleString()} points`
+                    } SMG for ${result.data.exchanged.points.toLocaleString()} Points`
               }`
             );
           } else {
@@ -876,14 +879,14 @@
             <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
-            <span class="text-white font-semibold">Smg</span>
+            <span class="text-white font-semibold">SMG</span>
           `;
 
           // Inactive tab style - Cycon to Point
           btnCyconPoint.className =
             "flex-1 px-4 py-2 rounded-r-2xl border-l-2 border-transparent text-gray-400 font-semibold shadow-top-left transition-all";
           btnCyconPoint.innerHTML = `
-            <span class="text-gray-400">Smg</span>
+            <span class="text-gray-400">SMG</span>
             <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
@@ -892,8 +895,8 @@
 
           // Update exchange rate and inputs for Point → SMG
           exchangeRate.textContent = "1,000 P → 1 SMG";
-          input1Label.textContent = "point";
-          input2Label.textContent = "smg";
+          input1Label.textContent = "Point";
+          input2Label.textContent = "SMG";
         } else {
           // Inactive tab style - Point to Cycon
           btnPointCycon.className =
@@ -903,14 +906,14 @@
             <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
-            <span class="text-gray-400">Smg</span>
+            <span class="text-gray-400">SMG</span>
           `;
 
           // Active tab style - Cycon to Point
           btnCyconPoint.className =
             "flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-l-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all";
           btnCyconPoint.innerHTML = `
-            <span class="text-gray-200">Smg</span>
+            <span class="text-gray-200">SMG</span>
             <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
@@ -919,8 +922,8 @@
 
           // Update exchange rate and inputs for SMG → Point
           exchangeRate.textContent = "1 SMG → 1,000 P";
-          input1Label.textContent = "smg";
-          input2Label.textContent = "point";
+          input1Label.textContent = "SMG";
+          input2Label.textContent = "Point";
         }
 
         // Update inputs with current user data
@@ -1077,12 +1080,12 @@
           const newTransaction = {
             id: Date.now(),
             timestamp: Date.now(),
-            fromLabel: exchangeType === "point-to-smg" ? "Point" : "Smg",
+            fromLabel: exchangeType === "point-to-smg" ? "Point" : "SMG",
             fromValue:
               exchangeType === "point-to-smg"
                 ? exchanged.points.toLocaleString()
                 : `$${exchanged.smg.toFixed(1)}`,
-            toLabel: exchangeType === "point-to-smg" ? "Smg" : "Point",
+            toLabel: exchangeType === "point-to-smg" ? "SMG" : "Point",
             toValue:
               exchangeType === "point-to-smg"
                 ? `$${exchanged.smg.toFixed(1)}`
