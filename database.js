@@ -353,9 +353,6 @@ class Database {
         // Check and update maxHP if it doesn't match the level
         const expectedMaxHP = getLevelHP(user.level);
         if (user.maxHP !== expectedMaxHP) {
-          console.log(
-            `🔧 Database: Updating maxHP for level ${user.level}: ${user.maxHP} → ${expectedMaxHP}`
-          );
           user.maxHP = expectedMaxHP;
           // Also update HP if it exceeds new maxHP
           if (user.hp > expectedMaxHP) {
