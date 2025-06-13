@@ -943,7 +943,7 @@
           class="w-full h-full object-cover rounded-[20px] absolute top-0 left-0"
         />
         <!-- Loading Text Overlay -->
-        <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-40 rounded-[20px]">
+        <div class="absolute inset-0 flex flex-col items-center justify-start pt-16 bg-black bg-opacity-40 rounded-[20px]">
           <div class="text-center mb-8">
             <h1 class="text-white text-2xl font-bold mb-2 gugi-font">Younghee Game</h1>
           </div>
@@ -966,6 +966,16 @@
         alt=""
       />
       <div class="flex flex-col gap-[8px]">
+        <!-- Avatar and User ID Section -->
+        <div class="flex flex-col justify-center items-center gap-3 mb-2">
+          <div
+            class="w-11 h-11 rounded-full bg-gradient-to-br from-green-400 to-yellow-400 flex items-center justify-center text-2xl font-bold text-white"
+          >
+            U
+          </div>
+          <span class="text-white font-semibold user-id">Loading...</span>
+        </div>
+        
         <div class="flex justify-between items-center">
           <div
             class="flex w-[165.5px] h-[30px] px-[4px] pr-[12px] py-[4px] gap-[8px] rounded-full card-bg items-center"
@@ -1313,20 +1323,33 @@
 
       // Get Telegram user ID from URL parameters or Telegram WebApp
       let telegramUserId = null;
+      let telegramUserData = null; // Store full user data
 
       function getTelegramUserId() {
         // SECURITY: Only save Telegram User ID to localStorage for persistence
         // Game state remains server-only to prevent hacking
         
-        // First, try to get from localStorage (for demo ID persistence only)
+        // 1. Check if already cached
+        if (telegramUserId) return telegramUserId;
+        
+        // 2. Try to get from localStorage first
         const savedUserId = localStorage.getItem("telegramUserId");
         if (savedUserId) {
           telegramUserId = savedUserId;
+          // Also try to get saved user data
+          const savedUserData = localStorage.getItem("telegramUserData");
+          if (savedUserData) {
+            try {
+              telegramUserData = JSON.parse(savedUserData);
+            } catch (e) {
+              console.log("⚠️ Failed to parse saved user data");
+            }
+          }
           console.log("📱 Telegram User ID from localStorage:", telegramUserId);
           return telegramUserId;
         }
         
-        // Try to get from URL parameters
+        // 3. Try to get from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const userIdFromUrl = urlParams.get("userId");
 
@@ -1338,7 +1361,7 @@
           return telegramUserId;
         }
 
-        // Try to get from Telegram WebApp API with enhanced checking
+        // 4. Try to get from Enhanced Telegram WebApp first
         if (window.telegramWebAppReady && window.telegramWebApp) {
           const webApp = window.telegramWebApp;
           console.log("🔍 Enhanced Telegram WebApp available:", webApp);
@@ -1347,35 +1370,75 @@
 
           if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
             telegramUserId = webApp.initDataUnsafe.user.id.toString();
-            // Save to localStorage for persistence
+            telegramUserData = webApp.initDataUnsafe.user; // Store full user data
+
             localStorage.setItem("telegramUserId", telegramUserId);
+            localStorage.setItem(
+              "telegramUserData",
+              JSON.stringify(telegramUserData)
+            );
+
             console.log("📱 Telegram User ID from Enhanced WebApp:", telegramUserId);
             console.log("👤 User info:", webApp.initDataUnsafe.user);
+            console.log(
+              "👤 Username:",
+              telegramUserData.username || "No username"
+            );
+            console.log(
+              "👤 First name:",
+              telegramUserData.first_name || "No first name"
+            );
             return telegramUserId;
           }
         }
         
-        // Fallback: Try original method for compatibility
-        if (window.Telegram && window.Telegram.WebApp) {
+        // 5. Fallback to original Telegram WebApp
+        if (
+          typeof window !== "undefined" &&
+          window.Telegram &&
+          window.Telegram.WebApp &&
+          window.Telegram.WebApp.initDataUnsafe &&
+          window.Telegram.WebApp.initDataUnsafe.user
+        ) {
           const webApp = window.Telegram.WebApp;
-          console.log("🔍 Fallback Telegram WebApp check:", webApp);
-          console.log("🔍 Fallback WebApp initData:", webApp.initData);
-          console.log("🔍 Fallback WebApp initDataUnsafe:", webApp.initDataUnsafe);
+          telegramUserId = webApp.initDataUnsafe.user.id.toString();
+          telegramUserData = webApp.initDataUnsafe.user; // Store full user data
 
-          if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
-            telegramUserId = webApp.initDataUnsafe.user.id.toString();
-            // Save to localStorage for persistence
-            localStorage.setItem("telegramUserId", telegramUserId);
-            console.log("📱 Telegram User ID from Fallback WebApp:", telegramUserId);
-            console.log("👤 User info:", webApp.initDataUnsafe.user);
-            return telegramUserId;
-          }
+          // Save to localStorage for future use
+          localStorage.setItem("telegramUserId", telegramUserId);
+          localStorage.setItem(
+            "telegramUserData",
+            JSON.stringify(telegramUserData)
+          );
+
+          console.log("📱 Telegram User ID from Fallback WebApp:", telegramUserId);
+          console.log("👤 User info:", webApp.initDataUnsafe.user);
+          console.log(
+            "👤 Username:",
+            telegramUserData.username || "No username"
+          );
+          console.log(
+            "👤 First name:",
+            telegramUserData.first_name || "No first name"
+          );
+
+          return telegramUserId;
         }
 
-        // Fallback: generate a demo ID and save it for persistence
+        // 6. Generate demo user ID as fallback
         telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
+        telegramUserData = {
+          id: telegramUserId,
+          first_name: "Demo User",
+          username: null,
+        };
+
         // Save demo ID to localStorage so it persists across page refreshes
         localStorage.setItem("telegramUserId", telegramUserId);
+        localStorage.setItem(
+          "telegramUserData",
+          JSON.stringify(telegramUserData)
+        );
         console.log("📱 Generated and saved demo Telegram User ID:", telegramUserId);
         console.log("💾 Demo ID saved to localStorage for persistence across refreshes");
         return telegramUserId;
@@ -2023,6 +2086,43 @@
         }
         if (lpLevelIcon) {
           lpLevelIcon.style.left = `${levelProgress}%`;
+        }
+        
+        // Update user ID display
+        const userIdElement = document.querySelector(".user-id");
+        if (userIdElement && telegramUserData) {
+          // Priority: username > first_name > user ID
+          let displayName = telegramUserData.username
+            ? `@${telegramUserData.username}`
+            : telegramUserData.first_name
+            ? telegramUserData.first_name
+            : telegramUserId || "Unknown";
+
+          userIdElement.textContent = displayName;
+          userIdElement.classList.add("dashed-text");
+        } else if (userIdElement && telegramUserId) {
+          // Fallback to user ID if no user data available
+          userIdElement.textContent = telegramUserId;
+          userIdElement.classList.add("dashed-text");
+        }
+
+        // Update avatar display
+        updateAvatarDisplay();
+      }
+
+      // Function to update avatar display
+      function updateAvatarDisplay() {
+        const avatarElement = document.querySelector(".w-11.h-11");
+        if (avatarElement && telegramUserData) {
+          let avatarLetter = "U"; // Default
+
+          if (telegramUserData.first_name) {
+            avatarLetter = telegramUserData.first_name.charAt(0).toUpperCase();
+          } else if (telegramUserData.username) {
+            avatarLetter = telegramUserData.username.charAt(0).toUpperCase();
+          }
+
+          avatarElement.textContent = avatarLetter;
         }
       }
 

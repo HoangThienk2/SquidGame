@@ -931,6 +931,7 @@
 
       // Telegram User ID variable
       let telegramUserId = null;
+      let telegramUserData = null; // Store full user data
       let currentUser = null;
 
       // API Base URL
@@ -995,12 +996,44 @@
           hpDisplay.textContent = `${hpPercentage} / 100`;
         }
 
-        const userIdDisplay = document.querySelector(".user-id");
-        if (userIdDisplay) {
-          userIdDisplay.textContent = currentUser.telegramUserId || "Unknown";
+        // Update user ID display with username/first_name priority
+        const userIdElement = document.querySelector(".user-id");
+        if (userIdElement && telegramUserData) {
+          // Priority: username > first_name > user ID
+          let displayName = telegramUserData.username
+            ? `@${telegramUserData.username}`
+            : telegramUserData.first_name
+            ? telegramUserData.first_name
+            : currentUser.telegramUserId || "Unknown";
+
+          userIdElement.textContent = displayName;
+          userIdElement.classList.add("dashed-text");
+        } else if (userIdElement) {
+          // Fallback to user ID if no user data available
+          userIdElement.textContent = currentUser.telegramUserId || "Unknown";
+          userIdElement.classList.add("dashed-text");
         }
 
+        // Update avatar display
+        updateAvatarDisplay();
+
         console.log("✅ User display updated successfully");
+      }
+
+      // Function to update avatar display
+      function updateAvatarDisplay() {
+        const avatarElement = document.querySelector(".w-11.h-11");
+        if (avatarElement && telegramUserData) {
+          let avatarLetter = "U"; // Default
+
+          if (telegramUserData.first_name) {
+            avatarLetter = telegramUserData.first_name.charAt(0).toUpperCase();
+          } else if (telegramUserData.username) {
+            avatarLetter = telegramUserData.username.charAt(0).toUpperCase();
+          }
+
+          avatarElement.textContent = avatarLetter;
+        }
       }
 
       // Get Telegram user ID (same logic as index.html)
@@ -1012,6 +1045,15 @@
         const savedUserId = localStorage.getItem("telegramUserId");
         if (savedUserId) {
           telegramUserId = savedUserId;
+          // Also try to get saved user data
+          const savedUserData = localStorage.getItem("telegramUserData");
+          if (savedUserData) {
+            try {
+              telegramUserData = JSON.parse(savedUserData);
+            } catch (e) {
+              console.log("⚠️ Failed to parse saved user data");
+            }
+          }
           console.log("📱 Telegram User ID from localStorage:", telegramUserId);
           return telegramUserId;
         }
@@ -1034,10 +1076,26 @@
 
           if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
             telegramUserId = webApp.initDataUnsafe.user.id.toString();
+            telegramUserData = webApp.initDataUnsafe.user; // Store full user data
+
             localStorage.setItem("telegramUserId", telegramUserId);
+            localStorage.setItem(
+              "telegramUserData",
+              JSON.stringify(telegramUserData)
+            );
+
             console.log(
               "📱 Telegram User ID from Enhanced WebApp:",
               telegramUserId
+            );
+            console.log("👤 User info:", webApp.initDataUnsafe.user);
+            console.log(
+              "👤 Username:",
+              telegramUserData.username || "No username"
+            );
+            console.log(
+              "👤 First name:",
+              telegramUserData.first_name || "No first name"
             );
             return telegramUserId;
           }
@@ -1053,11 +1111,27 @@
         ) {
           const webApp = window.Telegram.WebApp;
           telegramUserId = webApp.initDataUnsafe.user.id.toString();
+          telegramUserData = webApp.initDataUnsafe.user; // Store full user data
+
           // Save to localStorage for future use
           localStorage.setItem("telegramUserId", telegramUserId);
+          localStorage.setItem(
+            "telegramUserData",
+            JSON.stringify(telegramUserData)
+          );
+
           console.log(
             "📱 Telegram User ID from Fallback WebApp:",
             telegramUserId
+          );
+          console.log("👤 User info:", webApp.initDataUnsafe.user);
+          console.log(
+            "👤 Username:",
+            telegramUserData.username || "No username"
+          );
+          console.log(
+            "👤 First name:",
+            telegramUserData.first_name || "No first name"
           );
 
           return telegramUserId;
@@ -1065,8 +1139,18 @@
 
         // 6. Generate demo user ID as fallback
         telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
+        telegramUserData = {
+          id: telegramUserId,
+          first_name: "Demo User",
+          username: null,
+        };
+
         // Save to localStorage for consistency
         localStorage.setItem("telegramUserId", telegramUserId);
+        localStorage.setItem(
+          "telegramUserData",
+          JSON.stringify(telegramUserData)
+        );
         console.log(
           "📱 Generated and saved demo Telegram User ID:",
           telegramUserId
