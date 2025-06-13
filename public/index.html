@@ -898,6 +898,9 @@
         justify-content: center;
         min-width: 30px;
         min-height: 30px;
+        position: relative;
+        z-index: 1000;
+        pointer-events: auto !important;
       }
 
       .nav-item.active {
@@ -981,7 +984,7 @@
 
   <body class="bg-gray-900 ">
     <div
-      class="md:w-[375px] w-full relative h-screen rounded-[20px] mx-auto gradient-bg p-[16px]"
+      class="md:w-[375px] md:max-w-[375px] w-full relative h-screen rounded-[20px] mx-auto gradient-bg p-[16px]"
     >
       <!-- Loading Screen -->
       <div id="loading-screen" class="absolute top-0 left-0 right-0 z-[99999] bg-gray-900 rounded-[20px] flex flex-col items-center justify-center" style="bottom: -150px;">
@@ -1155,6 +1158,7 @@
   <div
         id="bottom-navigation"
         class=" gradient-bg card-bg  md:w-[360px] w-full h-[72px] rounded-full p-[24px] flex justify-center items-center"
+        style="z-index: 999; pointer-events: auto;"
       >
         <ul class="flex justify-between items-center gap-[20px] w-full">
           <li class="nav-item active flex flex-col items-center gap-[4px]" id="nav-earn">
@@ -2240,7 +2244,7 @@
 
       // Enhanced screen shake effect for special moments
       function triggerScreenShake() {
-        const gameContainer = document.querySelector('.w-\\[375px\\]');
+        const gameContainer = document.querySelector('.md\\:w-\\[375px\\]') || document.querySelector("[class*='w-[375px]']") || document.querySelector('.gradient-bg');
         if (!gameContainer) return;
 
         gameContainer.style.animation = 'screenShake 0.5s ease-in-out';
@@ -3003,7 +3007,7 @@
 
 
         // Add tap event listeners for the main container only
-        const mainContainer = document.querySelector(".w-\\[375px\\]");
+        const mainContainer = document.querySelector(".md\\:w-\\[375px\\]") || document.querySelector("[class*='w-[375px]']") || document.querySelector(".gradient-bg");
         if (mainContainer) {
           // Handle click events (for desktop/mouse)
           mainContainer.addEventListener("click", function (event) {
@@ -3011,22 +3015,11 @@
             if (
               event.target.closest("#auto-earn-button") ||
               event.target.closest(".level-up-popup") ||
-              event.target.closest("button")
+              event.target.closest("button") ||
+              event.target.closest("#bottom-navigation") ||
+              event.target.closest(".nav-item")
             ) {
               return;
-            }
-
-            // Check if click is in bottom navigation area or below
-            const bottomNavElement = document.getElementById('bottom-navigation');
-            if (bottomNavElement) {
-              const bottomNavRect = bottomNavElement.getBoundingClientRect();
-              const clickY = event.clientY;
-              
-              // If click is at or below the bottom navigation, don't tap
-              if (clickY >= bottomNavRect.top) {
-                console.log("❌ Click blocked - in bottom navigation area");
-                return;
-              }
             }
 
             event.preventDefault();
@@ -3040,22 +3033,11 @@
             if (
               event.target.closest("#auto-earn-button") ||
               event.target.closest(".level-up-popup") ||
-              event.target.closest("button")
+              event.target.closest("button") ||
+              event.target.closest("#bottom-navigation") ||
+              event.target.closest(".nav-item")
             ) {
               return;
-            }
-
-            // Check if touch is in bottom navigation area or below
-            const bottomNavElement = document.getElementById('bottom-navigation');
-            if (bottomNavElement && event.touches && event.touches.length > 0) {
-              const bottomNavRect = bottomNavElement.getBoundingClientRect();
-              const touchY = event.touches[0].clientY;
-              
-              // If touch is at or below the bottom navigation, don't tap
-              if (touchY >= bottomNavRect.top) {
-                console.log("❌ Touch blocked - in bottom navigation area");
-                return;
-              }
             }
 
             // Log touch information for debugging
@@ -3289,35 +3271,82 @@
         // Set earn as active by default
         setActiveNavItem('nav-earn');
 
-        // Add click handlers for navigation items
-        const navItems = document.querySelectorAll('.nav-item');
-        navItems.forEach(item => {
-          item.addEventListener('click', function(event) {
-            event.preventDefault();
-            event.stopPropagation();
+        // Add event delegation to bottom navigation container
+        const bottomNav = document.getElementById('bottom-navigation');
+        if (bottomNav) {
+          bottomNav.addEventListener('click', function(event) {
+            console.log('🎯 Bottom nav clicked, target:', event.target);
             
-            // Handle navigation based on item
-            switch(item.id) {
-              case 'nav-earn':
-                console.log('📈 Earn tab selected');
-                // Already on earn page, no action needed
-                setActiveNavItem('nav-earn');
-                break;
-              case 'nav-exchange':
-                console.log('🔄 Exchange tab selected - redirecting...');
-                window.location.href = 'exchange.html';
-                break;
-              case 'nav-auto-earn':
-                console.log('🚀 Auto earn tab selected');
-                toggleAutoEarn();
-                break;
-              case 'nav-point':
-                console.log('🎯 Point tab selected');
-                window.location.href = 'point.html';
-                break;
+            // Find the closest nav-item
+            const navItem = event.target.closest('.nav-item');
+            if (navItem) {
+              console.log('🎯 Navigation item found:', navItem.id);
+              event.preventDefault();
+              event.stopPropagation();
+              handleNavigation(navItem.id);
             }
           });
+          
+          bottomNav.addEventListener('touchstart', function(event) {
+            console.log('👆 Bottom nav touched, target:', event.target);
+            
+            // Find the closest nav-item
+            const navItem = event.target.closest('.nav-item');
+            if (navItem) {
+              console.log('👆 Navigation item found:', navItem.id);
+              event.preventDefault();
+              event.stopPropagation();
+              handleNavigation(navItem.id);
+            }
+          });
+        }
+
+        // Add click handlers for navigation items (backup)
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+          // Click handler
+          item.addEventListener('click', function(event) {
+            console.log('🎯 Navigation item clicked:', item.id);
+            event.preventDefault();
+            event.stopPropagation();
+            handleNavigation(item.id);
+          });
+          
+          // Touch handler for mobile
+          item.addEventListener('touchstart', function(event) {
+            console.log('👆 Navigation item touched:', item.id);
+            event.preventDefault();
+            event.stopPropagation();
+            handleNavigation(item.id);
+          });
         });
+        
+        function handleNavigation(itemId) {
+          // Handle navigation based on item
+          switch(itemId) {
+            case 'nav-earn':
+              console.log('📈 Earn tab selected');
+              // Already on earn page, no action needed
+              setActiveNavItem('nav-earn');
+              break;
+            case 'nav-exchange':
+              console.log('🔄 Exchange tab selected - redirecting...');
+              window.location.href = 'exchange.html';
+              break;
+            case 'nav-auto-earn':
+              console.log('🚀 Auto earn tab selected');
+              toggleAutoEarn();
+              break;
+            case 'nav-point':
+              console.log('🎯 Point tab selected');
+              window.location.href = 'point.html';
+              break;
+            case 'nav-help':
+              console.log('❓ Help tab selected');
+              // Add help functionality here
+              break;
+          }
+        }
       }
 
       // =====================
