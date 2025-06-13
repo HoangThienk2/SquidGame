@@ -1187,12 +1187,35 @@
       // Function to play coin sound with error handling
       function playCoinSound() {
         try {
+          // Check if audio context exists and resume if suspended
+          if (window.AudioContext || window.webkitAudioContext) {
+            const audioCtx = window.audioContext || new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') {
+              audioCtx.resume().then(() => {
+                console.log('🔊 Audio context resumed for coin sound');
+              }).catch(error => {
+                console.log('❌ Failed to resume audio context:', error);
+              });
+            }
+          }
+          
           coinSound.currentTime = 0; // Reset to beginning for rapid taps
-          coinSound.play().catch(error => {
-            console.log('Coin sound play failed:', error);
-          });
+          const playPromise = coinSound.play();
+          
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              // Audio played successfully
+              console.log('🔊 Coin sound played successfully');
+            }).catch(error => {
+              console.log('🔊 Coin sound play failed:', error);
+              // Try to play again after a short delay
+              setTimeout(() => {
+                coinSound.play().catch(e => console.log('🔊 Retry coin sound failed:', e));
+              }, 100);
+            });
+          }
         } catch (error) {
-          console.log('Coin sound error:', error);
+          console.log('🔊 Coin sound error:', error);
         }
       }
       

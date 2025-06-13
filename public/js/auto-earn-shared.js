@@ -4,6 +4,7 @@
 
 let autoEarnInterval = null;
 let isAutoEarnActive = false;
+let audioContext = null;
 
 // Auto earn configuration
 const AUTO_EARN_CONFIG = {
@@ -11,6 +12,44 @@ const AUTO_EARN_CONFIG = {
   multiplier: 0.25, // 0.25x multiplier for auto-tap
   storageKey: "autoEarnEnabled",
 };
+
+// Initialize audio context for auto earn
+function initializeAudioContext() {
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      console.log("🔊 Audio context initialized for auto earn");
+    }
+
+    // Resume audio context if suspended
+    if (audioContext.state === "suspended") {
+      audioContext
+        .resume()
+        .then(() => {
+          console.log("🔊 Audio context resumed");
+        })
+        .catch((error) => {
+          console.log("❌ Failed to resume audio context:", error);
+        });
+    }
+  } catch (error) {
+    console.log("❌ Audio context initialization failed:", error);
+  }
+}
+
+// Resume audio context when tab becomes visible
+function resumeAudioContext() {
+  if (audioContext && audioContext.state === "suspended") {
+    audioContext
+      .resume()
+      .then(() => {
+        console.log("🔊 Audio context resumed on tab focus");
+      })
+      .catch((error) => {
+        console.log("❌ Failed to resume audio context on tab focus:", error);
+      });
+  }
+}
 
 // Load auto earn state from localStorage
 function loadAutoEarnState() {
@@ -42,6 +81,9 @@ function startAutoEarn() {
 
   isAutoEarnActive = true;
 
+  // Initialize audio context for sound effects
+  initializeAudioContext();
+
   // Check if we're on the main game page (index.html)
   const isMainPage =
     window.location.pathname.endsWith("index.html") ||
@@ -52,11 +94,21 @@ function startAutoEarn() {
     // On main page, use the tap function
     autoEarnInterval = setInterval(() => {
       if (document.visibilityState === "visible") {
+        // Resume audio context if needed
+        resumeAudioContext();
+
         const fakeEvent = {
           clientX: window.innerWidth / 2,
           clientY: window.innerHeight / 2,
         };
         tap(fakeEvent, AUTO_EARN_CONFIG.multiplier);
+
+        // FIXED: Play coin sound for auto earn
+        if (typeof playCoinSound === "function") {
+          playCoinSound();
+          console.log("🔊 Auto earn sound played");
+        }
+
         console.log("🎯 Auto tap triggered (0.25x multiplier)");
       }
     }, AUTO_EARN_CONFIG.interval);
@@ -64,6 +116,8 @@ function startAutoEarn() {
     // On other pages, make API calls to earn coins
     autoEarnInterval = setInterval(() => {
       if (document.visibilityState === "visible") {
+        // Resume audio context if needed
+        resumeAudioContext();
         performAutoEarnAPI();
       }
     }, AUTO_EARN_CONFIG.interval);
@@ -222,32 +276,55 @@ function toggleAutoEarn() {
 // Handle visibility change to pause/resume auto earn
 function handleVisibilityChange() {
   const button = document.getElementById("auto-earn-button");
-  if (
-    document.visibilityState === "hidden" &&
-    button &&
-    button.classList.contains("active")
-  ) {
-    stopAutoEarn();
-    console.log("⏸️ Auto earn paused - tab not visible");
-  } else if (
-    document.visibilityState === "visible" &&
-    button &&
-    button.classList.contains("active")
-  ) {
-    startAutoEarn();
-    console.log("▶️ Auto earn resumed - tab visible");
+  const isAutoEarnEnabled = button && button.classList.contains("active");
+
+  if (document.visibilityState === "hidden") {
+    if (isAutoEarnEnabled) {
+      // Don't stop auto earn completely, just pause it
+      console.log("⏸️ Auto earn paused - tab not visible");
+    }
+  } else if (document.visibilityState === "visible") {
+    // Resume audio context when tab becomes visible
+    resumeAudioContext();
+
+    if (isAutoEarnEnabled && !isAutoEarnActive) {
+      // Restart auto earn if it was enabled but stopped
+      startAutoEarn();
+      console.log("▶️ Auto earn resumed - tab visible");
+    } else if (isAutoEarnEnabled) {
+      console.log("▶️ Auto earn already active - audio context resumed");
+    }
   }
 }
 
-// Initialize auto earn functionality
+// Enhanced initialization function
 function initializeAutoEarn() {
-  // Add visibility change listener
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-
   // Load saved state
   loadAutoEarnState();
 
-  console.log("🎮 Auto earn functionality initialized");
+  // Initialize audio context
+  initializeAudioContext();
+
+  // Add visibility change listener with improved handling
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  // Add focus/blur listeners for additional audio context management
+  window.addEventListener("focus", () => {
+    console.log("🔍 Window focused - resuming audio context");
+    resumeAudioContext();
+  });
+
+  window.addEventListener("blur", () => {
+    console.log("🔍 Window blurred");
+  });
+
+  // Add user interaction listener to unlock audio context
+  document.addEventListener("click", initializeAudioContext, { once: true });
+  document.addEventListener("touchstart", initializeAudioContext, {
+    once: true,
+  });
+
+  console.log("🎮 Auto earn system initialized with enhanced audio support");
 }
 
 // Clean up auto earn when page unloads
