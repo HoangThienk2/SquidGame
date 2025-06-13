@@ -408,9 +408,6 @@ async function updateUserData(telegramUserId, updateData) {
       // Calculate maxHP if level is being updated
       if (updateData.level) {
         updateData.maxHP = getLevelHP(updateData.level);
-        console.log(
-          `🔧 Setting maxHP for level ${updateData.level}: ${updateData.maxHP}`
-        );
       }
 
       // Use MongoDB
