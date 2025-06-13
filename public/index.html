@@ -477,7 +477,7 @@
         bottom: -145px;
         left: 50%;
         transform: translateX(-49.5%);
-        width: 840px;
+        width: 100%;
         height: 820px;
         background-image: url("./image/light.png");
         background-size: contain;
@@ -979,9 +979,9 @@
     </style>
   </head>
 
-  <body class="bg-gray-900 min-h-screen">
+  <body class="bg-gray-900 ">
     <div
-      class="md:w-[375px] w-full relative h-[667px] rounded-[20px] mx-auto gradient-bg p-[16px]"
+      class="md:w-[375px] w-full relative h-screen rounded-[20px] mx-auto gradient-bg p-[16px]"
     >
       <!-- Loading Screen -->
       <div id="loading-screen" class="absolute top-0 left-0 right-0 z-[99999] bg-gray-900 rounded-[20px] flex flex-col items-center justify-center" style="bottom: -150px;">
@@ -1010,7 +1010,7 @@
       </div>
 
       <img
-        class="absolute rounded-[20px] top-0 left-0 z-[-1] bottom-0 right-0"
+        class="absolute rounded-[20px] top-0 left-0 w-full h-screen z-[-1] bottom-0 right-0  object-center"
         src="./image/bg.png"
         alt=""
       />
@@ -1132,7 +1132,7 @@
 
         </div>
       </div>
-      <div class="absolute bottom-[-20px] left-[-12px] p-[10px]">
+      <div class="absolute bottom-[13%] left-[-12px] p-[10px]">
         <div class="relative flex flex-col justify-between items-center">
           <div
             class="absolute top-[-150px] left-[20px] right-0 flex justify-center character-container"
@@ -1151,9 +1151,10 @@
           </div>
         </div>
       </div>
-      <div
+      <div class="absolute bottom-[0] left-0 right-0 flex justify-center">
+  <div
         id="bottom-navigation"
-        class="absolute bottom-[-110px] gradient-bg card-bg  md:w-[360px] w-full h-[72px] rounded-full p-[24px] flex justify-center items-center"
+        class=" gradient-bg card-bg  md:w-[360px] w-full h-[72px] rounded-full p-[24px] flex justify-center items-center"
       >
         <ul class="flex justify-between items-center gap-[20px] w-full">
           <li class="nav-item active flex flex-col items-center gap-[4px]" id="nav-earn">
@@ -1183,6 +1184,8 @@
           </li>
         </ul>
       </div>
+      </div>
+    
     </div>
 
       
