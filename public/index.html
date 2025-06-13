@@ -219,45 +219,15 @@
       }
 
       /* Enhanced Character Animations */
-      .character-container.bounce {
-        animation: characterBounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      }
+     
 
       .character-container.shake {
         animation: characterShake 0.5s ease-in-out;
       }
 
-      .character-container.glow {
-        filter: drop-shadow(0 0 20px #ff6b8b) drop-shadow(0 0 40px #ff6b8b) brightness(1.2);
-        animation: characterGlow 1s ease-in-out;
-      }
+      
 
-      .character-container.super-glow {
-        filter: drop-shadow(0 0 30px #ffd700) drop-shadow(0 0 60px #ffd700) brightness(1.4);
-        animation: characterSuperGlow 1.2s ease-in-out;
-      }
 
-      /* Character Bounce Animation */
-      @keyframes characterBounce {
-        0% {
-          transform: translateY(0px) scale(1);
-        }
-        20% {
-          transform: translateY(-15px) scale(1.05);
-        }
-        40% {
-          transform: translateY(-8px) scale(1.02);
-        }
-        60% {
-          transform: translateY(-12px) scale(1.03);
-        }
-        80% {
-          transform: translateY(-4px) scale(1.01);
-        }
-        100% {
-          transform: translateY(0px) scale(1);
-        }
-      }
 
       /* Character Shake Animation */
       @keyframes characterShake {
@@ -293,37 +263,7 @@
         }
       }
 
-      /* Character Glow Animation */
-      @keyframes characterGlow {
-        0% {
-          filter: drop-shadow(0 0 5px #ff6b8b) brightness(1);
-        }
-        50% {
-          filter: drop-shadow(0 0 25px #ff6b8b) drop-shadow(0 0 50px #ff6b8b) brightness(1.3);
-        }
-        100% {
-          filter: drop-shadow(0 0 5px #ff6b8b) brightness(1);
-        }
-      }
 
-      /* Character Super Glow Animation (for 3-finger tap) */
-      @keyframes characterSuperGlow {
-        0% {
-          filter: drop-shadow(0 0 10px #ffd700) brightness(1);
-        }
-        25% {
-          filter: drop-shadow(0 0 40px #ffd700) drop-shadow(0 0 80px #ffd700) brightness(1.5);
-        }
-        50% {
-          filter: drop-shadow(0 0 60px #ffd700) drop-shadow(0 0 120px #ffd700) brightness(1.6);
-        }
-        75% {
-          filter: drop-shadow(0 0 40px #ffd700) drop-shadow(0 0 80px #ffd700) brightness(1.4);
-        }
-        100% {
-          filter: drop-shadow(0 0 10px #ffd700) brightness(1);
-        }
-      }
 
       /* Particle Effects for Character */
       .character-particles {
@@ -385,34 +325,7 @@
       }
 
       /* Heart Effect for Special Taps */
-      .heart-effect {
-        position: absolute;
-        top: -20px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 20px;
-        color: #ff6b8b;
-        opacity: 0;
-        pointer-events: none;
-        z-index: 55;
-        animation: heartFloat 2s ease-out forwards;
-      }
-
-      @keyframes heartFloat {
-        0% {
-          transform: translateX(-50%) translateY(0) scale(0);
-          opacity: 0;
-        }
-        20% {
-          transform: translateX(-50%) translateY(-20px) scale(1.2);
-          opacity: 1;
-        }
-        100% {
-          transform: translateX(-50%) translateY(-80px) scale(0.8);
-          opacity: 0;
-        }
-      }
-
+    
       /* Energy Wave Effect */
       .energy-wave {
         position: absolute;
@@ -896,11 +809,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        min-width: 30px;
-        min-height: 30px;
-        position: relative;
-        z-index: 1000;
-        pointer-events: auto !important;
+        min-width: 40px;
+        min-height: 40px;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
       }
 
       .nav-item.active {
@@ -911,23 +823,15 @@
 
       .nav-item.active img {
         filter: brightness(1.5) drop-shadow(0 0 8px rgba(255, 107, 139, 0.8));
-        transform: scale(1.2);
-      }
-
-      .nav-item.active span {
-        color: #ff6b8b;
-        text-shadow: 0 0 8px rgba(255, 107, 139, 0.6);
+        transform: scale(1.1);
       }
 
       .nav-item:hover {
         background: rgba(255, 107, 139, 0.1);
-        transform: scale(1.05);
       }
 
-       .nav-item img {
-        width: 24px;
-        height: 24px;
-        transition: all 0.3s ease;
+      .nav-item:active {
+        transform: scale(0.95);
       }
 
       .nav-item span {
@@ -1082,7 +986,7 @@
                   <p
                     class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-[#FF6B8B]"
                   >
-                    HP Lv
+                    HP
                   </p>
                   <p
                     id="hp-level-display"
@@ -1154,7 +1058,7 @@
           </div>
         </div>
       </div>
-      <div class="absolute bottom-[0] left-0 right-0 flex justify-center">
+      <div class="absolute bottom-[20px] left-0 right-0 flex justify-center">
   <div
         id="bottom-navigation"
         class=" gradient-bg card-bg  md:w-[360px] w-full h-[72px] rounded-full p-[24px] flex justify-center items-center"
@@ -1840,10 +1744,10 @@
         // Update level displays
         document.getElementById(
           "hp-level-display"
-        ).textContent = `${state.level}`;
+        ).textContent = `Lv ${state.level}`;
         document.getElementById(
           "lp-level-display"
-        ).textContent = `${state.level}`;
+        ).textContent = `Lv ${state.level}`;
 
         // Calculate level progress based on current coins vs level up requirement
         const totalCoinsNeededForNextLevel = getTotalCoinsForLevel(state.level + 1);
@@ -2131,7 +2035,6 @@
           characterContainer.classList.add('super-glow');
           createParticleEffect(true); // Golden particles
           createEnergyWave(true); // Golden energy wave
-          createHeartEffect();
           
           // Add bounce after a short delay
           setTimeout(() => {
@@ -2149,7 +2052,6 @@
           
           // 20% chance for heart effect on normal taps
           if (Math.random() < 0.2) {
-            createHeartEffect();
           }
         }
 
@@ -2217,31 +2119,7 @@
         }, isGolden ? 1000 : 800);
       }
 
-      function createHeartEffect() {
-        const characterContainer = document.querySelector(".character-container");
-        if (!characterContainer) return;
-
-        const hearts = ['💖', '💕', '💗', '❤️', '💝'];
-        const randomHeart = hearts[Math.floor(Math.random() * hearts.length)];
-        
-        const heartEffect = document.createElement('div');
-        heartEffect.className = 'heart-effect';
-        heartEffect.textContent = randomHeart;
-        
-        // Random horizontal offset
-        const offset = Math.random() * 40 - 20; // -20px to +20px
-        heartEffect.style.left = `calc(50% + ${offset}px)`;
-        
-        characterContainer.appendChild(heartEffect);
-        
-        // Clean up after animation
-        setTimeout(() => {
-          if (heartEffect.parentNode) {
-            heartEffect.parentNode.removeChild(heartEffect);
-          }
-        }, 2000);
-      }
-
+      
       // Enhanced screen shake effect for special moments
       function triggerScreenShake() {
         const gameContainer = document.querySelector('.md\\:w-\\[375px\\]') || document.querySelector("[class*='w-[375px]']") || document.querySelector('.gradient-bg');
@@ -2821,7 +2699,6 @@
         // Multiple heart effects
         for (let i = 0; i < 5; i++) {
           setTimeout(() => {
-            createHeartEffect();
           }, i * 200);
         }
         
@@ -2847,43 +2724,8 @@
       }
 
       // =====================
-      // 9. Auto Earn Function
+      // 9. Auto Earn Function - Now handled by auto-earn-shared.js
       // =====================
-
-      let isAutoEarnEnabled = false;
-      let autoEarnInterval = null;
-
-      function toggleAutoEarn() {
-        const button = document.getElementById("auto-earn-button");
-        const navItem = document.getElementById("nav-auto-earn");
-
-        if (isAutoEarnEnabled) {
-          // Disable auto earn
-          isAutoEarnEnabled = false;
-          if (autoEarnInterval) {
-            clearInterval(autoEarnInterval);
-            autoEarnInterval = null;
-          }
-          button.classList.remove("active");
-          navItem.classList.remove("active");
-          console.log("🔴 Auto earn disabled");
-        } else {
-          // Enable auto earn
-          isAutoEarnEnabled = true;
-          autoEarnInterval = setInterval(() => {
-            if (isAutoEarnEnabled) {
-              const fakeEvent = {
-                clientX: window.innerWidth / 2,
-                clientY: window.innerHeight / 2,
-              };
-              tap(fakeEvent, 0.25);
-            }
-          }, 1000);
-          button.classList.add("active");
-          navItem.classList.add("active");
-          console.log("🟢 Auto earn enabled");
-        }
-      }
 
       // =====================
       // 10. Event Listeners
@@ -3000,6 +2842,9 @@
 
           // Initialize bottom navigation
           initializeBottomNavigation();
+
+          // Initialize auto earn functionality
+          initializeAutoEarn();
 
           console.log("🎮 Game Interface Initialized");
           console.log("📱 Telegram User ID:", telegramUserId);
@@ -3271,54 +3116,42 @@
         // Set earn as active by default
         setActiveNavItem('nav-earn');
 
-        // Add event delegation to bottom navigation container
-        const bottomNav = document.getElementById('bottom-navigation');
-        if (bottomNav) {
-          bottomNav.addEventListener('click', function(event) {
-            console.log('🎯 Bottom nav clicked, target:', event.target);
-            
-            // Find the closest nav-item
-            const navItem = event.target.closest('.nav-item');
-            if (navItem) {
-              console.log('🎯 Navigation item found:', navItem.id);
-              event.preventDefault();
-              event.stopPropagation();
-              handleNavigation(navItem.id);
-            }
-          });
-          
-          bottomNav.addEventListener('touchstart', function(event) {
-            console.log('👆 Bottom nav touched, target:', event.target);
-            
-            // Find the closest nav-item
-            const navItem = event.target.closest('.nav-item');
-            if (navItem) {
-              console.log('👆 Navigation item found:', navItem.id);
-              event.preventDefault();
-              event.stopPropagation();
-              handleNavigation(navItem.id);
-            }
-          });
-        }
-
-        // Add click handlers for navigation items (backup)
+        // Add click and touch handlers for navigation items
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(item => {
-          // Click handler
-          item.addEventListener('click', function(event) {
-            console.log('🎯 Navigation item clicked:', item.id);
+          const handleNavigation = function(event) {
             event.preventDefault();
             event.stopPropagation();
-            handleNavigation(item.id);
-          });
-          
-          // Touch handler for mobile
-          item.addEventListener('touchstart', function(event) {
-            console.log('👆 Navigation item touched:', item.id);
-            event.preventDefault();
-            event.stopPropagation();
-            handleNavigation(item.id);
-          });
+            
+            // Handle navigation based on item
+            switch(item.id) {
+              case 'nav-earn':
+                console.log('📈 Earn tab selected');
+                // Already on earn page, no action needed
+                setActiveNavItem('nav-earn');
+                break;
+              case 'nav-exchange':
+                console.log('🔄 Exchange tab selected - redirecting...');
+                window.location.href = 'exchange.html';
+                break;
+              case 'nav-auto-earn':
+                console.log('🚀 Auto earn selected');
+                toggleAutoEarn();
+                break;
+              case 'nav-point':
+                console.log('🎯 Point tab selected');
+                window.location.href = 'point.html';
+                break;
+              case 'nav-help':
+                console.log('❓ Help tab selected');
+                // Handle help action
+                break;
+            }
+          };
+
+          // Add both click and touch events
+          item.addEventListener('click', handleNavigation);
+          item.addEventListener('touchend', handleNavigation);
         });
         
         function handleNavigation(itemId) {
@@ -3542,5 +3375,8 @@
         }, 3000);
       }
     </script>
+    
+    <!-- Auto Earn Shared Functionality -->
+    <script src="js/auto-earn-shared.js"></script>
   </body>
 </html>

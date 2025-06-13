@@ -216,8 +216,8 @@ function startYoungHeeMovement() {
     window.sceneLight.classList.add("green");
   }
 
-  // Set up turns at random intervals
-  window.youngHeeInterval = setInterval(() => {
+  // Function to trigger Young-hee's movement
+  window.triggerYoungheeMovement = () => {
     if (!window.youngheeElement) return;
 
     const isWatching = window.youngheeElement.classList.contains("turn-around");
@@ -255,7 +255,23 @@ function startYoungHeeMovement() {
         }
       }
     }, 500); // Slight delay for the light to change first
-  }, Math.random() * 3000 + 2000); // 2-5 seconds between movement decisions
+  };
+
+  // Set up turns at random intervals
+  window.youngHeeInterval = setInterval(
+    window.triggerYoungheeMovement,
+    Math.random() * 3000 + 2000
+  ); // 2-5 seconds between movement decisions
+
+  // Add visibility change event listener
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      // Tab is hidden
+      return;
+    }
+    // Tab becomes visible - trigger movement
+    window.triggerYoungheeMovement();
+  });
 }
 
 // Create touch particles effect when button is pressed
