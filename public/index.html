@@ -945,7 +945,7 @@
         <!-- Loading Text Overlay -->
         <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-40 rounded-[20px]">
           <div class="text-center mb-8">
-            <h1 class="text-white text-2xl font-bold mb-2 gugi-font">YoungHee Game</h1>
+            <h1 class="text-white text-2xl font-bold mb-2 gugi-font">Younghee Game</h1>
           </div>
           
           <!-- Loading Animation -->
@@ -1370,20 +1370,30 @@
           if (isHPZero) {
             console.log(`💀 CRITICAL: Syncing HP=0 to database (IMMEDIATE PRIORITY)`);
           } else {
-            console.log(`🔄 Syncing game state to server (HP: ${gameState.hp}, Critical: ${isHPCritical})...`);
+            console.log(`🔄 Syncing game state to server (HP: ${gameState.hp}, Coins: ${gameState.coinCount}, Critical: ${isHPCritical})...`);
           }
+          
+          // FIXED: Ensure we send the correct data structure to server
+          const syncData = {
+            level: gameState.level || 1,
+            hp: gameState.hp || 0,
+            coinCount: gameState.coinCount || 0, // This is the ruby count
+            coinEarn: gameState.coinEarn || 0,   // This is temporary coins during tapping
+            lastRecover: gameState.lastRecover || Date.now(),
+            lastZeroHP: gameState.lastZeroHP || null,
+            timestamp: Date.now(),
+            syncType: isHPZero ? 'hp_zero_critical' : (isHPCritical ? 'critical' : 'normal'),
+            forceSync: isHPZero // Force immediate database write for HP=0
+          };
+          
+          console.log("📤 Sending sync data to server:", syncData);
           
           const response = await fetch(`/api/sync/${telegramUserId}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              ...gameState,
-              timestamp: Date.now(),
-              syncType: isHPZero ? 'hp_zero_critical' : (isHPCritical ? 'critical' : 'normal'),
-              forceSync: isHPZero // Force immediate database write for HP=0
-            }),
+            body: JSON.stringify(syncData),
           });
 
           if (response.ok) {
@@ -1406,11 +1416,37 @@
               }
             } else {
               console.log("✅ Game state synced to server:", result);
+              
+              // IMPORTANT: Don't overwrite local state with server response during active gameplay
+              // Only update if the server has newer/better data
+              if (result.success && result.data) {
+                const serverCoins = result.data.ruby || 0;
+                const localCoins = gameState.coinCount || 0;
+                
+                console.log(`🔍 Sync comparison - Local coins: ${localCoins}, Server coins: ${serverCoins}`);
+                
+                // Only update local state if server has more coins (to prevent data loss)
+                if (serverCoins > localCoins) {
+                  console.log("📈 Server has more coins - updating local state");
+                  gameState.coinCount = serverCoins;
+                  saveGameState(gameState);
+                  updateUI(gameState);
+                } else if (serverCoins < localCoins) {
+                  console.log("⚠️ Server has fewer coins - keeping local state and retrying sync");
+                  // Retry sync to ensure server gets the latest data
+                  setTimeout(() => {
+                    console.log("🔄 Retrying sync to update server with latest coins...");
+                    syncGameStateToServer(gameState);
+                  }, 1000);
+                } else {
+                  console.log("✅ Coins are in sync");
+                }
+              }
             }
             
             // Verify the sync was successful by checking returned data
             if (result.success && result.data) {
-              console.log("✅ Server confirmed HP:", result.data.hp);
+              console.log("✅ Server confirmed HP:", result.data.hp, "Ruby:", result.data.ruby);
             }
           } else {
             console.error("❌ Failed to sync game state:", response.statusText);
@@ -1679,14 +1715,37 @@
       }
 
       function loadGameState() {
-        console.log("📱 loadGameState() called - MEMORY ONLY MODE");
+        console.log("📱 loadGameState() called");
         console.log("🔍 STACK TRACE for loadGameState:");
         console.trace();
         
-        // Return current in-memory state or default
-        if (currentGameState) {
-          console.log("📱 Returning current in-memory state:", currentGameState);
-          return currentGameState;
+        // Try to load from enhanced backup system first
+        if (window.loadGameStateWithBackups) {
+          const backupState = window.loadGameStateWithBackups();
+          if (backupState) {
+            console.log("✅ Loaded from backup system:", backupState);
+            window.currentGameState = backupState;
+            return backupState;
+          }
+        }
+        
+        // Try to load from localStorage
+        try {
+          const data = localStorage.getItem("game_interface_state");
+          if (data) {
+            const parsed = JSON.parse(data);
+            console.log("✅ Loaded from localStorage:", parsed);
+            window.currentGameState = parsed;
+            return parsed;
+          }
+        } catch (error) {
+          console.error("❌ Failed to load from localStorage:", error);
+        }
+        
+        // Return current in-memory state if available
+        if (window.currentGameState) {
+          console.log("📱 Returning current in-memory state:", window.currentGameState);
+          return window.currentGameState;
         }
         
         // Return default state for new session
@@ -1694,14 +1753,22 @@
         const defaultState = {
           level: defaultLevel,
           hp: getLevelHP(defaultLevel),
-          coinCount: 100, // Give new users 100 coins to test display
+          coinCount: 0, // Start with 0 coins for new users
+          coinEarn: 0,
           lastRecover: Date.now(),
           lastZeroHP: null,
         };
         
-        console.log("📱 Returning default state (MEMORY ONLY MODE):", defaultState);
+        console.log("📱 Returning default state (new user):", defaultState);
         console.log(`📱 Default HP value: ${defaultState.hp}`);
         console.log(`📱 Default coinCount value: ${defaultState.coinCount}`);
+        
+        // Save default state
+        window.currentGameState = defaultState;
+        if (window.saveGameStateWithBackups) {
+          window.saveGameStateWithBackups(defaultState);
+        }
+        
         return defaultState;
       }
 
@@ -1739,25 +1806,7 @@
         let serverState = null;
         let localState = null;
         
-        // Try to load from server first if we have a user ID
-        if (telegramUserId && !telegramUserId.startsWith("demo_")) {
-          console.log("🌐 Attempting to load from server...");
-          serverState = await loadGameStateFromServer();
-          
-          if (serverState) {
-            console.log("✅ Server state loaded successfully:", serverState);
-            // Save server state to local storage with backups
-            if (window.saveGameStateWithBackups) {
-              window.saveGameStateWithBackups(serverState);
-            }
-            window.currentGameState = serverState;
-            return serverState;
-          } else {
-            console.log("❌ Failed to load from server, trying local storage...");
-          }
-        }
-        
-        // Try to load from enhanced local storage with backups
+        // First, load local state to compare
         if (window.loadGameStateWithBackups) {
           localState = window.loadGameStateWithBackups();
         } else {
@@ -1769,6 +1818,58 @@
             }
           } catch (error) {
             console.error("Failed to load from localStorage:", error);
+          }
+        }
+        
+        // Try to load from server if we have a user ID
+        if (telegramUserId && !telegramUserId.startsWith("demo_")) {
+          console.log("🌐 Attempting to load from server...");
+          serverState = await loadGameStateFromServer();
+          
+          if (serverState && localState) {
+            // Compare server and local data to prevent data loss
+            const serverCoins = serverState.coinCount || 0;
+            const localCoins = localState.coinCount || 0;
+            
+            console.log(`🔍 Data comparison - Local coins: ${localCoins}, Server coins: ${serverCoins}`);
+            console.log(`🔍 Data comparison - Local HP: ${localState.hp}, Server HP: ${serverState.hp}`);
+            
+            // Use the state with more coins to prevent data loss
+            if (localCoins > serverCoins) {
+              console.log("📈 Local has more coins - using local state and syncing to server");
+              window.currentGameState = localState;
+              // Sync local state to server to update it
+              setTimeout(() => {
+                syncGameStateToServer(localState);
+              }, 1000);
+              return localState;
+            } else if (serverCoins > localCoins) {
+              console.log("📈 Server has more coins - using server state");
+              // Save server state to local storage with backups
+              if (window.saveGameStateWithBackups) {
+                window.saveGameStateWithBackups(serverState);
+              }
+              window.currentGameState = serverState;
+              return serverState;
+            } else {
+              // Same coins - use server state for HP accuracy
+              console.log("✅ Coins are equal - using server state for HP accuracy");
+              if (window.saveGameStateWithBackups) {
+                window.saveGameStateWithBackups(serverState);
+              }
+              window.currentGameState = serverState;
+              return serverState;
+            }
+          } else if (serverState) {
+            console.log("✅ Server state loaded successfully (no local comparison):", serverState);
+            // Save server state to local storage with backups
+            if (window.saveGameStateWithBackups) {
+              window.saveGameStateWithBackups(serverState);
+            }
+            window.currentGameState = serverState;
+            return serverState;
+          } else {
+            console.log("❌ Failed to load from server, using local storage...");
           }
         }
         
@@ -3579,6 +3680,86 @@
       
       // Initialize data persistence enhancements
       enhanceDataPersistence();
+      
+      // Auto-save when page becomes hidden (user switches tabs or closes)
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden' && window.currentGameState) {
+          console.log('🔄 Page hidden - auto-saving game state');
+          window.saveGameStateWithBackups(window.currentGameState);
+        }
+      });
+      
+      // Auto-save before page unload
+      window.addEventListener('beforeunload', () => {
+        if (window.currentGameState) {
+          console.log('🔄 Page unloading - auto-saving game state');
+          window.saveGameStateWithBackups(window.currentGameState);
+        }
+      });
+      
+      // =====================
+      // DEBUG COMMANDS - Available in console
+      // =====================
+      
+      // Debug command to check current game state
+      window.debugGameState = function() {
+        console.log('=== CURRENT GAME STATE ===');
+        console.log('Window state:', window.currentGameState);
+        console.log('LocalStorage state:', JSON.parse(localStorage.getItem('game_interface_state') || '{}'));
+        console.log('Backup 1:', JSON.parse(localStorage.getItem('game_interface_state_backup1') || '{}'));
+        console.log('Backup 2:', JSON.parse(localStorage.getItem('game_interface_state_backup2') || '{}'));
+        console.log('Backup 3:', JSON.parse(localStorage.getItem('game_interface_state_backup3') || '{}'));
+        console.log('Telegram User ID:', window.telegramUserId);
+        console.log('========================');
+      };
+      
+      // Debug command to force sync to server
+      window.debugForceSync = function() {
+        if (window.currentGameState && window.telegramUserId) {
+          console.log('🔄 FORCE SYNCING to server...');
+          console.log('Data being synced:', window.currentGameState);
+          syncGameStateToServer(window.currentGameState);
+        } else {
+          console.log('❌ Cannot sync - missing game state or user ID');
+        }
+      };
+      
+      // Debug command to add coins manually (for testing)
+      window.debugAddCoins = function(amount = 100) {
+        if (window.currentGameState) {
+          window.currentGameState.coinCount += amount;
+          console.log(`✅ Added ${amount} coins. New total: ${window.currentGameState.coinCount}`);
+          window.saveGameStateWithBackups(window.currentGameState);
+          updateUI(window.currentGameState);
+          // Auto-sync to server
+          if (window.telegramUserId) {
+            syncGameStateToServer(window.currentGameState);
+          }
+        } else {
+          console.log('❌ No game state available');
+        }
+      };
+      
+      // Debug command to reload from server
+      window.debugReloadFromServer = function() {
+        console.log('🔄 Reloading from server...');
+        loadGameStateFromServer().then(serverState => {
+          if (serverState) {
+            console.log('✅ Server state loaded:', serverState);
+            window.currentGameState = serverState;
+            window.saveGameStateWithBackups(serverState);
+            updateUI(serverState);
+          } else {
+            console.log('❌ Failed to load from server');
+          }
+        });
+      };
+      
+      console.log('🔧 DEBUG COMMANDS AVAILABLE:');
+      console.log('- debugGameState() - Check current game state');
+      console.log('- debugForceSync() - Force sync to server');
+      console.log('- debugAddCoins(amount) - Add coins for testing');
+      console.log('- debugReloadFromServer() - Reload from server');
     </script>
     
     <!-- Auto Earn Shared Functionality -->
