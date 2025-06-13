@@ -912,7 +912,23 @@
           return telegramUserId;
         }
 
-        // 4. Try to get from Telegram WebApp
+        // 4. Try to get from Enhanced Telegram WebApp first
+        if (window.telegramWebAppReady && window.telegramWebApp) {
+          const webApp = window.telegramWebApp;
+          console.log("🔍 Enhanced Telegram WebApp available:", webApp);
+
+          if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
+            telegramUserId = webApp.initDataUnsafe.user.id.toString();
+            localStorage.setItem("telegramUserId", telegramUserId);
+            console.log(
+              "📱 Telegram User ID from Enhanced WebApp:",
+              telegramUserId
+            );
+            return telegramUserId;
+          }
+        }
+
+        // 5. Fallback to original Telegram WebApp
         if (
           typeof window !== "undefined" &&
           window.Telegram &&
@@ -924,12 +940,15 @@
           telegramUserId = webApp.initDataUnsafe.user.id.toString();
           // Save to localStorage for future use
           localStorage.setItem("telegramUserId", telegramUserId);
-          console.log("📱 Telegram User ID from WebApp:", telegramUserId);
+          console.log(
+            "📱 Telegram User ID from Fallback WebApp:",
+            telegramUserId
+          );
 
           return telegramUserId;
         }
 
-        // 5. Generate demo user ID as fallback
+        // 6. Generate demo user ID as fallback
         telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
         // Save to localStorage for consistency
         localStorage.setItem("telegramUserId", telegramUserId);

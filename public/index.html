@@ -64,6 +64,51 @@
     <!-- Telegram WebApp Script -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
+    <!-- Enhanced Telegram WebApp Initialization -->
+    <script>
+      // Enhanced Telegram WebApp initialization with better error handling
+      window.telegramWebAppReady = false;
+      window.telegramWebApp = null;
+      
+      // Wait for Telegram WebApp to be fully loaded
+      function initializeTelegramWebApp() {
+        return new Promise((resolve) => {
+          if (window.Telegram && window.Telegram.WebApp) {
+            window.telegramWebApp = window.Telegram.WebApp;
+            
+            // Expand the WebApp to full height
+            window.telegramWebApp.expand();
+            
+            // Enable closing confirmation
+            window.telegramWebApp.enableClosingConfirmation();
+            
+            // Set header color to match game theme
+            window.telegramWebApp.setHeaderColor('#250a1f');
+            
+            // Mark as ready
+            window.telegramWebAppReady = true;
+            
+            console.log("✅ Telegram WebApp initialized successfully");
+            console.log("📱 WebApp version:", window.telegramWebApp.version);
+            console.log("📱 Platform:", window.telegramWebApp.platform);
+            console.log("📱 InitData available:", !!window.telegramWebApp.initData);
+            
+            resolve(true);
+          } else {
+            console.log("⚠️ Telegram WebApp not available, using fallback mode");
+            resolve(false);
+          }
+        });
+      }
+      
+      // Initialize immediately if available, otherwise wait
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeTelegramWebApp);
+      } else {
+        initializeTelegramWebApp();
+      }
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -1270,10 +1315,10 @@
           return telegramUserId;
         }
 
-        // Try to get from Telegram WebApp API
-        if (window.Telegram && window.Telegram.WebApp) {
-          const webApp = window.Telegram.WebApp;
-          console.log("🔍 Telegram WebApp available:", webApp);
+        // Try to get from Telegram WebApp API with enhanced checking
+        if (window.telegramWebAppReady && window.telegramWebApp) {
+          const webApp = window.telegramWebApp;
+          console.log("🔍 Enhanced Telegram WebApp available:", webApp);
           console.log("🔍 WebApp initData:", webApp.initData);
           console.log("🔍 WebApp initDataUnsafe:", webApp.initDataUnsafe);
 
@@ -1281,7 +1326,24 @@
             telegramUserId = webApp.initDataUnsafe.user.id.toString();
             // Save to localStorage for persistence
             localStorage.setItem("telegramUserId", telegramUserId);
-            console.log("📱 Telegram User ID from WebApp:", telegramUserId);
+            console.log("📱 Telegram User ID from Enhanced WebApp:", telegramUserId);
+            console.log("👤 User info:", webApp.initDataUnsafe.user);
+            return telegramUserId;
+          }
+        }
+        
+        // Fallback: Try original method for compatibility
+        if (window.Telegram && window.Telegram.WebApp) {
+          const webApp = window.Telegram.WebApp;
+          console.log("🔍 Fallback Telegram WebApp check:", webApp);
+          console.log("🔍 Fallback WebApp initData:", webApp.initData);
+          console.log("🔍 Fallback WebApp initDataUnsafe:", webApp.initDataUnsafe);
+
+          if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
+            telegramUserId = webApp.initDataUnsafe.user.id.toString();
+            // Save to localStorage for persistence
+            localStorage.setItem("telegramUserId", telegramUserId);
+            console.log("📱 Telegram User ID from Fallback WebApp:", telegramUserId);
             console.log("👤 User info:", webApp.initDataUnsafe.user);
             return telegramUserId;
           }
@@ -1649,51 +1711,92 @@
         console.log("🔍 STACK TRACE for saveGameState:");
         console.trace();
         
-        // Save to in-memory state immediately for UI responsiveness
-        currentGameState = { ...state };
-        console.log("💾 State saved to memory successfully");
+        // Update current game state reference
+        window.currentGameState = state;
+        
+        // Use enhanced backup system
+        if (window.saveGameStateWithBackups) {
+          window.saveGameStateWithBackups(state);
+        } else {
+          // Fallback to original method
+          localStorage.setItem("game_interface_state", JSON.stringify(state));
+          console.log("💾 State saved to localStorage successfully (fallback)");
+        }
 
         // Sync to server if telegramUserId is available
         if (telegramUserId) {
           console.log("🌐 Initiating server sync for user:", telegramUserId);
           syncGameStateToServer(state);
         } else {
-          console.log("⚠️ No telegramUserId - cannot sync to server");
+          console.log("⚠️ No telegramUserId - skipping server sync");
         }
       }
 
-      // Enhanced load function that ONLY uses server data
+      // Enhanced load function that tries server first, then localStorage with backups
       async function loadGameStateEnhanced() {
-        console.log("🔄 Starting enhanced game state loading (SERVER ONLY MODE)...");
+        console.log("🔄 loadGameStateEnhanced() called");
         
-        // ONLY load from server - no localStorage fallback
-        const serverState = await loadGameStateFromServer();
-        if (serverState) {
-          console.log("🌐 Server state received:", serverState);
-          console.log(`🌐 Server HP value: ${serverState.hp}`);
+        let serverState = null;
+        let localState = null;
+        
+        // Try to load from server first if we have a user ID
+        if (telegramUserId && !telegramUserId.startsWith("demo_")) {
+          console.log("🌐 Attempting to load from server...");
+          serverState = await loadGameStateFromServer();
           
-          // CRITICAL: Verify HP is preserved
-          if (serverState.hp === 0) {
-            console.log("💀 CRITICAL: Server returned HP=0, preserving this value");
+          if (serverState) {
+            console.log("✅ Server state loaded successfully:", serverState);
+            // Save server state to local storage with backups
+            if (window.saveGameStateWithBackups) {
+              window.saveGameStateWithBackups(serverState);
+            }
+            window.currentGameState = serverState;
+            return serverState;
           } else {
-            console.log(`💖 Server HP preserved: ${serverState.hp}`);
+            console.log("❌ Failed to load from server, trying local storage...");
           }
-          
-          // Save to in-memory state
-          currentGameState = { ...serverState };
-          console.log("💾 Server state saved to memory");
-          
-          return serverState;
         }
-
-        // If no server state, return default (new user)
-        console.log("📱 No server state, returning default for new user");
-        const defaultState = loadGameState();
-        console.log("📱 Default state for new user:", defaultState);
-        console.log(`📱 Default HP value: ${defaultState.hp}`);
         
-        // Save default to in-memory state
-        currentGameState = { ...defaultState };
+        // Try to load from enhanced local storage with backups
+        if (window.loadGameStateWithBackups) {
+          localState = window.loadGameStateWithBackups();
+        } else {
+          // Fallback to original method
+          try {
+            const data = localStorage.getItem("game_interface_state");
+            if (data) {
+              localState = JSON.parse(data);
+            }
+          } catch (error) {
+            console.error("Failed to load from localStorage:", error);
+          }
+        }
+        
+        if (localState) {
+          console.log("✅ Local state loaded successfully:", localState);
+          window.currentGameState = localState;
+          return localState;
+        }
+        
+        // Return default state if no saved data or error
+        const defaultLevel = 1;
+        const defaultState = {
+          level: defaultLevel,
+          hp: getLevelHP(defaultLevel),
+          coinCount: 0,
+          coinEarn: 0,
+          lastRecover: Date.now(),
+          lastZeroHP: null,
+        };
+        
+        console.log("📱 Returning default state:", defaultState);
+        console.log(`📱 Default HP value: ${defaultState.hp}`);
+        window.currentGameState = defaultState;
+        
+        // Save default state with backups
+        if (window.saveGameStateWithBackups) {
+          window.saveGameStateWithBackups(defaultState);
+        }
         
         return defaultState;
       }
@@ -2826,30 +2929,66 @@
       }
 
       document.addEventListener("DOMContentLoaded", function () {
-        // Initialize Telegram integration
-        getTelegramUserId();
-
-        // Initialize game with enhanced loading (server + localStorage)
-        loadGameStateEnhanced().then((initialState) => {
-          console.log("🎮 Game initialized with state:", initialState);
+        // Enhanced initialization with Telegram WebApp support
+        async function initializeGame() {
+          console.log("🎮 Starting game initialization...");
           
-          updateUI(initialState);
-          console.log("🖥️ UI updated with initial state");
+          // Wait for Telegram WebApp to be ready (with timeout)
+          let telegramReady = false;
+          let attempts = 0;
+          const maxAttempts = 10;
           
-          // Initialize coin target indicator
-          updateCoinTargetIndicator();
+          while (!telegramReady && attempts < maxAttempts) {
+            if (window.telegramWebAppReady) {
+              telegramReady = true;
+              console.log("✅ Telegram WebApp is ready");
+            } else {
+              console.log(`⏳ Waiting for Telegram WebApp... (${attempts + 1}/${maxAttempts})`);
+              await new Promise(resolve => setTimeout(resolve, 500));
+              attempts++;
+            }
+          }
+          
+          if (!telegramReady) {
+            console.log("⚠️ Telegram WebApp not ready after timeout, proceeding with fallback");
+          }
+          
+          // Initialize Telegram integration
+          getTelegramUserId();
 
-          // Initialize bottom navigation
-          initializeBottomNavigation();
+          // Initialize game with enhanced loading (server + localStorage)
+          loadGameStateEnhanced().then((initialState) => {
+            console.log("🎮 Initial state received from loadGameStateEnhanced:", initialState);
+            console.log(`🎮 Initial HP value: ${initialState.hp}`);
+            
+            // CRITICAL: Verify HP is not being modified
+            if (initialState.hp === 0) {
+              console.log("💀 CRITICAL: Initial state has HP=0, this should be preserved");
+            } else {
+              console.log(`💖 Initial HP: ${initialState.hp}`);
+            }
+            
+            updateUI(initialState);
+            console.log("🖥️ UI updated with initial state");
 
-          // Initialize auto earn functionality
-          initializeAutoEarn();
+            // Initialize coin target indicator
+            updateCoinTargetIndicator();
 
-          console.log("🎮 Game Interface Initialized");
-          console.log("📱 Telegram User ID:", telegramUserId);
-        });
+            // Initialize bottom navigation
+            initializeBottomNavigation();
 
-
+            console.log(
+              "🎮 Game Interface Initialized with state:",
+              initialState
+            );
+            console.log(`🎮 Final HP after initialization: ${initialState.hp}`);
+            console.log("📱 Telegram User ID:", telegramUserId);
+          });
+        }
+        
+        // Start the initialization process
+        initializeGame();
+        
         // Add tap event listeners for the main container only
         const mainContainer = document.querySelector(".md\\:w-\\[375px\\]") || document.querySelector("[class*='w-[375px]']") || document.querySelector(".gradient-bg");
         if (mainContainer) {
@@ -2923,45 +3062,13 @@
           });
         }
 
-        // Auto earn button - DISABLED: Now handled through navigation menu
-        /*
-        document
-          .getElementById("auto-earn-button")
-          .addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            toggleAutoEarn();
-          });
-
-        // Auto earn button touch support
-        document
-          .getElementById("auto-earn-button")
-          .addEventListener("touchstart", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            toggleAutoEarn();
-          });
-
-        // Prevent auto earn button from being affected by main container events
-        document
-          .getElementById("auto-earn-button")
-          .addEventListener("touchend", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-          });
-
-        document
-          .getElementById("auto-earn-button")
-          .addEventListener("touchmove", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-          });
-        */
+        // Initialize auto earn functionality
+        initializeAutoEarn();
 
         // HP recovery interval
         setInterval(recoverHP, 60 * 1000); // Every minute
 
-        console.log("Game Interface Initialized");
+        console.log("🎮 Game Interface Setup Complete");
       });
 
       // Close popup when clicking outside
@@ -3373,6 +3480,105 @@
           }
         }, 3000);
       }
+
+      // Enhanced data persistence to prevent data loss
+      function enhanceDataPersistence() {
+        // Create multiple backup keys for redundancy
+        const BACKUP_KEYS = [
+          'game_interface_state_backup1',
+          'game_interface_state_backup2', 
+          'game_interface_state_backup3'
+        ];
+        
+        let backupIndex = 0;
+        
+        // Enhanced save function with multiple backups
+        window.saveGameStateWithBackups = function(state) {
+          try {
+            // Primary save
+            localStorage.setItem("game_interface_state", JSON.stringify(state));
+            localStorage.setItem("game_last_save", Date.now().toString());
+            
+            // Rotating backups
+            localStorage.setItem(BACKUP_KEYS[backupIndex], JSON.stringify(state));
+            localStorage.setItem(BACKUP_KEYS[backupIndex] + '_timestamp', Date.now().toString());
+            
+            backupIndex = (backupIndex + 1) % BACKUP_KEYS.length;
+            
+            console.log("💾 Game state saved with backups");
+            
+            // Also sync to server if possible
+            if (telegramUserId) {
+              syncGameStateToServer(state);
+            }
+            
+          } catch (error) {
+            console.error("❌ Failed to save game state with backups:", error);
+          }
+        };
+        
+        // Enhanced load function with backup recovery
+        window.loadGameStateWithBackups = function() {
+          try {
+            // Try primary storage first
+            const primaryData = localStorage.getItem("game_interface_state");
+            if (primaryData) {
+              const parsed = JSON.parse(primaryData);
+              console.log("✅ Loaded from primary storage");
+              return parsed;
+            }
+            
+            // Try backups in order of most recent
+            for (let i = 0; i < BACKUP_KEYS.length; i++) {
+              const backupData = localStorage.getItem(BACKUP_KEYS[i]);
+              if (backupData) {
+                const parsed = JSON.parse(backupData);
+                console.log(`✅ Recovered from backup ${i + 1}`);
+                
+                // Restore to primary storage
+                localStorage.setItem("game_interface_state", backupData);
+                return parsed;
+              }
+            }
+            
+            console.log("⚠️ No saved data found in any storage");
+            return null;
+            
+          } catch (error) {
+            console.error("❌ Failed to load game state from backups:", error);
+            return null;
+          }
+        };
+        
+        // Periodic auto-save every 30 seconds
+        setInterval(() => {
+          if (window.currentGameState) {
+            window.saveGameStateWithBackups(window.currentGameState);
+            console.log("🔄 Auto-save completed");
+          }
+        }, 30000);
+        
+        // Save on page visibility change (when user switches tabs/apps)
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'hidden' && window.currentGameState) {
+            window.saveGameStateWithBackups(window.currentGameState);
+            console.log("💾 Saved on visibility change");
+          }
+        });
+        
+        // Save before page unload
+        window.addEventListener('beforeunload', () => {
+          if (window.currentGameState) {
+            window.saveGameStateWithBackups(window.currentGameState);
+            console.log("💾 Saved before page unload");
+          }
+        });
+        
+        console.log("🛡️ Enhanced data persistence initialized");
+      }
+      
+      // Initialize data persistence enhancements
+      enhanceDataPersistence();
     </script>
     
     <!-- Auto Earn Shared Functionality -->
