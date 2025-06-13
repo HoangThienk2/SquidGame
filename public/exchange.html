@@ -358,23 +358,48 @@
 
       <div
         id="bottom-navigation"
-        class="gradient-bg card-bg w-[360px] h-[72px] mt-4 rounded-full p-[24px] flex justify-center items-center"
+        class="absolute bottom-[-110px] left-1/2 -translate-x-1/2 gradient-bg card-bg w-[360px] h-[88px] rounded-full p-[24px] flex justify-center items-center"
       >
         <ul class="flex justify-between items-center gap-[20px] w-full">
-          <li class="nav-item active" id="nav-earn">
-            <img src="./image/earn.svg" alt="" />
+          <li
+            class="nav-item active flex flex-col items-center gap-[4px]"
+            id="nav-earn"
+          >
+            <img src="./image/earn.svg" alt="" class="w-[20px] h-[20px]" />
+            <span class="text-[10px] text-white font-medium">Earn</span>
           </li>
-          <li class="nav-item" id="nav-exchange">
-            <img src="./image/exchange.svg" alt="" />
+          <li
+            class="nav-item flex flex-col items-center gap-[4px]"
+            id="nav-exchange"
+          >
+            <img src="./image/exchange.svg" alt="" class="w-[20px] h-[20px]" />
+            <span class="text-[10px] text-white font-medium">Exchange</span>
           </li>
-          <li class="nav-item" id="nav-boost">
-            <img src="./image/boost.svg" alt="" />
+          <li
+            class="nav-item flex flex-col items-center gap-[4px]"
+            id="nav-auto-earn"
+          >
+            <button
+              id="auto-earn-button"
+              class="gradient-bg w-[40px] h-[40px] rounded-lg flex items-center justify-center"
+            >
+              <img src="./image/button.svg" alt="" class="w-[20px] h-[20px]" />
+            </button>
+            <span class="text-[10px] text-white font-medium">Auto</span>
           </li>
-          <li class="nav-item" id="nav-point">
-            <img src="./image/point.svg" alt="" />
+          <li
+            class="nav-item flex flex-col items-center gap-[4px]"
+            id="nav-point"
+          >
+            <img src="./image/point.svg" alt="" class="w-[20px] h-[20px]" />
+            <span class="text-[10px] text-white font-medium">Point</span>
           </li>
-          <li class="nav-item" id="nav-point">
-            <img src="./image/help.svg" alt="" />
+          <li
+            class="nav-item flex flex-col items-center gap-[4px]"
+            id="nav-help"
+          >
+            <img src="./image/help.svg" alt="" class="w-[20px] h-[20px]" />
+            <span class="text-[10px] text-white font-medium">Help</span>
           </li>
         </ul>
       </div>
@@ -1015,6 +1040,25 @@
           }
         }
       }
+    </script>
+
+    <!-- Auto Earn Shared Functionality -->
+    <script src="js/auto-earn-shared.js"></script>
+    <script>
+      // Initialize auto earn when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize auto earn functionality
+        initializeAutoEarn();
+
+        // Add click handler for auto earn navigation item if it exists
+        const autoEarnNav = document.getElementById("nav-auto-earn");
+        if (autoEarnNav) {
+          autoEarnNav.addEventListener("click", function (e) {
+            e.preventDefault();
+            toggleAutoEarn();
+          });
+        }
+      });
     </script>
   </body>
 </html>

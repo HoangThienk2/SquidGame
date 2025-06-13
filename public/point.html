@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Exchange - Squid Game</title>
+    <!-- Telegram WebApp Script -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
       .shadow-top-left {
@@ -437,23 +439,56 @@
 
         <div
           id="bottom-navigation"
-          class="gradient-bg card-bg w-full h-[72px] mt-4 rounded-full p-[24px] flex justify-center items-center"
+          class="absolute bottom-[-110px] left-1/2 -translate-x-1/2 gradient-bg card-bg w-[360px] h-[88px] rounded-full p-[24px] flex justify-center items-center"
         >
           <ul class="flex justify-between items-center gap-[20px] w-full">
-            <li class="nav-item active" id="nav-earn">
-              <img src="./image/earn.svg" alt="" />
+            <li
+              class="nav-item active flex flex-col items-center gap-[4px]"
+              id="nav-earn"
+            >
+              <img src="./image/earn.svg" alt="" class="w-[20px] h-[20px]" />
+              <span class="text-[10px] text-white font-medium">Earn</span>
             </li>
-            <li class="nav-item" id="nav-exchange">
-              <img src="./image/exchange.svg" alt="" />
+            <li
+              class="nav-item flex flex-col items-center gap-[4px]"
+              id="nav-exchange"
+            >
+              <img
+                src="./image/exchange.svg"
+                alt=""
+                class="w-[20px] h-[20px]"
+              />
+              <span class="text-[10px] text-white font-medium">Exchange</span>
             </li>
-            <li class="nav-item" id="nav-boost">
-              <img src="./image/boost.svg" alt="" />
+            <li
+              class="nav-item flex flex-col items-center gap-[4px]"
+              id="nav-auto-earn"
+            >
+              <button
+                id="auto-earn-button"
+                class="gradient-bg w-[40px] h-[40px] rounded-lg flex items-center justify-center"
+              >
+                <img
+                  src="./image/button.svg"
+                  alt=""
+                  class="w-[20px] h-[20px]"
+                />
+              </button>
+              <span class="text-[10px] text-white font-medium">Auto</span>
             </li>
-            <li class="nav-item" id="nav-point">
-              <img src="./image/point.svg" alt="" />
+            <li
+              class="nav-item flex flex-col items-center gap-[4px]"
+              id="nav-point"
+            >
+              <img src="./image/point.svg" alt="" class="w-[20px] h-[20px]" />
+              <span class="text-[10px] text-white font-medium">Point</span>
             </li>
-            <li class="nav-item" id="nav-point">
-              <img src="./image/help.svg" alt="" />
+            <li
+              class="nav-item flex flex-col items-center gap-[4px]"
+              id="nav-help"
+            >
+              <img src="./image/help.svg" alt="" class="w-[20px] h-[20px]" />
+              <span class="text-[10px] text-white font-medium">Help</span>
             </li>
           </ul>
         </div>
@@ -616,8 +651,92 @@
 
       // Initialize bottom navigation when page loads
       document.addEventListener("DOMContentLoaded", function () {
+        // Initialize Telegram integration
+        initializeTelegram();
+
         initializeBottomNavigation();
         console.log("🎯 Point page initialized with active navigation");
+      });
+
+      // Telegram User ID variable
+      let telegramUserId = null;
+
+      // Get Telegram user ID (same logic as index.html)
+      function getTelegramUserId() {
+        // 1. Check if already cached
+        if (telegramUserId) return telegramUserId;
+
+        // 2. Try to get from localStorage first
+        const savedUserId = localStorage.getItem("telegramUserId");
+        if (savedUserId) {
+          telegramUserId = savedUserId;
+          console.log("📱 Telegram User ID from localStorage:", telegramUserId);
+          return telegramUserId;
+        }
+
+        // 3. Try to get from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const userIdFromUrl = urlParams.get("userId");
+        if (userIdFromUrl) {
+          telegramUserId = userIdFromUrl;
+          // Save to localStorage for future use
+          localStorage.setItem("telegramUserId", telegramUserId);
+          console.log("📱 Telegram User ID from URL:", telegramUserId);
+          return telegramUserId;
+        }
+
+        // 4. Try to get from Telegram WebApp
+        if (
+          typeof window !== "undefined" &&
+          window.Telegram &&
+          window.Telegram.WebApp &&
+          window.Telegram.WebApp.initDataUnsafe &&
+          window.Telegram.WebApp.initDataUnsafe.user
+        ) {
+          const webApp = window.Telegram.WebApp;
+          telegramUserId = webApp.initDataUnsafe.user.id.toString();
+          // Save to localStorage for future use
+          localStorage.setItem("telegramUserId", telegramUserId);
+          console.log("📱 Telegram User ID from WebApp:", telegramUserId);
+
+          return telegramUserId;
+        }
+
+        // 5. Generate demo user ID as fallback
+        telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
+        // Save to localStorage for consistency
+        localStorage.setItem("telegramUserId", telegramUserId);
+        console.log(
+          "📱 Generated and saved demo Telegram User ID:",
+          telegramUserId
+        );
+
+        return telegramUserId;
+      }
+
+      // Initialize Telegram integration
+      function initializeTelegram() {
+        getTelegramUserId();
+        console.log("📱 Telegram integration initialized for point page");
+      }
+    </script>
+
+    <!-- Auto Earn Shared Functionality -->
+    <script src="js/auto-earn-shared.js"></script>
+    <script>
+      // Initialize auto earn when page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        // Initialize auto earn functionality
+        initializeAutoEarn();
+
+        // Add click handler for auto earn navigation item if it exists
+        const autoEarnNav = document.getElementById("nav-auto-earn");
+        if (autoEarnNav) {
+          autoEarnNav.addEventListener("click", function (e) {
+            e.preventDefault();
+            toggleAutoEarn();
+          });
+        }
       });
     </script>
   </body>
