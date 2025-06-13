@@ -9,13 +9,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Gugi&display=swap"
-      rel="stylesheet"
-    />
+
     <style>
       body {
         font-family: "Gugi", sans-serif;
+      }
+
+      /* Tab buttons font styling */
+      .tab-buttons button {
+        font-weight: 300 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif !important;
+      }
+
+      .tab-buttons button span {
+        font-weight: 300 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif !important;
       }
 
       /* Responsive height adjustments */
@@ -360,26 +370,25 @@
             <div
               class="flex px-5 py-1 bg-[#0E0E18] rounded-full items-center gap-5"
             >
-              <span
-                class="w-3 h-3 rounded-full bg-yellow-400 inline-block"
-              ></span>
+              <img src="./image/money.png" alt="Ruby" class="w-5 h-5" />
+
               <span class="text-yellow-300 font-bold">123,456</span>
             </div>
           </div>
           <div class="w-full px-2 py-1 bg-red-600 rounded-full">
-            <div class="text-white font-bold flex justify-between">
+            <div class="text-white flex justify-between font-light">
               HP <span class="text-white">400/400</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="exchange-form rounded-2xl relative bg-[#22222E] p-[16px]">
+      <div class="exchange-form rounded-2xl relative bg-[#22222E] p-[16px] overflow-y-auto pb-[100px]">
         <!-- Tab Buttons -->
         <div class="tab-buttons absolute top-0 right-0 left-0 flex mb-6">
           <button
             id="btn-point-cycon"
-            class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all"
+            class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white shadow-top-left-blue transition-all"
           >
             <span class="text-gray-200">Point</span>
             <svg
@@ -395,11 +404,11 @@
                 d="M9 5l7 7-7 7"
               />
             </svg>
-            <span class="text-white font-semibold">SMG</span>
+            <span class="text-white">SMG</span>
           </button>
           <button
             id="btn-cycon-point"
-            class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-transparent bg-gray-700 text-gray-400 font-semibold shadow-top-left transition-all"
+            class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-transparent bg-gray-700 text-gray-400 shadow-top-left transition-all"
           >
             <span class="text-gray-400">SMG</span>
             <svg
@@ -420,15 +429,15 @@
         </div>
 
         <!-- Exchange Rate -->
-        <div class="exchange-rate text-center mt-[50px] mb-6">
-          <span id="exchange-rate" class="text-3xl font-bold text-white"
+        <div class="exchange-rate text-center mt-[80px] mb-[60px]">
+          <span id="exchange-rate" class="text-3xl text-white font-light"
             >1,000 P → 1 SMG</span
           >
         </div>
 
         <!-- Input Fields -->
-        <div class="input-section mb-5">
-          <div class="flex flex-col gap-4">
+        <div class="input-section mb-[60px]">
+          <div class="flex flex-col gap-8">
             <div class="input-row flex gap-3 items-center">
               <label
                 id="input1-label"
@@ -440,7 +449,7 @@
                 type="text"
                 value="222134"
                 readonly
-                class="input-field w-full bg-gray-700 text-white rounded-2xl px-4 py-3 text-lg font-semibold outline-none"
+                class="input-field w-full bg-[#14141c] text-white rounded-2xl px-4 py-5 text-lg font-semibold outline-none"
               />
             </div>
             <div class="input-row flex gap-3 items-center">
@@ -454,19 +463,21 @@
                 type="text"
                 value="$112.2"
                 readonly
-                class="input-field w-full bg-gray-700 text-white rounded-2xl px-4 py-3 text-lg font-semibold outline-none"
+                class="input-field w-full bg-[#14141c] text-white rounded-2xl px-4 py-5 text-lg font-semibold outline-none"
               />
             </div>
           </div>
         </div>
 
+        <div class="w-full h-px bg-gray-400 mt-4 mb-[60px]"></div>
+        
         <!-- Wallet Address -->
-        <div class="wallet-section mb-5">
-          <label class="wallet-label block text-gray-400 text-lg mb-2"
+        <div class="wallet-section mb-[60px]">
+          <label class="wallet-label block text-gray-400 text-lg mb-6"
             >To Wallet</label
           >
           <div
-            class="wallet-input-container flex items-center bg-gray-700 rounded-lg px-3 py-2.5"
+            class="wallet-input-container flex items-center bg-gray-700 rounded-lg px-5 py-4"
           >
             <input
               type="text"
@@ -494,38 +505,14 @@
 
         <!-- Confirm Button -->
         <button
-          class="confirm-button w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-2xl text-lg mb-6"
+          class="confirm-button w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-2xl text-lg mb-6"
         >
           Confirm
         </button>
-      </div>
+      </divdiv>
 
       <!-- Transaction History -->
-      <div class="transaction-history bg-gray-700 rounded-xl p-5 mt-4 mb-20">
-        <div class="history-header flex items-center justify-between mb-4">
-          <h3 class="history-title text-white font-semibold text-lg">
-            Transaction History
-          </h3>
-          <button
-            id="clear-history-btn"
-            class="clear-button text-gray-400 hover:text-gray-200 text-sm"
-          >
-            Clear All
-          </button>
-        </div>
-        <div class="history-container relative">
-          <div class="scroll-indicator">↕ Scroll</div>
-          <div
-            id="history-list"
-            class="history-list flex flex-col gap-3 max-h-[350px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-500 scrollbar-track-gray-700"
-          >
-            <!-- Transaction items will be dynamically added here -->
-            <div class="text-gray-400 text-center py-4 text-base">
-              No transactions yet
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       <div
         class="fixed bottom-[20px] left-0 right-0 flex justify-center z-[1000]"
@@ -868,18 +855,18 @@
         if (tab === "point-to-smg") {
           // Active tab style - Point to Cycon
           btnPointCycon.className =
-            "flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all";
+            "flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white shadow-top-left-blue transition-all";
           btnPointCycon.innerHTML = `
             <span class="text-gray-200">Point</span>
             <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
-            <span class="text-white font-semibold">SMG</span>
+            <span class="text-white">SMG</span>
           `;
 
           // Inactive tab style - Cycon to Point
           btnCyconPoint.className =
-            "flex-1 px-4 py-2 rounded-r-2xl border-l-2 border-transparent text-gray-400 font-semibold shadow-top-left transition-all";
+            "flex-1 px-4 py-2 rounded-r-2xl border-l-2 border-transparent text-gray-400 shadow-top-left transition-all";
           btnCyconPoint.innerHTML = `
             <span class="text-gray-400">SMG</span>
             <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -895,7 +882,7 @@
         } else {
           // Inactive tab style - Point to Cycon
           btnPointCycon.className =
-            "flex-1 px-4 py-2 rounded-l-2xl border-t-2 border-transparent text-gray-400 font-semibold shadow-top-left transition-all";
+            "flex-1 px-4 py-2 rounded-l-2xl border-t-2 border-transparent text-gray-400 shadow-top-left transition-all";
           btnPointCycon.innerHTML = `
             <span class="text-gray-400">Point</span>
             <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -906,13 +893,13 @@
 
           // Active tab style - Cycon to Point
           btnCyconPoint.className =
-            "flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-l-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all";
+            "flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-l-2 border-gray-400 bg-[#22222E] text-white shadow-top-left-blue transition-all";
           btnCyconPoint.innerHTML = `
             <span class="text-gray-200">SMG</span>
             <svg class="w-3 h-3 inline mx-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
             </svg>
-            <span class="text-white font-semibold">Point</span>
+            <span class="text-white">Point</span>
           `;
 
           // Update exchange rate and inputs for SMG → Point
