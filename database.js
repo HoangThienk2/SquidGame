@@ -200,9 +200,7 @@ const userSchema = new mongoose.Schema(
 userSchema.pre("save", function (next) {
   // Calculate maxHP based on current level
   this.maxHP = getLevelHP(this.level);
-  console.log(
-    `🔧 Pre-update: Setting maxHP for level ${this.level}: ${this.maxHP}`
-  );
+
   next();
 });
 
