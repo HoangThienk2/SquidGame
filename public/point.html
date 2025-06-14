@@ -902,6 +902,23 @@
           console.log("📱 Telegram User ID from URL:", telegramUserId);
           // Also save to sessionStorage for cross-tab sharing
           sessionStorage.setItem("telegramUserId", telegramUserId);
+
+          // Try to get additional user data from URL
+          const username = urlParams.get("username");
+          const firstName = urlParams.get("first_name");
+          if (username || firstName) {
+            telegramUserData = {
+              id: telegramUserId,
+              username: username,
+              first_name: firstName,
+            };
+            console.log("📱 User data from URL:", telegramUserData);
+            sessionStorage.setItem(
+              "telegramUserData",
+              JSON.stringify(telegramUserData)
+            );
+          }
+
           return telegramUserId;
         }
 
@@ -913,6 +930,22 @@
             "📱 Telegram User ID from sessionStorage:",
             telegramUserId
           );
+
+          // Also try to restore user data from sessionStorage
+          const userDataFromSession =
+            sessionStorage.getItem("telegramUserData");
+          if (userDataFromSession) {
+            try {
+              telegramUserData = JSON.parse(userDataFromSession);
+              console.log(
+                "📱 User data from sessionStorage:",
+                telegramUserData
+              );
+            } catch (e) {
+              console.log("⚠️ Failed to parse user data from sessionStorage");
+            }
+          }
+
           return telegramUserId;
         }
 
@@ -941,6 +974,10 @@
 
             // Save to sessionStorage for cross-tab sharing
             sessionStorage.setItem("telegramUserId", telegramUserId);
+            sessionStorage.setItem(
+              "telegramUserData",
+              JSON.stringify(telegramUserData)
+            );
             return telegramUserId;
           }
         }
@@ -973,6 +1010,10 @@
 
           // Save to sessionStorage for cross-tab sharing
           sessionStorage.setItem("telegramUserId", telegramUserId);
+          sessionStorage.setItem(
+            "telegramUserData",
+            JSON.stringify(telegramUserData)
+          );
           return telegramUserId;
         }
 
@@ -991,6 +1032,10 @@
 
         // Save to sessionStorage so other tabs can use the same ID
         sessionStorage.setItem("telegramUserId", telegramUserId);
+        sessionStorage.setItem(
+          "telegramUserData",
+          JSON.stringify(telegramUserData)
+        );
         return telegramUserId;
       }
 
