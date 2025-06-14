@@ -1327,6 +1327,22 @@
       let telegramUserId = null;
       let telegramUserData = null; // Store full user data
 
+      // Configure Telegram WebApp to disable close confirmation
+      if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        
+        // Disable close confirmation popup
+        tg.enableClosingConfirmation = false;
+        
+        // Set app as ready
+        tg.ready();
+        
+        // Expand the app to full height
+        tg.expand();
+        
+        console.log("📱 Telegram WebApp configured - close confirmation disabled");
+      }
+
       function getTelegramUserId() {
         console.log("🔍 getTelegramUserId() called");
         console.log("🔍 Current telegramUserData:", telegramUserData);
@@ -1386,6 +1402,50 @@
           return telegramUserId;
         }
 
+        // 3.5. Try to get from localStorage (for long-term persistence)
+        const userIdFromLocal = localStorage.getItem('telegramUserId');
+        if (userIdFromLocal) {
+          telegramUserId = userIdFromLocal;
+          console.log("📱 Telegram User ID from localStorage:", telegramUserId);
+          
+          // Check if user was recently active (within last 30 days)
+          const lastActiveTimestamp = localStorage.getItem('lastActiveTimestamp');
+          const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+          
+          if (lastActiveTimestamp && parseInt(lastActiveTimestamp) > thirtyDaysAgo) {
+            console.log("✅ User was recently active, restoring session");
+            
+            // Also try to restore user data from localStorage
+            const userDataFromLocal = localStorage.getItem('telegramUserData');
+            if (userDataFromLocal) {
+              try {
+                telegramUserData = JSON.parse(userDataFromLocal);
+                console.log("📱 User data from localStorage:", telegramUserData);
+                
+                // Also save to sessionStorage for current session
+                sessionStorage.setItem('telegramUserId', telegramUserId);
+                sessionStorage.setItem('telegramUserData', JSON.stringify(telegramUserData));
+                
+                // Update timestamp
+                const timestamp = Date.now();
+                localStorage.setItem('lastActiveTimestamp', timestamp.toString());
+                sessionStorage.setItem('lastActiveTimestamp', timestamp.toString());
+                
+              } catch (e) {
+                console.log("⚠️ Failed to parse user data from localStorage");
+              }
+            }
+            
+            return telegramUserId;
+          } else {
+            console.log("⚠️ User data is too old (>30 days), will create new session");
+            // Clear old data
+            localStorage.removeItem('telegramUserId');
+            localStorage.removeItem('telegramUserData');
+            localStorage.removeItem('lastActiveTimestamp');
+          }
+        }
+
         // 4. Try to get from Enhanced Telegram WebApp first
         if (window.telegramWebAppReady && window.telegramWebApp) {
           const webApp = window.telegramWebApp;
@@ -1438,9 +1498,18 @@
             telegramUserData.first_name || "No first name"
           );
 
-          // Save to sessionStorage for cross-tab sharing
+          // Save to both sessionStorage and localStorage for better persistence
           sessionStorage.setItem('telegramUserId', telegramUserId);
           sessionStorage.setItem('telegramUserData', JSON.stringify(telegramUserData));
+          localStorage.setItem('telegramUserId', telegramUserId);
+          localStorage.setItem('telegramUserData', JSON.stringify(telegramUserData));
+          
+          // Also save a timestamp to track when the user was last active
+          const timestamp = Date.now();
+          localStorage.setItem('lastActiveTimestamp', timestamp.toString());
+          sessionStorage.setItem('lastActiveTimestamp', timestamp.toString());
+          
+          console.log("💾 User data saved to both session and local storage with timestamp:", new Date(timestamp));
           return telegramUserId;
         }
 
@@ -1479,6 +1548,7 @@
             hp: gameState.hp || 0,
             coinCount: gameState.coinCount || 0, // This is the ruby count
             coinEarn: gameState.coinEarn || 0,   // This is temporary coins during tapping
+            smg: gameState.smg || 0, // Add SMG field
             lastRecover: gameState.lastRecover || Date.now(),
             lastZeroHP: gameState.lastZeroHP || null,
             timestamp: Date.now(),
@@ -1832,6 +1902,7 @@
           hp: getLevelHP(defaultLevel),
           coinCount: 0, // Start with 0 coins for new users
           coinEarn: 0,
+          smg: 0, // Add SMG field
           lastRecover: Date.now(),
           lastZeroHP: null,
         };
@@ -1846,9 +1917,14 @@
         return defaultState;
       }
 
+      // Add flag to prevent syncing during initial load
+      let isInitialLoad = true;
+      let serverDataLoaded = false;
+
       function saveGameState(state) {
         console.log("💾 saveGameState() called with state:", state);
         console.log(`💾 HP being saved: ${state.hp}`);
+        console.log(`💾 isInitialLoad: ${isInitialLoad}, serverDataLoaded: ${serverDataLoaded}`);
         console.log("🔍 STACK TRACE for saveGameState:");
         console.trace();
         
@@ -1857,10 +1933,14 @@
         
         console.log("💾 State saved to memory only (no localStorage)");
 
-        // Sync to server if telegramUserId is available
-        if (telegramUserId) {
+        // CRITICAL FIX: Don't sync to server during initial load or if using default state
+        if (telegramUserId && !isInitialLoad && serverDataLoaded) {
           console.log("🌐 Initiating server sync for user:", telegramUserId);
           syncGameStateToServer(state);
+        } else if (telegramUserId && isInitialLoad) {
+          console.log("⏸️ Skipping server sync during initial load to prevent reset");
+        } else if (telegramUserId && !serverDataLoaded) {
+          console.log("⏸️ Skipping server sync - server data not loaded yet");
         } else {
           console.log("⚠️ No telegramUserId - skipping server sync");
         }
@@ -1875,32 +1955,77 @@
         // Always try to load from server if we have a user ID (including demo users)
         if (telegramUserId) {
           console.log("🌐 Loading from server API for user:", telegramUserId);
-          serverState = await loadGameStateFromServer();
+          
+          // Try multiple times with delay to handle network issues
+          let attempts = 0;
+          const maxAttempts = 3;
+          
+          while (attempts < maxAttempts && !serverState) {
+            attempts++;
+            console.log(`🔄 Attempt ${attempts}/${maxAttempts} to load from server`);
+            
+            serverState = await loadGameStateFromServer();
+            
+            if (!serverState && attempts < maxAttempts) {
+              console.log(`⏳ Waiting 2 seconds before retry...`);
+              await new Promise(resolve => setTimeout(resolve, 2000));
+            }
+          }
           
           if (serverState) {
             console.log("✅ Server state loaded successfully:", serverState);
-            window.currentGameState = serverState;
-            return serverState;
+            
+            // Validate server state before using it
+            if (serverState.level && serverState.level > 0 && 
+                (serverState.coinCount >= 0 || serverState.coinCount === undefined)) {
+              console.log("✅ Server state validation passed");
+              
+              // CRITICAL FIX: Mark that server data was successfully loaded
+              serverDataLoaded = true;
+              isInitialLoad = false;
+              
+              window.currentGameState = serverState;
+              console.log("🔓 Server data loaded - sync enabled for future saves");
+              return serverState;
+            } else {
+              console.log("⚠️ Server state validation failed, checking for existing local state");
+            }
           } else {
-            console.log("❌ Failed to load from server, using default state");
+            console.log("❌ Failed to load from server after all attempts");
           }
         } else {
-          console.log("⚠️ No user ID available - using default state");
+          console.log("⚠️ No user ID available");
         }
         
-        // Return default state if no server data
+        // Check if we have existing state in memory before creating default
+        if (window.currentGameState && window.currentGameState.level > 1) {
+          console.log("🔄 Using existing in-memory state instead of reset:", window.currentGameState);
+          // If we have existing state, allow sync
+          serverDataLoaded = true;
+          isInitialLoad = false;
+          return window.currentGameState;
+        }
+        
+        // Return default state only as last resort
         const defaultLevel = 1;
         const defaultState = {
           level: defaultLevel,
           hp: getLevelHP(defaultLevel),
           coinCount: 0,
           coinEarn: 0,
+          smg: 0, // Add SMG field
           lastRecover: Date.now(),
           lastZeroHP: null,
         };
         
-        console.log("📱 Returning default state:", defaultState);
+        console.log("📱 Returning default state (last resort):", defaultState);
         console.log(`📱 Default HP value: ${defaultState.hp}`);
+        console.log("🔒 Default state - sync disabled to prevent server reset");
+        
+        // CRITICAL: Keep flags as they are - don't allow sync of default state
+        // serverDataLoaded remains false
+        // isInitialLoad remains true
+        
         window.currentGameState = defaultState;
         
         return defaultState;
@@ -3031,63 +3156,53 @@
         tap(event, multiplier);
       }
 
-      document.addEventListener("DOMContentLoaded", function () {
-        // Enhanced initialization with Telegram WebApp support
-        async function initializeGame() {
-          console.log("🎮 Starting game initialization...");
+      // Initialize game state on page load
+      document.addEventListener('DOMContentLoaded', async function() {
+        console.log("🚀 Page loaded, initializing game...");
+        
+        // Set initial flags to prevent premature syncing
+        isInitialLoad = true;
+        serverDataLoaded = false;
+        console.log("🔒 Initial load flags set - sync disabled during load");
+        
+        // Get user ID first
+        telegramUserId = getTelegramUserId();
+        console.log("👤 User ID:", telegramUserId);
+        
+        // Load game state using enhanced function
+        try {
+          const gameState = await loadGameStateEnhanced();
+          console.log("✅ Game state loaded:", gameState);
           
-          // Wait for Telegram WebApp to be ready (with timeout)
-          let telegramReady = false;
-          let attempts = 0;
-          const maxAttempts = 10;
+          // Update UI with loaded state
+          updateUI(gameState);
+          updateAvatarDisplay();
           
-          while (!telegramReady && attempts < maxAttempts) {
-            if (window.telegramWebAppReady) {
-              telegramReady = true;
-              console.log("✅ Telegram WebApp is ready");
-            } else {
-              console.log(`⏳ Waiting for Telegram WebApp... (${attempts + 1}/${maxAttempts})`);
-              await new Promise(resolve => setTimeout(resolve, 500));
-              attempts++;
-            }
-          }
+          console.log("🎮 Game initialization complete");
           
-          if (!telegramReady) {
-            console.log("⚠️ Telegram WebApp not ready after timeout, proceeding with fallback");
-          }
+        } catch (error) {
+          console.error("❌ Error during game initialization:", error);
           
-          // Initialize Telegram integration
-          getTelegramUserId();
-
-          // Load game state directly from server API
-          loadGameStateEnhanced().then(async (initialState) => {
-            console.log("🎮 Initial state received from server API:", initialState);
-            console.log(`🎮 Initial HP value: ${initialState.hp}`);
-            
-            // CRITICAL: Verify HP is not being modified
-            if (initialState.hp === 0) {
-              console.log("💀 CRITICAL: Initial state has HP=0, this should be preserved");
-            } else {
-              console.log(`💖 Initial HP: ${initialState.hp}`);
-            }
-            
-            updateUI(initialState);
-            console.log("🖥️ UI updated with initial state");
-
-            // Initialize bottom navigation
-            initializeBottomNavigation();
-
-            console.log(
-              "🎮 Game Interface Initialized with state:",
-              initialState
-            );
-            console.log(`🎮 Final HP after initialization: ${initialState.hp}`);
-            console.log("📱 Telegram User ID:", telegramUserId);
-          });
+          // Fallback to default state if initialization fails
+          const defaultState = {
+            level: 1,
+            hp: getLevelHP(1),
+            coinCount: 0,
+            coinEarn: 0,
+            smg: 0,
+            lastRecover: Date.now(),
+            lastZeroHP: null,
+          };
+          
+          window.currentGameState = defaultState;
+          updateUI(defaultState);
+          updateAvatarDisplay();
+          
+          console.log("🔒 Fallback state loaded - sync disabled to prevent server reset");
         }
         
-        // Start the initialization process
-        initializeGame();
+        // Initialize bottom navigation
+        initializeBottomNavigation();
         
         // Add tap event listeners for the main container only
         const mainContainer = document.querySelector(".md\\:w-\\[375px\\]") || document.querySelector("[class*='w-[375px]']") || document.querySelector(".gradient-bg");

@@ -561,11 +561,30 @@ function recoverHP(userData) {
 // Helper function to get user data (with fallback)
 async function getUserData(telegramUserId) {
   try {
+    console.log(`🔍 getUserData called for user: ${telegramUserId}`);
+
     if (db.isConnected) {
       // Use MongoDB
+      console.log(`🔍 Searching for user in MongoDB: ${telegramUserId}`);
       let user = await db.getUserData(telegramUserId);
+
       if (!user) {
+        console.log(
+          `⚠️ User not found in MongoDB, checking if this is a valid user ID: ${telegramUserId}`
+        );
+
+        // Additional validation - don't create user for invalid IDs
+        if (
+          !telegramUserId ||
+          telegramUserId === "undefined" ||
+          telegramUserId === "null"
+        ) {
+          console.log(`❌ Invalid user ID detected: ${telegramUserId}`);
+          throw new Error("Invalid user ID");
+        }
+
         // Create new user with proper maxHP calculation
+        console.log(`🆕 Creating new user in MongoDB: ${telegramUserId}`);
         const initialLevel = 1;
         const maxHP = getLevelHP(initialLevel);
         user = await db.createUser({
@@ -579,7 +598,16 @@ async function getUserData(telegramUserId) {
           lastRecover: Date.now(),
           lastZeroHP: null,
         });
+        console.log(`✅ New user created successfully:`, user);
       } else {
+        console.log(`✅ Existing user found in MongoDB:`, {
+          telegramUserId: user.telegramUserId,
+          level: user.level,
+          hp: user.hp,
+          ruby: user.ruby,
+          smg: user.smg,
+        });
+
         // Update maxHP if it doesn't match the level
         const expectedMaxHP = getLevelHP(user.level);
         if (user.maxHP !== expectedMaxHP) {
@@ -607,6 +635,7 @@ async function getUserData(telegramUserId) {
           user.hp !== originalHP ||
           user.lastRecover !== originalLastRecover
         ) {
+          console.log(`🔄 Updating HP recovery: ${originalHP} → ${user.hp}`);
           await db.updateUserData(telegramUserId, {
             hp: user.hp,
             lastRecover: user.lastRecover,
@@ -615,8 +644,10 @@ async function getUserData(telegramUserId) {
       }
       return user;
     } else {
+      console.log(`🔍 Using in-memory storage for user: ${telegramUserId}`);
       // Fallback to in-memory
       if (!gameDatabase.has(telegramUserId)) {
+        console.log(`🆕 Creating new user in memory: ${telegramUserId}`);
         const initialLevel = 1;
         const maxHP = getLevelHP(initialLevel);
         gameDatabase.set(telegramUserId, {
@@ -634,6 +665,7 @@ async function getUserData(telegramUserId) {
           updatedAt: new Date().toISOString(),
         });
       } else {
+        console.log(`✅ Existing user found in memory: ${telegramUserId}`);
         // Apply HP recovery for in-memory users too
         let userData = gameDatabase.get(telegramUserId);
         const originalHP = userData.hp;
@@ -652,8 +684,19 @@ async function getUserData(telegramUserId) {
     }
   } catch (error) {
     console.error("❌ Error in getUserData:", error);
+
+    // Don't create fallback user for invalid IDs
+    if (
+      !telegramUserId ||
+      telegramUserId === "undefined" ||
+      telegramUserId === "null"
+    ) {
+      throw error;
+    }
+
     // Fallback to in-memory on error
     if (!gameDatabase.has(telegramUserId)) {
+      console.log(`🆘 Creating fallback user in memory: ${telegramUserId}`);
       const initialLevel = 1;
       const maxHP = getLevelHP(initialLevel);
       gameDatabase.set(telegramUserId, {
@@ -1242,6 +1285,7 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
       hp: gameState.hp !== undefined ? gameState.hp : 100,
       coinCount: finalCoinCount,
       coinEarn: finalCoinEarn,
+      smg: gameState.smg || 0, // Add SMG field
       totalCoins: finalCoinCount + finalCoinEarn,
       lastRecover: gameState.lastRecover || Date.now(),
       lastZeroHP: gameState.lastZeroHP || null,

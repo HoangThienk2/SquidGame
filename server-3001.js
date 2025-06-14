@@ -897,6 +897,8 @@ app.post("/api/user/:telegramUserId", async (req, res) => {
  *                       type: integer
  *                     totalCoins:
  *                       type: integer
+ *                     smg:
+ *                       type: integer
  *                     syncedAt:
  *                       type: string
  *       400:
@@ -930,6 +932,7 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
       hp: gameState.hp !== undefined ? gameState.hp : 100, // CRITICAL: Preserve HP=0
       coinCount: gameState.coinCount || 0,
       coinEarn: gameState.coinEarn || 0,
+      smg: gameState.smg || 0, // Add SMG field
       totalCoins: (gameState.coinCount || 0) + (gameState.coinEarn || 0),
       lastRecover: gameState.lastRecover || Date.now(),
       lastZeroHP: gameState.lastZeroHP || null,
@@ -956,6 +959,7 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
         ruby: updatedUserData.coinCount,
         coins: updatedUserData.coinEarn,
         totalCoins: updatedUserData.totalCoins,
+        smg: updatedUserData.smg || 0,
         syncedAt: updatedUserData.updatedAt,
       },
     });

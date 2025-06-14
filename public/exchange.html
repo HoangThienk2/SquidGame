@@ -653,6 +653,24 @@
       // Store transaction history array
       let transactionHistory = [];
 
+      // Configure Telegram WebApp to disable close confirmation
+      if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+
+        // Disable close confirmation popup
+        tg.enableClosingConfirmation = false;
+
+        // Set app as ready
+        tg.ready();
+
+        // Expand the app to full height
+        tg.expand();
+
+        console.log(
+          "📱 Telegram WebApp configured - close confirmation disabled"
+        );
+      }
+
       // Get Telegram user ID (simplified - no localStorage)
       function getTelegramUserId() {
         // 1. Check if already cached in memory
@@ -707,6 +725,33 @@
               );
             } catch (e) {
               console.log("⚠️ Failed to parse user data from sessionStorage");
+            }
+          }
+
+          return telegramUserId;
+        }
+
+        // 3.5. Try to get from localStorage (for long-term persistence)
+        const userIdFromLocal = localStorage.getItem("telegramUserId");
+        if (userIdFromLocal) {
+          telegramUserId = userIdFromLocal;
+          console.log("📱 Telegram User ID from localStorage:", telegramUserId);
+
+          // Also try to restore user data from localStorage
+          const userDataFromLocal = localStorage.getItem("telegramUserData");
+          if (userDataFromLocal) {
+            try {
+              telegramUserData = JSON.parse(userDataFromLocal);
+              console.log("📱 User data from localStorage:", telegramUserData);
+
+              // Also save to sessionStorage for current session
+              sessionStorage.setItem("telegramUserId", telegramUserId);
+              sessionStorage.setItem(
+                "telegramUserData",
+                JSON.stringify(telegramUserData)
+              );
+            } catch (e) {
+              console.log("⚠️ Failed to parse user data from localStorage");
             }
           }
 
