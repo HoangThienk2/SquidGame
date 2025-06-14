@@ -966,31 +966,33 @@
         alt=""
       />
       <div class="flex flex-col gap-[8px]">
-        <!-- Avatar and User ID Section -->
-        <div class="flex flex-col justify-center items-center gap-3 mb-2">
-          <div
-            class="w-11 h-11 rounded-full bg-gradient-to-br from-green-400 to-yellow-400 flex items-center justify-center text-2xl font-bold text-white"
-          >
-            U
+        <!-- Avatar, User ID, Ruby and Money Display Section -->
+        <div class="flex justify-between items-center gap-2 mb-2">
+          <!-- Avatar and User ID -->
+          <div class="flex flex-col items-center gap-1">
+            <div
+              class="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-yellow-400 flex items-center justify-center text-sm font-bold text-white"
+            >
+              U
+            </div>
+            <span class="text-white text-xs font-semibold user-id">Loading...</span>
           </div>
-          <span class="text-white font-semibold user-id">Loading...</span>
-        </div>
-        
-        <div class="flex justify-between items-center">
+          
+          <!-- Ruby Display -->
           <div
-            class="flex w-[165.5px] h-[30px] px-[4px] pr-[12px] py-[4px] gap-[8px] rounded-full card-bg items-center"
+            class="flex flex-1 h-[30px] px-[4px] pr-[12px] py-[4px] gap-[8px] rounded-full card-bg items-center"
           >
             <img src="./image/ruby.svg" class="w-[20px]" alt="" />
 
             <span
-              
               class="gugi-font text-[14px] leading-[22px] tracking-[0%] align-middle text-white"
               >0</span
             >
           </div>
 
+          <!-- Money Display -->
           <div
-            class="flex w-[165.5px] h-[30px] px-[4px] pr-[12px] py-[4px] gap-[8px] rounded-full card-bg items-center"
+            class="flex flex-1 h-[30px] px-[4px] pr-[12px] py-[4px] gap-[8px] rounded-full card-bg items-center"
           >
             <img src="./image/money.svg" alt="" />
 
@@ -1327,11 +1329,16 @@
 
       function getTelegramUserId() {
         console.log("🔍 getTelegramUserId() called");
+        console.log("🔍 Current telegramUserData:", telegramUserData);
         
         // Game state remains server-only to prevent hacking
         
         // 1. Check if already cached in memory
-        if (telegramUserId) return telegramUserId;
+        if (telegramUserId) {
+          console.log("📱 Using cached telegramUserId:", telegramUserId);
+          console.log("📱 Current telegramUserData:", telegramUserData);
+          return telegramUserId;
+        }
         
         // 2. Try to get from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -1342,6 +1349,20 @@
           console.log("📱 Telegram User ID from URL:", telegramUserId);
           // Also save to sessionStorage for cross-tab sharing
           sessionStorage.setItem('telegramUserId', telegramUserId);
+          
+          // Try to get additional user data from URL
+          const username = urlParams.get("username");
+          const firstName = urlParams.get("first_name");
+          if (username || firstName) {
+            telegramUserData = {
+              id: telegramUserId,
+              username: username,
+              first_name: firstName
+            };
+            console.log("📱 User data from URL:", telegramUserData);
+            sessionStorage.setItem('telegramUserData', JSON.stringify(telegramUserData));
+          }
+          
           return telegramUserId;
         }
 
@@ -1350,6 +1371,18 @@
         if (userIdFromSession) {
           telegramUserId = userIdFromSession;
           console.log("📱 Telegram User ID from sessionStorage:", telegramUserId);
+          
+          // Also try to restore user data from sessionStorage
+          const userDataFromSession = sessionStorage.getItem('telegramUserData');
+          if (userDataFromSession) {
+            try {
+              telegramUserData = JSON.parse(userDataFromSession);
+              console.log("📱 User data from sessionStorage:", telegramUserData);
+            } catch (e) {
+              console.log("⚠️ Failed to parse user data from sessionStorage");
+            }
+          }
+          
           return telegramUserId;
         }
 
@@ -1377,6 +1410,7 @@
             
             // Save to sessionStorage for cross-tab sharing
             sessionStorage.setItem('telegramUserId', telegramUserId);
+            sessionStorage.setItem('telegramUserData', JSON.stringify(telegramUserData));
             return telegramUserId;
           }
         }
@@ -1406,6 +1440,7 @@
 
           // Save to sessionStorage for cross-tab sharing
           sessionStorage.setItem('telegramUserId', telegramUserId);
+          sessionStorage.setItem('telegramUserData', JSON.stringify(telegramUserData));
           return telegramUserId;
         }
 
@@ -1980,6 +2015,12 @@
         
         // Update user ID display
         const userIdElement = document.querySelector(".user-id");
+        console.log("🔍 Debug user display:", {
+          userIdElement: !!userIdElement,
+          telegramUserData: telegramUserData,
+          telegramUserId: telegramUserId
+        });
+        
         if (userIdElement && telegramUserData) {
           // Priority: username > first_name > user ID
           let displayName = telegramUserData.username
@@ -1988,10 +2029,12 @@
             ? telegramUserData.first_name
             : telegramUserId || "Unknown";
 
+          console.log("🎯 Display name chosen:", displayName);
           userIdElement.textContent = displayName;
           userIdElement.classList.add("dashed-text");
         } else if (userIdElement && telegramUserId) {
           // Fallback to user ID if no user data available
+          console.log("⚠️ Fallback to user ID:", telegramUserId);
           userIdElement.textContent = telegramUserId;
           userIdElement.classList.add("dashed-text");
         }
@@ -2002,7 +2045,7 @@
 
       // Function to update avatar display
       function updateAvatarDisplay() {
-        const avatarElement = document.querySelector(".w-11.h-11");
+        const avatarElement = document.querySelector(".w-8.h-8");
         if (avatarElement && telegramUserData) {
           let avatarLetter = "U"; // Default
 
@@ -2019,34 +2062,6 @@
       // =====================
       // 4. Flying Coin Animation
       // =====================
-
-      // Track which target to use for alternating coin flights
-      let coinTargetToggle = true; // true = HP, false = MT
-
-      function updateCoinTargetIndicator() {
-        // Remove indicator from both containers
-        const hpContainer = document.querySelector(
-          ".hp-level-progress-container"
-        );
-        const mtContainer = document.querySelector(
-          ".lp-level-progress-container"
-        );
-
-        if (hpContainer) hpContainer.classList.remove("coin-target-indicator");
-        if (mtContainer) mtContainer.classList.remove("coin-target-indicator");
-
-        // Add indicator to the next target
-        const nextTarget = coinTargetToggle ? hpContainer : mtContainer;
-        if (nextTarget) {
-          nextTarget.classList.add("coin-target-indicator");
-        }
-
-        console.log(
-          `🎯 Next coins will target: ${
-            coinTargetToggle ? "HP" : "MT"
-          } progress bar`
-        );
-      }
 
       function createFlyingCoin(startX, startY, targetElement) {
         const coin = document.createElement("div");
@@ -2448,37 +2463,18 @@
 
         console.log("✅ TAP PROCESSING APPROVED - ID:", tapId);
 
-        // Create flying coin effect - alternating between HP and MT level progress bars
+        // Create flying coin effect - targeting ruby display directly
         if (event) {
-          // Get the HP level and MT level progress containers
-          const hpLevelContainer = document.querySelector(
-            ".hp-level-progress-container"
-          );
-          const mtLevelContainer = document.querySelector(
-            ".lp-level-progress-container"
-          );
+          // Get the ruby display element (coin-count)
+          const rubyDisplay = document.getElementById("coin-earn");
 
-          if (hpLevelContainer && mtLevelContainer) {
-            // Determine target based on toggle state
-            const targetContainer = coinTargetToggle
-              ? hpLevelContainer
-              : mtLevelContainer;
-            const targetName = coinTargetToggle ? "HP" : "MT";
-
-            // Toggle for next tap
-            coinTargetToggle = !coinTargetToggle;
-
-            // Update visual indicator for next tap
-            updateCoinTargetIndicator();
-
-            console.log(
-              `🎯 Flying coins targeting: ${targetName} progress bar`
-            );
+          if (rubyDisplay) {
+            console.log("🎯 Flying coins targeting: Ruby display");
 
             // Number of coins based on tap type
             const baseCoins = is3FingerTap ? 3 : 1;
 
-            // Create coins flying to the selected target
+            // Create coins flying to the ruby display
             for (let i = 0; i < baseCoins; i++) {
               setTimeout(() => {
                 createFlyingCoin(
@@ -2488,7 +2484,7 @@
                   event.clientY ||
                     event.touches?.[0]?.clientY ||
                     window.innerHeight / 2,
-                  targetContainer
+                  rubyDisplay
                 );
               }, i * 100); // Stagger coins with 100ms delay
             }
@@ -3077,9 +3073,6 @@
             
             updateUI(initialState);
             console.log("🖥️ UI updated with initial state");
-
-            // Initialize coin target indicator
-            updateCoinTargetIndicator();
 
             // Initialize bottom navigation
             initializeBottomNavigation();

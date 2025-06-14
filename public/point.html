@@ -9,13 +9,23 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Gugi&display=swap"
-      rel="stylesheet"
-    />
+
     <style>
       body {
         font-family: "Gugi", sans-serif;
+      }
+
+      /* Tab buttons font styling */
+      .tab-buttons button {
+        font-weight: 300 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif !important;
+      }
+
+      .tab-buttons button span {
+        font-weight: 300 !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif !important;
       }
 
       /* Responsive height adjustments */
@@ -38,11 +48,6 @@
         .point-form .tab-content {
           height: calc(100vh - 280px) !important; /* Dynamic height */
           margin-top: 48px !important;
-        }
-
-        .mission-item {
-          padding: 12px !important;
-          margin-bottom: 8px !important;
         }
 
         .mission-item .mission-image {
@@ -289,14 +294,14 @@
               class="flex px-5 py-1 bg-[#0E0E18] rounded-full items-center gap-5"
             >
               <img src="./image/money.png" alt="Money" class="w-5 h-5" />
-              <span class="text-yellow-300 font-bold">123,456</span>
+              <span class="text-yellow-300 font-bold">0</span>
             </div>
           </div>
           <div
             class="w-full px-2 py-1 bg-red-600 rounded-full relative overflow-hidden"
           >
             <div class="text-white flex justify-between font-light">
-              HP <span class="text-white hp-display">0/2400</span>
+              HP <span class="text-white hp-display">0/0</span>
             </div>
             <div
               class="absolute inset-0 bg-gradient-to-r from-[#ff4d6b] to-[#ff6b8b] -z-10"
@@ -317,19 +322,19 @@
             id="btn-mission"
             class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-r-2 border-gray-400 bg-[#22222E] text-white font-semibold shadow-top-left-blue transition-all"
           >
-            MISSION
+            Mission
           </button>
           <button
             id="btn-referral"
             class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-transparent bg-gray-700 text-gray-400 font-semibold shadow-top-left transition-all"
           >
-            REFERRAL
+            Referral
           </button>
           <button
             id="btn-exchange"
-            class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-transparent bg-gray-700 text-gray-400 font-semibold shadow-top-left transition-all"
+            class="flex-1 px-4 py-2 rounded-t-2xl border-t-2 border-transparent bg-gray-700 text-gray-400 font-semibold shadow-top-left transition-all whitespace-nowrap"
           >
-            EXCHANGE
+            Buying Ruby
           </button>
         </div>
 
@@ -341,190 +346,38 @@
           <!-- Mission List UI -->
           <div class="space-y-4 pr-2">
             <!-- Nhiệm vụ chưa hoàn thành -->
-            <div
-              class="mission-item bg-[#232334] rounded-xl p-4 flex items-center justify-between"
-            >
-              <div
-                class="mission-image w-[100px] h-[80px] bg-white mr-4 rounded-lg"
-              ></div>
-              <div class="flex-1">
-                <div class="mission-title text-white font-semibold">
-                  Subscribe to Announcements
-                </div>
-                <div class="mission-description text-gray-400 text-xs">
-                  Subscribe to Announcements
-                </div>
-                <div class="w-32 h-2 bg-gray-700 rounded-full mt-2">
-                  <div
-                    class="bg-blue-500 h-2 rounded-full"
-                    style="width: 50%"
-                  ></div>
-                </div>
-                <div class="text-xs text-gray-400 mt-1">1 / 2</div>
-              </div>
-              <button
-                class="mission-button bg-blue-600 text-white rounded-full px-4 py-2 font-bold flex items-center gap-2"
-              >
-                <span>+20</span>
-              </button>
-            </div>
+
             <!-- Nhiệm vụ hoàn thành -->
-            <div
-              class="mission-item bg-[#232334] rounded-xl p-4 flex items-center justify-between"
-            >
-              <div
-                class="mission-image w-[100px] h-[80px] bg-white mr-4 rounded-lg"
-              ></div>
-              <div class="flex-1">
-                <div class="mission-title text-white font-semibold">
-                  Subscribe to Announcements
-                </div>
-                <div class="mission-description text-gray-400 text-xs">
-                  Subscribe to Announcements
-                </div>
-                <div class="w-32 h-2 bg-blue-500 rounded-full mt-2"></div>
-                <div class="text-xs text-blue-400 mt-1">2 / 2</div>
-              </div>
-              <span class="text-blue-500 text-2xl font-bold">&#10003;</span>
-            </div>
+
             <!-- Các nhiệm vụ khác -->
             <div
-              class="mission-item bg-[#232334] rounded-xl p-4 flex items-center justify-between"
+              class="mission-item bg-[#494856] rounded-xl flex items-center justify-between text-white pr-[5px]"
             >
-              <div class="flex items-center gap-2">
-                <span
-                  class="bg-blue-600 text-white rounded-full px-2 py-1 font-bold"
-                  >+20</span
+              <div class="flex items-center gap-2 w-full">
+                <div
+                  class="bg-[#0072FF] text-white rounded-xl flex-col px-3 py-2 font-bold flex items-center gap-1 border-4 border-white/20 w-[27%]"
                 >
+                  <img
+                    src="./image/mission_video.png"
+                    alt="Video"
+                    class="w-5 h-5"
+                  />
+                  <span>+10,000</span>
+                </div>
                 <div>
-                  <div class="mission-title text-white font-semibold">
-                    Subscribe to Announcements
-                  </div>
-                  <div class="mission-description text-gray-400 text-xs">
-                    Subscribe to Announcements
+                  <div class="mission-title text-white font-light">
+                    Watch a 15-second video video and get rewarded
                   </div>
                 </div>
               </div>
               <button
-                class="mission-button bg-blue-600 text-white rounded-full px-4 py-2 font-bold"
+                class="mission-button bg-[#0072FF] text-white rounded-full px-4 py-2 font-light"
               >
-                GO
+                PLAY
               </button>
             </div>
-            <div
-              class="mission-item bg-[#232334] rounded-xl p-4 flex items-center justify-between"
-            >
-              <div class="flex items-center gap-2">
-                <span
-                  class="bg-blue-600 text-white rounded-full px-2 py-1 font-bold"
-                  >+20</span
-                >
-                <div>
-                  <div class="mission-title text-white font-semibold">
-                    Subscribe to Announcements
-                  </div>
-                  <div class="mission-description text-gray-400 text-xs">
-                    Subscribe to Announcements
-                  </div>
-                </div>
-              </div>
-              <button
-                class="mission-button bg-blue-600 text-white rounded-full px-4 py-2 font-bold"
-              >
-                GO
-              </button>
-            </div>
-            <div
-              class="mission-item bg-[#232334] rounded-xl p-4 flex items-center justify-between"
-            >
-              <div class="flex items-center gap-2">
-                <span
-                  class="bg-blue-600 text-white rounded-full px-2 py-1 font-bold"
-                  >+20</span
-                >
-                <div>
-                  <div class="mission-title text-white font-semibold">
-                    Subscribe to Announcements
-                  </div>
-                  <div class="mission-description text-gray-400 text-xs">
-                    Subscribe to Announcements
-                  </div>
-                </div>
-              </div>
-              <button
-                class="mission-button bg-blue-600 text-white rounded-full px-4 py-2 font-bold"
-              >
-                GO
-              </button>
-            </div>
-            <div
-              class="mission-item bg-[#232334] rounded-xl p-4 flex items-center justify-between"
-            >
-              <div class="flex items-center gap-2">
-                <span
-                  class="bg-blue-600 text-white rounded-full px-2 py-1 font-bold"
-                  >+20</span
-                >
-                <div>
-                  <div class="mission-title text-white font-semibold">
-                    Subscribe to Announcements
-                  </div>
-                  <div class="mission-description text-gray-400 text-xs">
-                    Subscribe to Announcements
-                  </div>
-                </div>
-              </div>
-              <button
-                class="mission-button bg-blue-600 text-white rounded-full px-4 py-2 font-bold"
-              >
-                GO
-              </button>
-            </div>
-            <div
-              class="mission-item bg-[#232334] rounded-xl p-4 flex items-center justify-between"
-            >
-              <div class="flex items-center gap-2">
-                <span
-                  class="bg-blue-600 text-white rounded-full px-2 py-1 font-bold"
-                  >+20</span
-                >
-                <div>
-                  <div class="mission-title text-white font-semibold">
-                    Subscribe to Announcements
-                  </div>
-                  <div class="mission-description text-gray-400 text-xs">
-                    Subscribe to Announcements
-                  </div>
-                </div>
-              </div>
-              <button
-                class="mission-button bg-blue-600 text-white rounded-full px-4 py-2 font-bold"
-              >
-                GO
-              </button>
-            </div>
-            <div
-              class="mission-item bg-[#232334] rounded-xl p-4 flex items-center justify-between"
-            >
-              <div class="flex items-center gap-2">
-                <span
-                  class="bg-blue-600 text-white rounded-full px-2 py-1 font-bold"
-                  >+20</span
-                >
-                <div>
-                  <div class="mission-title text-white font-semibold">
-                    Subscribe to Announcements
-                  </div>
-                  <div class="mission-description text-gray-400 text-xs">
-                    Subscribe to Announcements
-                  </div>
-                </div>
-              </div>
-              <button
-                class="mission-button bg-blue-600 text-white rounded-full px-4 py-2 font-bold"
-              >
-                GO
-              </button>
+            <div class="text-white text-sm text-center font-light p-[50px]">
+              <p>...waiting for additional missions</p>
             </div>
           </div>
         </div>

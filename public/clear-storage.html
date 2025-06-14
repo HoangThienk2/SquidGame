@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clear Storage</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      button {
+        background: #ff4444;
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 10px 0;
+        display: block;
+        width: 100%;
+      }
+      button:hover {
+        background: #cc3333;
+      }
+      .success {
+        background: #44ff44;
+        color: #333;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        display: none;
+      }
+      .info {
+        background: #e3f2fd;
+        padding: 15px;
+        border-radius: 5px;
+        margin: 10px 0;
+        border-left: 4px solid #2196f3;
+      }
+      pre {
+        background: #f5f5f5;
+        padding: 10px;
+        border-radius: 5px;
+        overflow-x: auto;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🧹 Clear Browser Storage</h1>
+
+      <div class="info">
+        <strong>Current localStorage items:</strong>
+        <pre id="current-storage"></pre>
+      </div>
+
+      <button onclick="clearAllStorage()">🗑️ Clear All Storage</button>
+      <button onclick="clearGameStorage()">🎮 Clear Game Storage Only</button>
+      <button onclick="refreshStorageInfo()">🔄 Refresh Storage Info</button>
+
+      <div id="success-message" class="success">
+        ✅ Storage cleared successfully!
+      </div>
+
+      <div class="info">
+        <strong>What this will clear:</strong>
+        <ul>
+          <li>game_interface_state</li>
+          <li>game_interface_state_backup2</li>
+          <li>game_last_save</li>
+          <li>All other localStorage items</li>
+          <li>SessionStorage (except telegramUserId)</li>
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      function refreshStorageInfo() {
+        const storageInfo = document.getElementById("current-storage");
+        let info = "localStorage:\n";
+
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          const value = localStorage.getItem(key);
+          info += `  ${key}: ${value.substring(0, 100)}${
+            value.length > 100 ? "..." : ""
+          }\n`;
+        }
+
+        info += "\nsessionStorage:\n";
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          const value = sessionStorage.getItem(key);
+          info += `  ${key}: ${value.substring(0, 100)}${
+            value.length > 100 ? "..." : ""
+          }\n`;
+        }
+
+        storageInfo.textContent = info || "No storage items found";
+      }
+
+      function clearAllStorage() {
+        console.log("🧹 Clearing all storage...");
+
+        // Clear localStorage
+        localStorage.clear();
+
+        // Clear sessionStorage (except telegramUserId)
+        const telegramUserId = sessionStorage.getItem("telegramUserId");
+        sessionStorage.clear();
+        if (telegramUserId) {
+          sessionStorage.setItem("telegramUserId", telegramUserId);
+        }
+
+        showSuccess();
+        refreshStorageInfo();
+
+        console.log("✅ All storage cleared");
+      }
+
+      function clearGameStorage() {
+        console.log("🎮 Clearing game storage only...");
+
+        // Clear specific game storage items
+        const gameKeys = [
+          "game_interface_state",
+          "game_interface_state_backup1",
+          "game_interface_state_backup1_timestamp",
+          "game_interface_state_backup2",
+          "game_interface_state_backup2_timestamp",
+          "game_interface_state_backup3",
+          "game_interface_state_backup3_timestamp",
+          "game_last_save",
+          "gameState",
+          "taptoearn_state",
+          "game1State",
+          "loglevel",
+        ];
+
+        gameKeys.forEach((key) => {
+          localStorage.removeItem(key);
+          console.log(`🗑️ Removed: ${key}`);
+        });
+
+        showSuccess();
+        refreshStorageInfo();
+
+        console.log("✅ Game storage cleared");
+      }
+
+      function showSuccess() {
+        const successMsg = document.getElementById("success-message");
+        successMsg.style.display = "block";
+        setTimeout(() => {
+          successMsg.style.display = "none";
+        }, 3000);
+      }
+
+      // Initialize
+      refreshStorageInfo();
+    </script>
+  </body>
+</html>
