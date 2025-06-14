@@ -6,6 +6,13 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "production": "NODE_ENV=production node server.js",
+    "ssl": "NODE_ENV=production SSL_ENABLED=true node server-ssl.js",
+    "pm2:start": "pm2 start ecosystem.config.js --env production",
+    "pm2:stop": "pm2 stop younghee-squidgame",
+    "pm2:restart": "pm2 restart younghee-squidgame",
+    "pm2:logs": "pm2 logs younghee-squidgame",
+    "deploy": "chmod +x deploy-ssl.sh && ./deploy-ssl.sh",
     "build": "echo 'No build step required'",
     "test": "echo 'No tests specified'"
   },
@@ -13,7 +20,9 @@
     "telegram",
     "game",
     "mini-app",
-    "squid-game"
+    "squid-game",
+    "younghee",
+    "ssl"
   ],
   "author": "",
   "license": "MIT",
