@@ -1036,36 +1036,30 @@
         }
       }
 
-      // Get Telegram user ID (same logic as index.html)
+      // Get Telegram user ID (simplified - no localStorage)
       function getTelegramUserId() {
-        // 1. Check if already cached
+        // 1. Check if already cached in memory
         if (telegramUserId) return telegramUserId;
 
-        // 2. Try to get from localStorage first
-        const savedUserId = localStorage.getItem("telegramUserId");
-        if (savedUserId) {
-          telegramUserId = savedUserId;
-          // Also try to get saved user data
-          const savedUserData = localStorage.getItem("telegramUserData");
-          if (savedUserData) {
-            try {
-              telegramUserData = JSON.parse(savedUserData);
-            } catch (e) {
-              console.log("⚠️ Failed to parse saved user data");
-            }
-          }
-          console.log("📱 Telegram User ID from localStorage:", telegramUserId);
-          return telegramUserId;
-        }
-
-        // 3. Try to get from URL parameter
+        // 2. Try to get from URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         const userIdFromUrl = urlParams.get("userId");
         if (userIdFromUrl) {
           telegramUserId = userIdFromUrl;
-          // Save to localStorage for future use
-          localStorage.setItem("telegramUserId", telegramUserId);
           console.log("📱 Telegram User ID from URL:", telegramUserId);
+          // Also save to sessionStorage for cross-tab sharing
+          sessionStorage.setItem("telegramUserId", telegramUserId);
+          return telegramUserId;
+        }
+
+        // 3. Try to get from sessionStorage (for cross-tab sharing)
+        const userIdFromSession = sessionStorage.getItem("telegramUserId");
+        if (userIdFromSession) {
+          telegramUserId = userIdFromSession;
+          console.log(
+            "📱 Telegram User ID from sessionStorage:",
+            telegramUserId
+          );
           return telegramUserId;
         }
 
@@ -1076,13 +1070,7 @@
 
           if (webApp.initDataUnsafe && webApp.initDataUnsafe.user) {
             telegramUserId = webApp.initDataUnsafe.user.id.toString();
-            telegramUserData = webApp.initDataUnsafe.user; // Store full user data
-
-            localStorage.setItem("telegramUserId", telegramUserId);
-            localStorage.setItem(
-              "telegramUserData",
-              JSON.stringify(telegramUserData)
-            );
+            telegramUserData = webApp.initDataUnsafe.user; // Store in memory only
 
             console.log(
               "📱 Telegram User ID from Enhanced WebApp:",
@@ -1097,6 +1085,9 @@
               "👤 First name:",
               telegramUserData.first_name || "No first name"
             );
+
+            // Save to sessionStorage for cross-tab sharing
+            sessionStorage.setItem("telegramUserId", telegramUserId);
             return telegramUserId;
           }
         }
@@ -1111,14 +1102,7 @@
         ) {
           const webApp = window.Telegram.WebApp;
           telegramUserId = webApp.initDataUnsafe.user.id.toString();
-          telegramUserData = webApp.initDataUnsafe.user; // Store full user data
-
-          // Save to localStorage for future use
-          localStorage.setItem("telegramUserId", telegramUserId);
-          localStorage.setItem(
-            "telegramUserData",
-            JSON.stringify(telegramUserData)
-          );
+          telegramUserData = webApp.initDataUnsafe.user; // Store in memory only
 
           console.log(
             "📱 Telegram User ID from Fallback WebApp:",
@@ -1134,10 +1118,12 @@
             telegramUserData.first_name || "No first name"
           );
 
+          // Save to sessionStorage for cross-tab sharing
+          sessionStorage.setItem("telegramUserId", telegramUserId);
           return telegramUserId;
         }
 
-        // 6. Generate demo user ID as fallback
+        // 6. Generate demo user ID as fallback (save to sessionStorage for consistency)
         telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
         telegramUserData = {
           id: telegramUserId,
@@ -1145,17 +1131,13 @@
           username: null,
         };
 
-        // Save to localStorage for consistency
-        localStorage.setItem("telegramUserId", telegramUserId);
-        localStorage.setItem(
-          "telegramUserData",
-          JSON.stringify(telegramUserData)
-        );
         console.log(
-          "📱 Generated and saved demo Telegram User ID:",
+          "📱 Generated demo Telegram User ID (saving to sessionStorage):",
           telegramUserId
         );
 
+        // Save to sessionStorage so other tabs can use the same ID
+        sessionStorage.setItem("telegramUserId", telegramUserId);
         return telegramUserId;
       }
 
