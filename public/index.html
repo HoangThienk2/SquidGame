@@ -116,6 +116,15 @@
       href="https://fonts.googleapis.com/css2?family=Gugi&display=swap"
       rel="stylesheet"
     />
+    
+    <!-- Preload critical images for faster loading -->
+    <link rel="preload" href="./images/polling.png" as="image" />
+    <link rel="preload" href="./image/bg.png" as="image" />
+    <link rel="preload" href="./image/character.png" as="image" />
+    <link rel="preload" href="./image/sole1.png" as="image" />
+    <link rel="preload" href="./image/ruby.svg" as="image" />
+    <link rel="preload" href="./image/money.svg" as="image" />
+
     <style>
       .gradient-bg {
         background: linear-gradient(
@@ -226,7 +235,8 @@
         height: 12px;
         background-color: #ff6b8b;
         border-radius: 50%;
-        animation: loadingDots 1.5s infinite ease-in-out;
+        animation: loadingDots 1s infinite ease-in-out;
+        will-change: transform, opacity;
       }
 
       .dot:nth-child(1) {
@@ -234,20 +244,20 @@
       }
 
       .dot:nth-child(2) {
-        animation-delay: 0.3s;
+        animation-delay: 0.2s;
       }
 
       .dot:nth-child(3) {
-        animation-delay: 0.6s;
+        animation-delay: 0.4s;
       }
 
       @keyframes loadingDots {
-        0%, 60%, 100% {
+        0%, 70%, 100% {
           transform: scale(1);
-          opacity: 0.7;
+          opacity: 0.6;
         }
-        30% {
-          transform: scale(1.3);
+        35% {
+          transform: scale(1.4);
           opacity: 1;
         }
       }
@@ -960,6 +970,27 @@
         </div>
       </div>
 
+      <!-- Immediate loading screen check -->
+      <script>
+        (function() {
+          // Check URL parameters immediately
+          const urlParams = new URLSearchParams(window.location.search);
+          const fromPage = urlParams.get('from');
+          const hasSeenLoading = sessionStorage.getItem('hasSeenLoadingScreen');
+          
+          console.log('🚀 Immediate check - from:', fromPage, 'hasSeenLoading:', hasSeenLoading);
+          
+          // If coming from another page or already seen loading, hide immediately
+          if (fromPage === 'exchange' || fromPage === 'point' || hasSeenLoading) {
+            const loadingScreen = document.getElementById('loading-screen');
+            if (loadingScreen) {
+              loadingScreen.style.display = 'none';
+              console.log('🚀 Loading screen hidden immediately - from:', fromPage || 'already seen');
+            }
+          }
+        })();
+      </script>
+
       <img
         class="absolute rounded-[20px] top-0 left-0 w-full h-screen z-[-1] bottom-0 right-0  object-center"
         src="./image/bg.png"
@@ -1068,7 +1099,7 @@
                   <p
                     class="font-normal text-[13px] leading-[20px] tracking-[0%] text-center align-middle text-[#FF6B8B]"
                   >
-                    MT Lv
+                    MT 
                   </p>
                   <p
                     id="lp-level-display"
@@ -1259,12 +1290,13 @@
       // Loading Screen Management
       // =====================
       
+      // Check if user is coming from another page (will be set later when urlParams is available)
+      let isFromOtherPage = false;
+      
       // Loading messages in English
       const loadingMessages = [
         "Loading...",
         "Preparing game...",
-        "Connecting to server...",
-        "Almost complete...",
         "Welcome!"
       ];
       
@@ -1280,7 +1312,7 @@
             loadingTextElement.textContent = loadingMessages[currentMessageIndex];
             loadingTextElement.style.opacity = '1';
             currentMessageIndex++;
-          }, 200);
+          }, 150);
         }
       }
       
@@ -1288,36 +1320,76 @@
       function startLoadingAnimation() {
         const loadingTextElement = document.getElementById('loading-text');
         if (loadingTextElement) {
-          loadingTextElement.style.transition = 'opacity 0.3s ease-in-out';
-          loadingTextInterval = setInterval(animateLoadingText, 800);
+          loadingTextElement.style.transition = 'opacity 0.2s ease-in-out';
+          loadingTextInterval = setInterval(animateLoadingText, 500);
         }
       }
       
       // Hide loading screen when page is fully loaded
-      window.addEventListener('load', function() {
+      function hideLoadingScreenIfNeeded() {
         const loadingScreen = document.getElementById('loading-screen');
-        if (loadingScreen) {
-          // Start loading text animation
-          startLoadingAnimation();
-          
-          // Keep loading screen visible for 3.5 seconds
-          setTimeout(() => {
-            // Clear loading text animation
-            if (loadingTextInterval) {
-              clearInterval(loadingTextInterval);
-            }
-            
-            // Add fade out animation
-            loadingScreen.style.transition = 'opacity 0.8s ease-out';
-            loadingScreen.style.opacity = '0';
-            
-            // Remove from DOM after animation completes
-            setTimeout(() => {
-              loadingScreen.style.display = 'none';
-            }, 800);
-          }, 3500); // Extended to 3.5 seconds
+        if (!loadingScreen) {
+          console.log('🚀 Loading screen element not found');
+          return;
         }
-      });
+        
+        // Check if coming from another page using URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const fromPage = urlParams.get('from');
+        isFromOtherPage = fromPage === 'exchange' || fromPage === 'point';
+        
+        console.log('🔍 URL params:', window.location.search);
+        console.log('🔍 From page:', fromPage);
+        console.log('🔍 Is from other page:', isFromOtherPage);
+        
+        // Check if user has already seen loading screen in this session
+        const hasSeenLoading = sessionStorage.getItem('hasSeenLoadingScreen');
+        console.log('🔍 Has seen loading:', hasSeenLoading);
+        
+        // If coming from another page or already seen loading, hide loading screen immediately
+        if (isFromOtherPage || hasSeenLoading) {
+          console.log('🚀 Skipping loading screen - from:', fromPage || 'already seen');
+          loadingScreen.style.display = 'none';
+          return;
+        }
+        
+        // Mark that user has seen the loading screen
+        sessionStorage.setItem('hasSeenLoadingScreen', 'true');
+        console.log('✅ Marked loading screen as seen');
+        
+        // Start loading text animation for first-time visitors
+        startLoadingAnimation();
+        
+        // Keep loading screen visible for 1.5 seconds (reduced from 3.5)
+        setTimeout(() => {
+          // Clear loading text animation
+          if (loadingTextInterval) {
+            clearInterval(loadingTextInterval);
+          }
+          
+          // Add fade out animation with transform for better performance
+          loadingScreen.style.transition = 'opacity 0.4s ease-out, transform 0.4s ease-out';
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.transform = 'scale(0.95)';
+          
+          // Remove from DOM after animation completes
+          setTimeout(() => {
+            loadingScreen.style.display = 'none';
+            console.log('✅ Loading screen hidden after animation');
+          }, 400);
+        }, 1500); // Reduced to 1.5 seconds
+      }
+      
+      // Call the function when page loads
+      window.addEventListener('load', hideLoadingScreenIfNeeded);
+      
+      // Also call it when DOM is ready (fallback)
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', hideLoadingScreenIfNeeded);
+      } else {
+        // DOM is already ready, call immediately
+        hideLoadingScreenIfNeeded();
+      }
 
       // =====================
       // 0. Telegram Integration & API Sync

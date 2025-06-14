@@ -15,13 +15,6 @@
         font-family: "Gugi", sans-serif;
       }
 
-      /* Dashed text effect */
-      .dashed-text {
-        -webkit-text-stroke: 1px #fff;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-      }
-
       /* Tab buttons font styling */
       .tab-buttons button {
         font-weight: 300 !important;
@@ -402,7 +395,7 @@
           >
             U
           </div>
-          <span class="text-white font-semibold user-id">Loading...</span>
+          <span class="text-white font-semibold user-id"></span>
         </div>
         <div class="flex flex-col gap-1">
           <div class="flex gap-2">
@@ -424,7 +417,7 @@
             class="w-full px-2 py-1 bg-red-600 rounded-full relative overflow-hidden"
           >
             <div class="text-white flex justify-between font-light">
-              HP <span class="text-white hp-display">0/2400</span>
+              HP <span class="text-white hp-display">0 / 0</span>
             </div>
             <div
               class="absolute inset-0 bg-gradient-to-r from-[#ff4d6b] to-[#ff6b8b] -z-10"
@@ -504,7 +497,7 @@
               <input
                 id="input1"
                 type="number"
-                placeholder="Enter Point amount"
+                placeholder=""
                 class="input-field w-full bg-[#14141c] text-white rounded-2xl px-4 py-5 text-lg font-semibold outline-none"
               />
             </div>
@@ -518,7 +511,7 @@
                 id="input2"
                 type="number"
                 step="0.001"
-                placeholder="Enter SMG amount"
+                placeholder=""
                 class="input-field w-full bg-[#14141c] text-white rounded-2xl px-4 py-5 text-lg font-semibold outline-none"
               />
             </div>
@@ -830,7 +823,7 @@
         telegramUserId = "demo_" + Math.random().toString(36).substr(2, 9);
         telegramUserData = {
           id: telegramUserId,
-          first_name: "Demo User",
+          first_name: null, // Don't set default name to avoid showing "Demo User"
           username: null,
         };
 
@@ -902,20 +895,38 @@
 
         // Update user ID display with username/first_name priority
         const userIdElement = document.querySelector(".user-id");
-        if (userIdElement && telegramUserData) {
-          // Priority: username > first_name > user ID
-          let displayName = telegramUserData.username
-            ? `@${telegramUserData.username}`
-            : telegramUserData.first_name
-            ? telegramUserData.first_name
-            : currentUser.telegramUserId || "Unknown";
+        console.log("🔍 Debug user display:", {
+          userIdElement: !!userIdElement,
+          telegramUserData: telegramUserData,
+          telegramUserId: telegramUserId,
+          currentUser: currentUser,
+        });
 
-          userIdElement.textContent = displayName;
-          userIdElement.classList.add("dashed-text");
-        } else if (userIdElement) {
-          // Fallback to user ID if no user data available
-          userIdElement.textContent = currentUser.telegramUserId || "Unknown";
-          userIdElement.classList.add("dashed-text");
+        if (userIdElement) {
+          let displayName = null;
+
+          // First priority: real Telegram user data (username or first_name)
+          if (telegramUserData && telegramUserData.username) {
+            displayName = `@${telegramUserData.username}`;
+          } else if (telegramUserData && telegramUserData.first_name) {
+            displayName = telegramUserData.first_name;
+          }
+          // Second priority: use telegramUserId from API response (for demo users)
+          else if (currentUser && currentUser.telegramUserId) {
+            displayName = currentUser.telegramUserId;
+          }
+          // Last resort: use the telegramUserId we have
+          else if (telegramUserId) {
+            displayName = telegramUserId;
+          }
+
+          if (displayName) {
+            console.log("🎯 Display name chosen:", displayName);
+            userIdElement.textContent = displayName;
+            userIdElement.classList.add("dashed-text");
+          } else {
+            console.log("⚠️ No display name available");
+          }
         }
 
         // Update avatar display
@@ -927,16 +938,21 @@
       // Function to update avatar display
       function updateAvatarDisplay() {
         const avatarElement = document.querySelector(".w-11.h-11");
-        if (avatarElement && telegramUserData) {
-          let avatarLetter = "U"; // Default
+        if (avatarElement) {
+          let avatarLetter = "U"; // Default fallback
 
-          if (telegramUserData.first_name) {
+          // Try to get letter from real Telegram user data first
+          if (telegramUserData && telegramUserData.first_name) {
             avatarLetter = telegramUserData.first_name.charAt(0).toUpperCase();
-          } else if (telegramUserData.username) {
+          } else if (telegramUserData && telegramUserData.username) {
             avatarLetter = telegramUserData.username.charAt(0).toUpperCase();
           }
+          // For demo users, keep the default "U"
 
+          console.log("🎨 Updating avatar with letter:", avatarLetter);
           avatarElement.textContent = avatarLetter;
+        } else {
+          console.log("⚠️ Avatar element not found");
         }
       }
 
@@ -1238,11 +1254,18 @@
 
       // Load user data when page loads
       document.addEventListener("DOMContentLoaded", function () {
-        // Initialize Telegram User ID first
-        getTelegramUserId();
+        // Initialize Telegram User ID first and wait for it to complete
+        telegramUserId = getTelegramUserId();
         console.log("📱 Exchange page - Telegram User ID:", telegramUserId);
+        console.log("👤 Telegram User Data:", telegramUserData);
 
-        fetchUserData();
+        // Only fetch user data after we have the telegram user ID
+        if (telegramUserId) {
+          fetchUserData();
+        } else {
+          console.error("❌ No Telegram User ID available");
+        }
+
         initializeBottomNavigation();
 
         // Load transaction history after getting user ID
