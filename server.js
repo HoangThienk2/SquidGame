@@ -583,14 +583,26 @@ async function getUserData(telegramUserId) {
           throw new Error("Invalid user ID");
         }
 
-        // Create new user with proper maxHP calculation
-        console.log(`🆕 Creating new user in MongoDB: ${telegramUserId}`);
+        // IMPORTANT: Only create new user if this is truly a first-time user
+        // Check if this might be an existing user with connection issues
+        console.log(
+          `🔍 Checking if user ${telegramUserId} should be created as new user`
+        );
+
+        // Create new user with proper maxHP calculation - BUT LOG THIS CLEARLY
+        console.log(
+          `🆕 Creating NEW USER in MongoDB: ${telegramUserId} - HP will be set to FULL`
+        );
+        console.log(
+          `⚠️ WARNING: If this user already existed, their HP will be RESET to full!`
+        );
+
         const initialLevel = 1;
         const maxHP = getLevelHP(initialLevel);
         user = await db.createUser({
           telegramUserId: telegramUserId,
           level: initialLevel,
-          hp: maxHP,
+          hp: maxHP, // This will reset HP to full for new users
           maxHP: maxHP,
           ruby: 0,
           coins: 0,
@@ -598,7 +610,7 @@ async function getUserData(telegramUserId) {
           lastRecover: Date.now(),
           lastZeroHP: null,
         });
-        console.log(`✅ New user created successfully:`, user);
+        console.log(`✅ New user created successfully with FULL HP:`, user);
       } else {
         console.log(`✅ Existing user found in MongoDB:`, {
           telegramUserId: user.telegramUserId,
@@ -647,13 +659,18 @@ async function getUserData(telegramUserId) {
       console.log(`🔍 Using in-memory storage for user: ${telegramUserId}`);
       // Fallback to in-memory
       if (!gameDatabase.has(telegramUserId)) {
-        console.log(`🆕 Creating new user in memory: ${telegramUserId}`);
+        console.log(
+          `🆕 Creating NEW USER in memory: ${telegramUserId} - HP will be set to FULL`
+        );
+        console.log(
+          `⚠️ WARNING: If this user already existed, their HP will be RESET to full!`
+        );
         const initialLevel = 1;
         const maxHP = getLevelHP(initialLevel);
         gameDatabase.set(telegramUserId, {
           telegramUserId: telegramUserId,
           level: initialLevel,
-          hp: maxHP,
+          hp: maxHP, // This will reset HP to full for new users
           maxHP: maxHP,
           coinCount: 0,
           coinEarn: 0,
@@ -664,6 +681,7 @@ async function getUserData(telegramUserId) {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         });
+        console.log(`✅ New user created in memory with FULL HP`);
       } else {
         console.log(`✅ Existing user found in memory: ${telegramUserId}`);
         // Apply HP recovery for in-memory users too
@@ -696,13 +714,18 @@ async function getUserData(telegramUserId) {
 
     // Fallback to in-memory on error
     if (!gameDatabase.has(telegramUserId)) {
-      console.log(`🆘 Creating fallback user in memory: ${telegramUserId}`);
+      console.log(
+        `🆘 Creating FALLBACK USER in memory due to error: ${telegramUserId} - HP will be set to FULL`
+      );
+      console.log(
+        `⚠️ CRITICAL: This user's HP is being RESET to full due to database error!`
+      );
       const initialLevel = 1;
       const maxHP = getLevelHP(initialLevel);
       gameDatabase.set(telegramUserId, {
         telegramUserId: telegramUserId,
         level: initialLevel,
-        hp: maxHP,
+        hp: maxHP, // This will reset HP to full due to error
         maxHP: maxHP,
         coinCount: 0,
         coinEarn: 0,
@@ -713,6 +736,9 @@ async function getUserData(telegramUserId) {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
+      console.log(
+        `✅ Fallback user created in memory with FULL HP due to error`
+      );
     }
     return gameDatabase.get(telegramUserId);
   }
@@ -1282,7 +1308,7 @@ app.post("/api/sync/:telegramUserId", async (req, res) => {
     // Update user data with game state (including level up changes)
     const syncData = {
       level: finalLevel,
-      hp: gameState.hp !== undefined ? gameState.hp : 100,
+      hp: gameState.hp !== undefined ? gameState.hp : getLevelHP(finalLevel),
       coinCount: finalCoinCount,
       coinEarn: finalCoinEarn,
       smg: gameState.smg || 0, // Add SMG field

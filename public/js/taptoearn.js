@@ -222,10 +222,130 @@ function getDailyPointLimit(level) {
   return DAILY_POINT_LIMITS[level - 1] || 0;
 }
 
-// Số coin mỗi lần tap theo từng mốc level - SIMPLIFIED: Always 24 coins per tap
+// Số coin mỗi lần tap theo từng mốc level - DEPRECATED: Now using HP_LOSS_BY_LEVEL table
 const TAP_COIN_BY_LEVEL = [
-  { from: 1, to: 100, value: 24 }, // All levels give 24 coins per tap
+  { from: 1, to: 100, value: 24 }, // DEPRECATED: Coin rewards now match HP loss values
 ];
+
+// HP loss per tap by level
+const HP_LOSS_BY_LEVEL = [
+  // Level 1-10
+  24,
+  25,
+  26,
+  28,
+  29,
+  30,
+  31,
+  32,
+  34,
+  35,
+  // Level 11-20
+  41,
+  42,
+  43,
+  45,
+  46,
+  47,
+  49,
+  50,
+  51,
+  53,
+  // Level 21-30
+  62,
+  64,
+  65,
+  67,
+  68,
+  70,
+  71,
+  73,
+  74,
+  76,
+  // Level 31-40
+  88,
+  89,
+  91,
+  93,
+  95,
+  96,
+  98,
+  100,
+  102,
+  103,
+  // Level 41-49
+  117,
+  119,
+  121,
+  123,
+  125,
+  127,
+  129,
+  131,
+  133,
+  // Level 50 (Ruby level)
+  24, // Default to level 1 value for ruby level
+  // Level 51-60
+  83,
+  165,
+  167,
+  169,
+  172,
+  174,
+  176,
+  179,
+  181,
+  183,
+  // Level 61-70
+  216,
+  219,
+  221,
+  224,
+  227,
+  230,
+  232,
+  235,
+  238,
+  240,
+  // Level 71-100 (using progressive values)
+  250,
+  260,
+  270,
+  280,
+  0, // 71-75 (75 is ruby)
+  290,
+  300,
+  310,
+  320,
+  0, // 76-80 (80 is ruby)
+  330,
+  340,
+  350,
+  360,
+  0, // 81-85 (85 is ruby)
+  370,
+  380,
+  390,
+  400,
+  0, // 86-90 (90 is ruby)
+  410,
+  420,
+  430,
+  440,
+  0, // 91-95 (95 is ruby)
+  450,
+  460,
+  470,
+  0,
+  0, // 96-100 (99, 100 are ruby)
+];
+
+// Get HP loss for a specific level
+function getHPLoss(level) {
+  if (level <= 0 || level > HP_LOSS_BY_LEVEL.length) return 24; // Default
+  const hpLoss = HP_LOSS_BY_LEVEL[level - 1];
+  return hpLoss === 0 ? 24 : hpLoss; // Use default for ruby levels
+}
 
 // =====================
 // 2. Hàm tính toán các giá trị động
@@ -242,10 +362,10 @@ function getLevelHP(level) {
   return dailyLimit; // Return actual HP points, not divided by 24
 }
 
-// Tính số coin mỗi lần tap cho level hiện tại - SIMPLIFIED
+// Tính số coin mỗi lần tap cho level hiện tại - NEW: Use HP loss as coin reward
 function getTapCoin(level) {
-  // SIMPLIFIED: Always return 24 coins per tap regardless of level
-  return 24;
+  // NEW: Return HP loss value as coin reward
+  return getHPLoss(level);
 }
 
 // Tính % MT nâng cấp (upgrade multiplier) - SIMPLIFIED
@@ -450,31 +570,48 @@ function tap(event, multiplier = 1) {
     triggerBottomLayoutFlash();
   }
 
-  // NEW HP LOGIC: Always deduct 24 HP for normal taps, 72 HP for 3-finger taps
-  const oldHP = state.hp;
+  // Calculate HP loss and coins - NEW: Both use same base value from HP loss table
+  const baseValue = getHPLoss(state.level); // Base value from HP loss table
   let actualHPLoss;
   let tapCoin;
 
-  if (multiplier === 3) {
-    // 3-finger tap: 72 HP loss, 72 coins
-    actualHPLoss = 72;
-    tapCoin = 72;
-    console.log("3-finger tap detected - HP loss: 72, Coins: 72");
-  } else if (multiplier === 0.25) {
-    // Auto earn: 6 HP loss (24/4), 6 coins (24/4)
-    actualHPLoss = 6;
-    tapCoin = 6;
-    console.log("Auto earn tap - HP loss: 6, Coins: 6");
+  console.log("🔧 USING HP LOSS TABLE FOR BOTH HP AND COINS");
+  console.log("=== TAP CALCULATION DEBUG ===");
+  console.log("Level:", state.level);
+  console.log("baseValue (from HP loss table):", baseValue);
+  console.log("is3FingerTap:", multiplier === 3);
+  console.log("isAutoEarn:", multiplier === 0.25);
+  console.log("multiplier:", multiplier);
+
+  if (multiplier === 0.25) {
+    // Auto-earn case: base value / 4 for both HP and coins
+    actualHPLoss = Math.floor(baseValue / 4);
+    tapCoin = Math.floor(baseValue / 4);
+    console.log("Auto-earn - HP loss:", actualHPLoss, "Coins:", tapCoin);
+  } else if (multiplier === 3) {
+    // 3-finger tap: exactly 3x the base value for both HP and coins
+    actualHPLoss = Math.floor(baseValue * 3);
+    tapCoin = Math.floor(baseValue * 3);
+    console.log("3-finger tap - HP loss:", actualHPLoss, "Coins:", tapCoin);
   } else {
-    // Normal tap: 24 HP loss, 24 coins
-    actualHPLoss = 24;
-    tapCoin = 24;
-    console.log("Normal tap - HP loss: 24, Coins: 24");
+    // Normal tap: exactly equals base value for both HP and coins
+    actualHPLoss = baseValue;
+    tapCoin = baseValue;
+    console.log("Normal tap - HP loss:", actualHPLoss, "Coins:", tapCoin);
   }
 
+  // Apply HP loss
+  const oldHP = state.hp;
   state.hp -= actualHPLoss;
-  console.log("HP changed from", oldHP, "to", state.hp);
+  console.log(
+    "HP changed from",
+    oldHP,
+    "to",
+    state.hp,
+    "(-" + actualHPLoss + " HP)"
+  );
 
+  // Add coins
   console.log("Coin earned:", tapCoin);
   state.coinCount += tapCoin;
   console.log("Total ruby count:", state.coinCount);
