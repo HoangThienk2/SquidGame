@@ -2,20 +2,35 @@
 // HP Recovery Shared Logic
 // =====================
 
-// Get Telegram user ID
-let telegramUserId = null;
-if (window.Telegram && window.Telegram.WebApp) {
-  const user = window.Telegram.WebApp.initDataUnsafe?.user;
-  telegramUserId = user?.id?.toString() || `demo_${Date.now()}`;
-} else {
-  telegramUserId = `demo_${Date.now()}`;
-}
-
 // HP Recovery Function (shared across all pages)
 async function recoverHP() {
   try {
+    // Get telegramUserId from global scope (set by main page)
+    let currentTelegramUserId = null;
+
+    // Try to get from global variables
+    if (typeof telegramUserId !== "undefined" && telegramUserId) {
+      currentTelegramUserId = telegramUserId;
+    } else if (
+      typeof window.telegramUserId !== "undefined" &&
+      window.telegramUserId
+    ) {
+      currentTelegramUserId = window.telegramUserId;
+    } else {
+      // Fallback: try to get from Telegram WebApp
+      if (window.Telegram && window.Telegram.WebApp) {
+        const user = window.Telegram.WebApp.initDataUnsafe?.user;
+        currentTelegramUserId = user?.id?.toString();
+      }
+    }
+
+    if (!currentTelegramUserId) {
+      console.warn("⚠️ No telegramUserId available for HP recovery");
+      return;
+    }
+
     // Load current game state from server
-    const response = await fetch(`/api/user/${telegramUserId}`);
+    const response = await fetch(`/api/user/${currentTelegramUserId}`);
     if (!response.ok) {
       console.warn("⚠️ Failed to load game state for HP recovery");
       return;
@@ -70,21 +85,35 @@ async function recoverHP() {
         );
 
         // Sync HP recovery with server
-        const updateResponse = await fetch(`/api/user/${telegramUserId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            hp: newHP,
-            lastRecover: currentTime,
-          }),
-        });
+        const updateResponse = await fetch(
+          `/api/user/${currentTelegramUserId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              hp: newHP,
+              lastRecover: currentTime,
+            }),
+          }
+        );
 
         if (updateResponse.ok) {
           console.log(
             `💚 HP Recovery synced to server: ${oldHP} → ${newHP} (+${recoveryAmount})`
           );
+
+          // Update HP display on current page
+          updateHPDisplayAfterRecovery(newHP, serverData.level || 1);
+
+          // Also trigger fetchUserData if available to refresh all UI elements
+          if (typeof fetchUserData === "function") {
+            console.log(
+              "🔄 Triggering fetchUserData to refresh UI after HP recovery"
+            );
+            await fetchUserData();
+          }
         } else {
           console.warn("⚠️ Failed to sync HP recovery with server");
         }
@@ -229,10 +258,10 @@ function getLevelHP(level) {
 
 // Initialize HP recovery timer when script loads
 console.log("🛡️ HP Recovery Shared Logic initialized");
-console.log("⏰ Starting HP recovery timer (every minute)");
+console.log("⏰ Starting HP recovery timer (every 30 seconds)");
 
-// Start HP recovery interval
-setInterval(recoverHP, 60 * 1000); // Every minute
+// Start HP recovery interval - check every 30 seconds for faster response
+setInterval(recoverHP, 30 * 1000); // Every 30 seconds
 
 // Run initial recovery check
 setTimeout(recoverHP, 1000); // After 1 second to ensure page is loaded

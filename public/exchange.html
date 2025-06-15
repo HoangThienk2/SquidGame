@@ -650,8 +650,18 @@
       if (window.Telegram && window.Telegram.WebApp) {
         const tg = window.Telegram.WebApp;
 
-        // Disable close confirmation popup
-        tg.enableClosingConfirmation = false;
+        // Show Back Button as the main exit method
+        tg.disableClosingConfirmation();
+
+        // Show Back Button
+        if (tg.BackButton) {
+          tg.BackButton.show();
+          tg.BackButton.onClick(() => {
+            console.log("🔙 Back button clicked from Exchange page");
+            // Navigate back to main game
+            window.location.href = "index.html";
+          });
+        }
 
         // Set app as ready
         tg.ready();
@@ -659,9 +669,7 @@
         // Expand the app to full height
         tg.expand();
 
-        console.log(
-          "📱 Telegram WebApp configured - close confirmation disabled"
-        );
+        console.log("📱 Telegram WebApp configured - Back Button enabled");
       }
 
       // Get Telegram user ID (simplified - no localStorage)
@@ -1715,6 +1723,8 @@
 
     <!-- Auto Earn Shared Functionality -->
     <script src="js/auto-earn-shared.js"></script>
+    <!-- HP Recovery Shared Functionality -->
+    <script src="js/hp-recovery-shared.js"></script>
     <script>
       // Initialize auto earn when page loads
       document.addEventListener("DOMContentLoaded", function () {
@@ -1751,6 +1761,27 @@
             }
           });
         }
+
+        // Add periodic HP update - fetch fresh data every 15 seconds
+        let lastKnownHP = null;
+        setInterval(async function () {
+          console.log("🔄 Periodic HP update - fetching fresh user data");
+          const previousHP = currentUser ? currentUser.hp : null;
+          await fetchUserData();
+
+          // Log HP changes
+          if (
+            currentUser &&
+            previousHP !== null &&
+            currentUser.hp !== previousHP
+          ) {
+            console.log(
+              `💚 HP changed: ${previousHP} → ${currentUser.hp} (${
+                currentUser.hp > previousHP ? "+" : ""
+              }${currentUser.hp - previousHP})`
+            );
+          }
+        }, 15000); // Every 15 seconds
       });
 
       // Handle navigation actions

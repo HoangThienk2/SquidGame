@@ -112,13 +112,9 @@ window.addEventListener("load", function () {
     }
   });
 
-  if (tg.BackButton) {
-    tg.BackButton.show();
-    tg.BackButton.onClick(() => {
-      // Lưu trạng thái game trước khi đóng
-      const gameState = loadGameState();
-      saveScoreToTelegram(gameState.coinCount);
-      tg.close();
-    });
-  }
+  // Back Button is now handled in main initialization
+  // Remove duplicate setup to avoid conflicts
+  console.log(
+    "📱 Telegram integration loaded - Back Button handled in main init"
+  );
 });

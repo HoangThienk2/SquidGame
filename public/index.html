@@ -79,8 +79,22 @@
             // Expand the WebApp to full height
             window.telegramWebApp.expand();
             
-            // Enable closing confirmation
-            window.telegramWebApp.enableClosingConfirmation();
+            // Disable closing confirmation to make Back Button primary
+            window.telegramWebApp.disableClosingConfirmation();
+            
+            // Show Back Button as the main exit method
+            if (window.telegramWebApp.BackButton) {
+              window.telegramWebApp.BackButton.show();
+              window.telegramWebApp.BackButton.onClick(() => {
+                console.log("🔙 Back button clicked - saving game state");
+                // Save game state before closing
+                if (typeof saveGameState === 'function') {
+                  saveGameState();
+                }
+                // Close the app
+                window.telegramWebApp.close();
+              });
+            }
             
             // Set header color to match game theme
             window.telegramWebApp.setHeaderColor('#250a1f');
