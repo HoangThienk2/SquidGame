@@ -79,25 +79,45 @@
             // Expand the WebApp to full height
             window.telegramWebApp.expand();
             
-            // Disable closing confirmation to make Back Button primary
+            // Disable closing confirmation to allow back button to work
             window.telegramWebApp.disableClosingConfirmation();
+            
+            // Set header color to match game theme
+            window.telegramWebApp.setHeaderColor('#250a1f');
             
             // Show Back Button as the main exit method
             if (window.telegramWebApp.BackButton) {
               window.telegramWebApp.BackButton.show();
               window.telegramWebApp.BackButton.onClick(() => {
                 console.log("🔙 Back button clicked - saving game state");
-                // Save game state before closing
-                if (typeof saveGameState === 'function') {
-                  saveGameState();
+                
+                try {
+                  // Save current game state before closing
+                  if (window.currentGameState) {
+                    console.log("💾 Saving current game state:", window.currentGameState);
+                    
+                    // Sync to server immediately for critical save
+                    if (window.telegramUserId && typeof syncGameStateToServer === 'function') {
+                      syncGameStateToServer(window.currentGameState);
+                      console.log("🌐 Emergency sync to server completed");
+                    }
+                  } else {
+                    console.log("⚠️ No current game state to save");
+                  }
+                  
+                  // Close the app after a short delay to ensure save completes
+                  setTimeout(() => {
+                    console.log("🚪 Closing Telegram WebApp");
+                    window.telegramWebApp.close();
+                  }, 300);
+                  
+                } catch (error) {
+                  console.error("❌ Error during back button handling:", error);
+                  // Still try to close the app even if save fails
+                  window.telegramWebApp.close();
                 }
-                // Close the app
-                window.telegramWebApp.close();
               });
             }
-            
-            // Set header color to match game theme
-            window.telegramWebApp.setHeaderColor('#250a1f');
             
             // Mark as ready
             window.telegramWebAppReady = true;
@@ -106,6 +126,7 @@
             console.log("📱 WebApp version:", window.telegramWebApp.version);
             console.log("📱 Platform:", window.telegramWebApp.platform);
             console.log("📱 InitData available:", !!window.telegramWebApp.initData);
+            console.log("📱 Back Button configured:", !!window.telegramWebApp.BackButton);
             
             resolve(true);
           } else {
@@ -114,7 +135,7 @@
           }
         });
       }
-      
+
       // Initialize immediately if available, otherwise wait
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initializeTelegramWebApp);
@@ -2904,7 +2925,6 @@
 
         // Play coin sound effect
         playCoinSound();
-
         // Add coins directly to coinCount (ruby count)
         state.coinCount += tapCoin;
         
@@ -4035,9 +4055,11 @@
           }
         }
       });
+
     </script>
     
     <!-- Auto Earn Shared Functionality -->
     <script src="js/auto-earn-shared.js"></script>
   </body>
 </html>
+
